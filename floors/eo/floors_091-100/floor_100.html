@@ -1,0 +1,682 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Floor 100 — Eureka Orthos</title>
+  <style>
+  :root {
+    --bg:       #121212;
+    --surface:  #202020;
+    --surface2: #2a2a2a;
+    --bright:   rgba(255,255,255,0.87);
+    --normal:   rgba(255,255,255,0.60);
+    --dim:      rgba(255,255,255,0.38);
+    --accent:   #F5DA43;
+    --border:   #333333;
+    --warn-bg:  #1e1500;
+    --warn-bdr: #4a3800;
+    --warn-txt: #f0d080;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--normal); margin: 0; display: flex;
+  }
+  a { color: var(--bright); text-decoration: none; }
+  a:hover { color: var(--accent); text-decoration: underline; }
+  h1, h2, h3 { color: var(--bright); }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 260px; min-width: 260px;
+    background: var(--surface);
+    padding: 20px 16px;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    border-right: 1px solid var(--border);
+    font-size: 0.9em;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .home-link {
+    font-size: 1.05em; font-weight: 600; color: var(--bright) !important;
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px; border-radius: 6px;
+    background: var(--surface2);
+    transition: background 0.2s, color 0.2s;
+    margin-bottom: 12px;
+  }
+  .home-link:hover {
+    background: var(--accent); color: #121212 !important; text-decoration: none;
+  }
+  .sidebar details { margin: 0; }
+  .sidebar summary {
+    cursor: pointer; padding: 8px 12px; border-radius: 6px;
+    color: var(--bright); font-weight: 500; list-style: none;
+    display: flex; align-items: center; gap: 8px;
+    transition: background 0.2s;
+    user-select: none;
+  }
+  .sidebar summary:hover { background: var(--surface2); }
+  .sidebar summary::-webkit-details-marker { display: none; }
+  .sidebar summary::before {
+    content: '▶'; display: inline-block;
+    font-size: 0.65em; transition: transform 0.2s; color: var(--dim);
+    margin-right: 4px;
+  }
+  .sidebar details[open] > summary::before { transform: rotate(90deg); color: var(--accent); }
+  .dungeon-name { font-size: 0.95em; margin-top: 4px; }
+  .sets-list, .floors-list { list-style: none; padding: 4px 0 4px 24px; margin: 0; }
+  .floors-list { padding-left: 16px; border-left: 1px solid var(--border); margin-left: 12px; }
+  .set-summary { font-size: 0.9em; font-weight: 400; color: var(--normal); padding: 6px 12px; }
+  .sidebar li { margin: 2px 0; }
+  .sidebar a {
+    color: var(--normal); display: block; padding: 6px 12px; border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+  }
+  .sidebar a:hover { background: var(--surface2); color: var(--bright); text-decoration: none; }
+  .active-floor > a {
+    background: rgba(245, 218, 67, 0.1); color: var(--accent); font-weight: 600;
+    border-left: 3px solid var(--accent); padding-left: 9px;
+  }
+
+  /* ── Main content ── */
+  main { flex: 1; padding: 20px 30px; max-width: 1200px; }
+  .top-bar { margin-bottom: 16px; }
+  .home-text-link {
+    font-size: 0.9em; color: var(--dim); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .home-text-link:hover { color: var(--accent); }
+  .set-label { color: var(--dim); font-size: 0.88em; margin-bottom: 14px; }
+  .nav-links { display: flex; gap: 20px; margin-bottom: 20px; font-size: 0.95em; }
+
+  /* ── Enemy card ── */
+  .enemy-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px 20px; margin-bottom: 24px;
+    display: flex; gap: 24px; flex-wrap: wrap;
+  }
+  .e-img {
+    flex: 0 0 380px;
+    display: flex; align-items: flex-start; justify-content: center; padding-top: 4px;
+  }
+  .e-img img { max-width: 360px; max-height: 360px; object-fit: contain; border-radius: 4px; }
+  .e-body { flex: 1 1 300px; }
+  .e-body h2 {
+    margin: 0 0 10px; font-size: 1.2em;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    color: var(--bright);
+  }
+  .badge {
+    display: inline-block; font-size: 0.7em; font-weight: normal;
+    padding: 3px 10px; border-radius: 20px; background: #b85000; color: #fff;
+  }
+  .stats {
+    display: flex; flex-wrap: wrap; gap: 16px;
+    font-size: 0.95em; margin-bottom: 8px; align-items: center;
+  }
+  .stats span { display: flex; align-items: center; gap: 6px; }
+  .stats b { color: var(--bright); }
+  .aggro-text { font-style: italic; color: var(--normal); }
+  .vulns { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin: 8px 0; }
+  .vulns b { font-size: 0.9em; margin-right: 6px; color: var(--bright); }
+
+  .warnings {
+    background: var(--warn-bg); border: 1px solid var(--warn-bdr);
+    border-radius: 4px; padding: 6px 12px; margin: 8px 0; font-size: 0.9em;
+  }
+  .warnings b { color: var(--accent); display: block; margin-bottom: 4px; }
+  .w-item { display: inline-flex; align-items: center; gap: 5px; margin-right: 12px; color: var(--warn-txt); }
+  .w-item img { vertical-align: middle; flex-shrink: 0; }
+
+  hr.div { border: 0; border-top: 1px solid var(--border); margin: 12px 0; }
+
+  table.ab { border-collapse: collapse; width: 100%; font-size: 0.9em; margin-top: 8px; }
+  table.ab th {
+    text-align: left; border-bottom: 2px solid var(--border);
+    padding: 6px 10px; background: var(--surface2); color: var(--bright);
+  }
+  table.ab td { padding: 6px 10px; vertical-align: top; border-bottom: 1px solid var(--border); }
+  table.ab tr:last-child td { border-bottom: none; }
+
+  .notes { font-size: 0.9em; margin: 8px 0 0; }
+  .notes ul { margin: 4px 0; padding-left: 20px; }
+  .notes b { color: var(--bright); }
+
+  /* ── Boss card ── */
+  .boss-card {
+    background: #2a2010; border: 2px solid #b85000;
+    border-radius: 8px; padding: 20px; margin-bottom: 24px;
+  }
+  .boss-card > h2 { margin: 0 0 16px; color: var(--accent); font-size: 1.4em; }
+  .boss-layout { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 16px; }
+  .b-img { flex: 0 0 380px; text-align: center; }
+  .b-img img { max-width: 360px; max-height: 360px; object-fit: contain; border-radius: 4px; }
+  .b-body { flex: 1 1 300px; }
+  .job-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px; margin-top: 12px;
+  }
+  .job-tile {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 12px; font-size: 0.9em;
+  }
+  .job-tile .jname { font-weight: bold; margin-bottom: 6px; color: var(--accent); }
+  .job-tile ul { margin: 4px 0; padding-left: 18px; }
+  .job-tile .ktimes {
+    color: var(--normal); margin-top: 8px;
+    border-top: 1px solid var(--border); padding-top: 6px;
+  }
+
+  .no-data { color: var(--dim); font-style: italic; }
+
+  /* ── Mobile ── */
+  @media (max-width: 900px) {
+    body { flex-direction: column; }
+    .sidebar {
+      width: 100%; min-width: unset; height: auto;
+      max-height: 45vh; position: relative;
+      border-right: none; border-bottom: 1px solid var(--border);
+      padding: 10px 14px;
+    }
+    main { padding: 14px 16px; }
+    .e-img, .b-img {
+      flex: 0 0 100%; text-align: center; margin-bottom: 12px;
+    }
+    .e-img img, .b-img img { max-width: 100%; height: auto; }
+    table.ab { display: block; overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <a href="../../index.html" class="home-link">🏠 Home</a>
+  <details class="dungeon-details">
+    <summary class="dungeon-name">Palace of the Dead</summary>
+    <ul class="sets-list">
+      <li class="set-node"><a href="../../potd/floors_001-010/floor_1.html">1–10</a></li>
+      <li class="set-node"><a href="../../potd/floors_011-020/floor_11.html">11–20</a></li>
+      <li class="set-node"><a href="../../potd/floors_021-030/floor_21.html">21–30</a></li>
+      <li class="set-node"><a href="../../potd/floors_031-040/floor_31.html">31–40</a></li>
+      <li class="set-node"><a href="../../potd/floors_041-050/floor_41.html">41–50</a></li>
+      <li class="set-node"><a href="../../potd/floors_051-060/floor_51.html">51–60</a></li>
+      <li class="set-node"><a href="../../potd/floors_061-070/floor_61.html">61–70</a></li>
+      <li class="set-node"><a href="../../potd/floors_071-080/floor_71.html">71–80</a></li>
+      <li class="set-node"><a href="../../potd/floors_081-090/floor_81.html">81–90</a></li>
+      <li class="set-node"><a href="../../potd/floors_091-100/floor_91.html">91–100</a></li>
+      <li class="set-node"><a href="../../potd/floors_101-110/floor_101.html">101–110</a></li>
+      <li class="set-node"><a href="../../potd/floors_111-120/floor_111.html">111–120</a></li>
+      <li class="set-node"><a href="../../potd/floors_121-130/floor_121.html">121–130</a></li>
+      <li class="set-node"><a href="../../potd/floors_131-140/floor_131.html">131–140</a></li>
+      <li class="set-node"><a href="../../potd/floors_141-150/floor_141.html">141–150</a></li>
+      <li class="set-node"><a href="../../potd/floors_151-160/floor_151.html">151–160</a></li>
+      <li class="set-node"><a href="../../potd/floors_161-170/floor_161.html">161–170</a></li>
+      <li class="set-node"><a href="../../potd/floors_171-180/floor_171.html">171–180</a></li>
+      <li class="set-node"><a href="../../potd/floors_181-190/floor_181.html">181–190</a></li>
+      <li class="set-node"><a href="../../potd/floors_191-200/floor_191.html">191–200</a></li>
+    </ul>
+  </details>
+  <details class="dungeon-details">
+    <summary class="dungeon-name">Heaven-on-High</summary>
+    <ul class="sets-list">
+      <li class="set-node"><a href="../../hoh/floors_001-010/floor_1.html">1–10</a></li>
+      <li class="set-node"><a href="../../hoh/floors_011-020/floor_11.html">11–20</a></li>
+      <li class="set-node"><a href="../../hoh/floors_021-030/floor_21.html">21–30</a></li>
+      <li class="set-node"><a href="../../hoh/floors_031-040/floor_31.html">31–40</a></li>
+      <li class="set-node"><a href="../../hoh/floors_041-050/floor_41.html">41–50</a></li>
+      <li class="set-node"><a href="../../hoh/floors_051-060/floor_51.html">51–60</a></li>
+      <li class="set-node"><a href="../../hoh/floors_061-070/floor_61.html">61–70</a></li>
+      <li class="set-node"><a href="../../hoh/floors_071-080/floor_71.html">71–80</a></li>
+      <li class="set-node"><a href="../../hoh/floors_081-090/floor_81.html">81–90</a></li>
+      <li class="set-node"><a href="../../hoh/floors_091-100/floor_91.html">91–100</a></li>
+    </ul>
+  </details>
+  <details class="dungeon-details" open>
+    <summary class="dungeon-name">Eureka Orthos</summary>
+    <ul class="sets-list">
+      <li class="set-node"><a href="../floors_001-010/floor_1.html">1–10</a></li>
+      <li class="set-node"><a href="../floors_011-020/floor_11.html">11–20</a></li>
+      <li class="set-node"><a href="../floors_021-030/floor_21.html">21–30</a></li>
+      <li class="set-node"><a href="../floors_031-040/floor_31.html">31–40</a></li>
+      <li class="set-node"><a href="../floors_041-050/floor_41.html">41–50</a></li>
+      <li class="set-node"><a href="../floors_051-060/floor_51.html">51–60</a></li>
+      <li class="set-node"><a href="../floors_061-070/floor_61.html">61–70</a></li>
+      <li class="set-node"><a href="../floors_071-080/floor_71.html">71–80</a></li>
+      <li class="set-node"><a href="../floors_081-090/floor_81.html">81–90</a></li>
+      <li class="set-node active-set">
+        <details open><summary class="set-summary">
+          91–100</summary><ul class="floors-list">
+          <li><a href="floor_91.html">Floor 91</a></li>
+          <li><a href="floor_92.html">Floor 92</a></li>
+          <li><a href="floor_93.html">Floor 93</a></li>
+          <li><a href="floor_94.html">Floor 94</a></li>
+          <li><a href="floor_95.html">Floor 95</a></li>
+          <li><a href="floor_96.html">Floor 96</a></li>
+          <li><a href="floor_97.html">Floor 97</a></li>
+          <li><a href="floor_98.html">Floor 98</a></li>
+          <li><a href="floor_99.html">Floor 99</a></li>
+          <li class="active-floor"><a href="floor_100.html">Floor 100 ☠</a></li>
+        </ul></details>
+      </li>
+    </ul>
+  </details>
+  <details class="dungeon-details">
+    <summary class="dungeon-name">Pagos Tunnels</summary>
+    <ul class="sets-list">
+      <li class="set-node"><a href="../../pt/floors_001-010/floor_1.html">1–10</a></li>
+      <li class="set-node"><a href="../../pt/floors_011-020/floor_11.html">11–20</a></li>
+      <li class="set-node"><a href="../../pt/floors_021-030/floor_21.html">21–30</a></li>
+      <li class="set-node"><a href="../../pt/floors_031-040/floor_31.html">31–40</a></li>
+      <li class="set-node"><a href="../../pt/floors_041-050/floor_41.html">41–50</a></li>
+      <li class="set-node"><a href="../../pt/floors_051-060/floor_51.html">51–60</a></li>
+      <li class="set-node"><a href="../../pt/floors_061-070/floor_61.html">61–70</a></li>
+      <li class="set-node"><a href="../../pt/floors_071-080/floor_71.html">71–80</a></li>
+      <li class="set-node"><a href="../../pt/floors_081-090/floor_81.html">81–90</a></li>
+      <li class="set-node"><a href="../../pt/floors_091-100/floor_91.html">91–100</a></li>
+    </ul>
+  </details>
+</nav>
+<main>
+  <div class="top-bar"><a href="../../index.html" class="home-text-link">🏠 Back to Home</a></div>
+  <h1>Floor 100 <span style="color:var(--accent);font-size:.7em">(Boss)</span></h1>
+  <div class="set-label">Eureka Orthos &bull; Floors 91–100</div>
+  <div class="nav-links"><a href="floor_99.html">← Floor 99</a></div>
+
+<div class="boss-card">
+  <h2>Boss: Excalibur</h2>
+  <div class="boss-layout">
+    <div class="b-img"><img src="../../assets/eo_091-100_excalibur.png" alt="Excalibur"></div>
+    <div class="b-body"><div class="attributeList">
+<div>
+<label>HP:
+          <span>8380000 (approx.)</span>
+</label>
+</div>
+<div>
+<label>Auto-attack:
+          
+
+
+  <img alt="Physical damage" class="verticalCenter" height="17" src="../../assets/eo_091-100_physical.png" title="Physical damage" width="17"/>
+
+9359
+
+        </label>
+</div>
+</div><hr class="div"><table class="ab">
+<thead>
+<tr>
+<th class="align-left">Ability</th><th>Potency</th><th class="align-left">Effect</th>
+</tr>
+</thead>
+<tr>
+<td class="abilityCell">
+<strong>Paradoxum</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/eo_091-100_magic.png" title="Magic damage" width="17"/>
+
+400
+
+        </td>
+<td>roomwide AoE; grants Soul of Ice or Soul of Fire to each player; if there are Caliburni swords, this imbues one set with fire, and another with ice</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Caliburni</strong>
+</td>
+<td class="align-center">
+          
+
+
+?
+
+        </td>
+<td>telegraphed line AoEs leaving swords that persist outside the arena. After a short time, the swords shoot back across</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Thermal Divide</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/eo_091-100_magic.png" title="Magic damage" width="17"/>
+
+450
+
+        </td>
+<td>Line and roomwide AoE; One side of the arena will be hit with fire, the other with ice. Stand OUTSIDE of the line telegraph, and on the side opposite of the buff you have. This will change your buff.</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Call Dimension Blade</strong>
+</td>
+<td class="align-center">
+          
+
+
+n/a
+
+        </td>
+<td>Setup cast - nothing actually happens</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Solid Souls' Caliber</strong>
+</td>
+<td class="align-center">
+<img alt="Physical damage" class="verticalCenter" height="17" src="../../assets/eo_091-100_physical.png" title="Physical damage" width="17"/>
+
+2000
+
+        </td>
+<td>pointblank AoE with late telegraph - get out; followed by arc or conal AoEs</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Empty Souls' Caliber</strong>
+</td>
+<td class="align-center">
+<img alt="Physical damage" class="verticalCenter" height="17" src="../../assets/eo_091-100_physical.png" title="Physical damage" width="17"/>
+
+2000
+
+        </td>
+<td>donut AoE with late telegraph - get in; followed by arc or conal AoEs</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Vacuum Slash</strong>
+</td>
+<td class="align-center">
+<img alt="Physical damage" class="verticalCenter" height="17" src="../../assets/eo_091-100_physical.png" title="Physical damage" width="17"/>
+
+2000
+
+        </td>
+<td>conal AoEs with Solid/Empty Souls' Caliber</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Frostforge</strong>
+</td>
+<td class="align-center">
+          
+
+
+n/a
+
+        </td>
+<td>indicates Frost's Revelation will happen after next Souls' Caliber, so you'll need to get the fire buff</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Flameforge</strong>
+</td>
+<td class="align-center">
+          
+
+
+n/a
+
+        </td>
+<td>indicates Flame's Revelation will happen after next Souls' Caliber, so you'll need to get the ice buff</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Frost's Revelation</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/eo_091-100_magic.png" title="Magic damage" width="17"/>
+
+250
+
+        </td>
+<td>roomwide ice-aspected AoE - must have fire buff; switches your buff to ice</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Flames' Revelation</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/eo_091-100_magic.png" title="Magic damage" width="17"/>
+
+250
+
+        </td>
+<td>roomwide fire-aspected AoE - must have ice buff; switches your buff to fire</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Exglacialis</strong>
+</td>
+<td class="align-center">
+          
+
+
+?
+
+        </td>
+<td>spawns 2 sets of 3 circle AoEs that turn into star AoEs. Outside the center ring of the arena, there is a pattern with 8 points. Each of these points is a safe spot for all possible patterns</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Exflammeus</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/eo_091-100_magic.png" title="Magic damage" width="17"/>
+
+400
+
+        </td>
+<td>spawns a series of circles that grow and explode; you can run clockwise around the boss's hitbox to avoid them</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Steelstrike (sword adds)</strong>
+</td>
+<td class="align-center">
+<img alt="Physical damage" class="verticalCenter" height="17" src="../../assets/eo_091-100_physical.png" title="Physical damage" width="17"/>
+
+800
+
+        </td>
+<td>return attack from Caliburni swords (no element)</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Steel Flame (sword adds)</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/eo_091-100_magic.png" title="Magic damage" width="17"/>
+
+250
+
+        </td>
+<td>return attack from Caliburni swords (fire element)</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Steel Frost (sword adds)</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/eo_091-100_magic.png" title="Magic damage" width="17"/>
+
+250
+
+        </td>
+<td>return attack from Caliburni swords (ice element)</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Ice Bloom (star AoEs)</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/eo_091-100_magic.png" title="Magic damage" width="17"/>
+
+250
+
+        </td>
+<td>line AoEs from Exglacialis stars</td>
+</tr>
+</table><div class="notes"><b>Notes:</b><ul>
+<li>
+        
+          Opening sequence:
+        
+        
+        
+        
+          
+  <ul>
+<li>
+        
+          Paradoxum
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Caliburni - one set of blades
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Thermal Divide
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Blades from Caliburni fire back across the arena
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Call Dimensional Blade
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Solid OR Empty Souls' Caliber
+        
+        
+        
+        
+      </li>
+</ul>
+</li>
+<li>
+        
+          Rotation after opening (1m20s per cycle):
+        
+        
+        
+        
+          
+  <ul>
+<li>
+        
+          Caliburni - 3 sets of blades
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Paradoxum - one set of blades turns to fire, and another to ice
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Frostforge OR Flameforge - you'll need to make sure your buff is opposite of this
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Blades from Caliburni fire back across the arena. If you have the same element as the boss prepared, make sure to get hit by an opposite element blade
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Solid OR Empty Souls' Caliber
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Frost's OR Flame's Revelation, depending on which was prepared
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Exglacialis OR Exflammeus
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Thermal Divide
+        
+        
+        
+        
+      </li>
+</ul>
+</li>
+<li>
+        
+          Soul of Fire/Ice increases damage from the same element to 10x normal, so everything becomes a one-shot
+        
+        
+        
+        
+      </li>
+<li>
+        
+          An onion knight demiclone will defeat the boss in about 10m with no player assistance
+        
+        
+        
+        
+      </li>
+</ul></div></div>
+  </div>
+  <h3 style="margin:14px 0 8px">Job Notes &amp; Kill Times</h3><div class="job-grid"><div class="job-tile"><div class="jname">AST</div><div class="ktimes"><b>Kill times:</b><ul><li>6m30s with strength, Onion Knight, 1 grade 8 tincture, and 1 dread (4 vuln stacks)</li></ul></div></div><div class="job-tile"><div class="jname">MCH</div><div class="ktimes"><b>Kill times:</b><ul><li>5m45s with strength and Onion Knight (6.45)</li></ul></div></div><div class="job-tile"><div class="jname">SGE</div><div class="ktimes"><b>Kill times:</b><ul><li>7m15s with Onion Knight (7.3)</li><li>6m45s with strength and Onion Knight (6.35)</li></ul></div></div><div class="job-tile"><div class="jname">SMN</div><div class="ktimes"><b>Kill times:</b><ul><li>17m45s with no offensive pomanders (6.35)</li><li>8m30s with 1 strength, 1 dread, and Unei (6.35)</li><li>6m45s with Onion Knight (6.35)</li></ul></div></div><div class="job-tile"><div class="jname">WAR</div><div class="ktimes"><b>Kill times:</b><ul><li>7m15s with strength and Onion Knight (6.35)</li></ul></div></div></div>
+</div>
+</main>
+</body>
+</html>

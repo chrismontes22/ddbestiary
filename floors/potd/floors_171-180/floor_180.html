@@ -1,0 +1,557 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Floor 180 — Palace of the Dead</title>
+  <style>
+  :root {
+    --bg:       #121212;
+    --surface:  #202020;
+    --surface2: #2a2a2a;
+    --bright:   rgba(255,255,255,0.87);
+    --normal:   rgba(255,255,255,0.60);
+    --dim:      rgba(255,255,255,0.38);
+    --accent:   #F5DA43;
+    --border:   #333333;
+    --warn-bg:  #1e1500;
+    --warn-bdr: #4a3800;
+    --warn-txt: #f0d080;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--normal); margin: 0; display: flex;
+  }
+  a { color: var(--bright); text-decoration: none; }
+  a:hover { color: var(--accent); text-decoration: underline; }
+  h1, h2, h3 { color: var(--bright); }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 260px; min-width: 260px;
+    background: var(--surface);
+    padding: 20px 16px;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    border-right: 1px solid var(--border);
+    font-size: 0.9em;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .home-link {
+    font-size: 1.05em; font-weight: 600; color: var(--bright) !important;
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px; border-radius: 6px;
+    background: var(--surface2);
+    transition: background 0.2s, color 0.2s;
+    margin-bottom: 12px;
+  }
+  .home-link:hover {
+    background: var(--accent); color: #121212 !important; text-decoration: none;
+  }
+  .sidebar details { margin: 0; }
+  .sidebar summary {
+    cursor: pointer; padding: 8px 12px; border-radius: 6px;
+    color: var(--bright); font-weight: 500; list-style: none;
+    display: flex; align-items: center; gap: 8px;
+    transition: background 0.2s;
+    user-select: none;
+  }
+  .sidebar summary:hover { background: var(--surface2); }
+  .sidebar summary::-webkit-details-marker { display: none; }
+  .sidebar summary::before {
+    content: '▶'; display: inline-block;
+    font-size: 0.65em; transition: transform 0.2s; color: var(--dim);
+    margin-right: 4px;
+  }
+  .sidebar details[open] > summary::before { transform: rotate(90deg); color: var(--accent); }
+  .dungeon-name { font-size: 0.95em; margin-top: 4px; }
+  .sets-list, .floors-list { list-style: none; padding: 4px 0 4px 24px; margin: 0; }
+  .floors-list { padding-left: 16px; border-left: 1px solid var(--border); margin-left: 12px; }
+  .set-summary { font-size: 0.9em; font-weight: 400; color: var(--normal); padding: 6px 12px; }
+  .sidebar li { margin: 2px 0; }
+  .sidebar a {
+    color: var(--normal); display: block; padding: 6px 12px; border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+  }
+  .sidebar a:hover { background: var(--surface2); color: var(--bright); text-decoration: none; }
+  .active-floor > a {
+    background: rgba(245, 218, 67, 0.1); color: var(--accent); font-weight: 600;
+    border-left: 3px solid var(--accent); padding-left: 9px;
+  }
+
+  /* ── Main content ── */
+  main { flex: 1; padding: 20px 30px; max-width: 1200px; }
+  .top-bar { margin-bottom: 16px; }
+  .home-text-link {
+    font-size: 0.9em; color: var(--dim); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .home-text-link:hover { color: var(--accent); }
+  .set-label { color: var(--dim); font-size: 0.88em; margin-bottom: 14px; }
+  .nav-links { display: flex; gap: 20px; margin-bottom: 20px; font-size: 0.95em; }
+
+  /* ── Enemy card ── */
+  .enemy-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px 20px; margin-bottom: 24px;
+    display: flex; gap: 24px; flex-wrap: wrap;
+  }
+  .e-img {
+    flex: 0 0 380px;
+    display: flex; align-items: flex-start; justify-content: center; padding-top: 4px;
+  }
+  .e-img img { max-width: 360px; max-height: 360px; object-fit: contain; border-radius: 4px; }
+  .e-body { flex: 1 1 300px; }
+  .e-body h2 {
+    margin: 0 0 10px; font-size: 1.2em;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    color: var(--bright);
+  }
+  .badge {
+    display: inline-block; font-size: 0.7em; font-weight: normal;
+    padding: 3px 10px; border-radius: 20px; background: #b85000; color: #fff;
+  }
+  .stats {
+    display: flex; flex-wrap: wrap; gap: 16px;
+    font-size: 0.95em; margin-bottom: 8px; align-items: center;
+  }
+  .stats span { display: flex; align-items: center; gap: 6px; }
+  .stats b { color: var(--bright); }
+  .aggro-text { font-style: italic; color: var(--normal); }
+  .vulns { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin: 8px 0; }
+  .vulns b { font-size: 0.9em; margin-right: 6px; color: var(--bright); }
+
+  .warnings {
+    background: var(--warn-bg); border: 1px solid var(--warn-bdr);
+    border-radius: 4px; padding: 6px 12px; margin: 8px 0; font-size: 0.9em;
+  }
+  .warnings b { color: var(--accent); display: block; margin-bottom: 4px; }
+  .w-item { display: inline-flex; align-items: center; gap: 5px; margin-right: 12px; color: var(--warn-txt); }
+  .w-item img { vertical-align: middle; flex-shrink: 0; }
+
+  hr.div { border: 0; border-top: 1px solid var(--border); margin: 12px 0; }
+
+  table.ab { border-collapse: collapse; width: 100%; font-size: 0.9em; margin-top: 8px; }
+  table.ab th {
+    text-align: left; border-bottom: 2px solid var(--border);
+    padding: 6px 10px; background: var(--surface2); color: var(--bright);
+  }
+  table.ab td { padding: 6px 10px; vertical-align: top; border-bottom: 1px solid var(--border); }
+  table.ab tr:last-child td { border-bottom: none; }
+
+  .notes { font-size: 0.9em; margin: 8px 0 0; }
+  .notes ul { margin: 4px 0; padding-left: 20px; }
+  .notes b { color: var(--bright); }
+
+  /* ── Boss card ── */
+  .boss-card {
+    background: #2a2010; border: 2px solid #b85000;
+    border-radius: 8px; padding: 20px; margin-bottom: 24px;
+  }
+  .boss-card > h2 { margin: 0 0 16px; color: var(--accent); font-size: 1.4em; }
+  .boss-layout { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 16px; }
+  .b-img { flex: 0 0 380px; text-align: center; }
+  .b-img img { max-width: 360px; max-height: 360px; object-fit: contain; border-radius: 4px; }
+  .b-body { flex: 1 1 300px; }
+  .job-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px; margin-top: 12px;
+  }
+  .job-tile {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 12px; font-size: 0.9em;
+  }
+  .job-tile .jname { font-weight: bold; margin-bottom: 6px; color: var(--accent); }
+  .job-tile ul { margin: 4px 0; padding-left: 18px; }
+  .job-tile .ktimes {
+    color: var(--normal); margin-top: 8px;
+    border-top: 1px solid var(--border); padding-top: 6px;
+  }
+
+  .no-data { color: var(--dim); font-style: italic; }
+
+  /* ── Mobile ── */
+  @media (max-width: 900px) {
+    body { flex-direction: column; }
+    .sidebar {
+      width: 100%; min-width: unset; height: auto;
+      max-height: 45vh; position: relative;
+      border-right: none; border-bottom: 1px solid var(--border);
+      padding: 10px 14px;
+    }
+    main { padding: 14px 16px; }
+    .e-img, .b-img {
+      flex: 0 0 100%; text-align: center; margin-bottom: 12px;
+    }
+    .e-img img, .b-img img { max-width: 100%; height: auto; }
+    table.ab { display: block; overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <a href="../../index.html" class="home-link">🏠 Home</a>
+  <details class="dungeon-details" open>
+    <summary class="dungeon-name">Palace of the Dead</summary>
+    <ul class="sets-list">
+      <li class="set-node"><a href="../floors_001-010/floor_1.html">1–10</a></li>
+      <li class="set-node"><a href="../floors_011-020/floor_11.html">11–20</a></li>
+      <li class="set-node"><a href="../floors_021-030/floor_21.html">21–30</a></li>
+      <li class="set-node"><a href="../floors_031-040/floor_31.html">31–40</a></li>
+      <li class="set-node"><a href="../floors_041-050/floor_41.html">41–50</a></li>
+      <li class="set-node"><a href="../floors_051-060/floor_51.html">51–60</a></li>
+      <li class="set-node"><a href="../floors_061-070/floor_61.html">61–70</a></li>
+      <li class="set-node"><a href="../floors_071-080/floor_71.html">71–80</a></li>
+      <li class="set-node"><a href="../floors_081-090/floor_81.html">81–90</a></li>
+      <li class="set-node"><a href="../floors_091-100/floor_91.html">91–100</a></li>
+      <li class="set-node"><a href="../floors_101-110/floor_101.html">101–110</a></li>
+      <li class="set-node"><a href="../floors_111-120/floor_111.html">111–120</a></li>
+      <li class="set-node"><a href="../floors_121-130/floor_121.html">121–130</a></li>
+      <li class="set-node"><a href="../floors_131-140/floor_131.html">131–140</a></li>
+      <li class="set-node"><a href="../floors_141-150/floor_141.html">141–150</a></li>
+      <li class="set-node"><a href="../floors_151-160/floor_151.html">151–160</a></li>
+      <li class="set-node"><a href="../floors_161-170/floor_161.html">161–170</a></li>
+      <li class="set-node active-set">
+        <details open><summary class="set-summary">
+          171–180</summary><ul class="floors-list">
+          <li><a href="floor_171.html">Floor 171</a></li>
+          <li><a href="floor_172.html">Floor 172</a></li>
+          <li><a href="floor_173.html">Floor 173</a></li>
+          <li><a href="floor_174.html">Floor 174</a></li>
+          <li><a href="floor_175.html">Floor 175</a></li>
+          <li><a href="floor_176.html">Floor 176</a></li>
+          <li><a href="floor_177.html">Floor 177</a></li>
+          <li><a href="floor_178.html">Floor 178</a></li>
+          <li><a href="floor_179.html">Floor 179</a></li>
+          <li class="active-floor"><a href="floor_180.html">Floor 180 ☠</a></li>
+        </ul></details>
+      </li>
+      <li class="set-node"><a href="../floors_181-190/floor_181.html">181–190</a></li>
+      <li class="set-node"><a href="../floors_191-200/floor_191.html">191–200</a></li>
+    </ul>
+  </details>
+  <details class="dungeon-details">
+    <summary class="dungeon-name">Heaven-on-High</summary>
+    <ul class="sets-list">
+      <li class="set-node"><a href="../../hoh/floors_001-010/floor_1.html">1–10</a></li>
+      <li class="set-node"><a href="../../hoh/floors_011-020/floor_11.html">11–20</a></li>
+      <li class="set-node"><a href="../../hoh/floors_021-030/floor_21.html">21–30</a></li>
+      <li class="set-node"><a href="../../hoh/floors_031-040/floor_31.html">31–40</a></li>
+      <li class="set-node"><a href="../../hoh/floors_041-050/floor_41.html">41–50</a></li>
+      <li class="set-node"><a href="../../hoh/floors_051-060/floor_51.html">51–60</a></li>
+      <li class="set-node"><a href="../../hoh/floors_061-070/floor_61.html">61–70</a></li>
+      <li class="set-node"><a href="../../hoh/floors_071-080/floor_71.html">71–80</a></li>
+      <li class="set-node"><a href="../../hoh/floors_081-090/floor_81.html">81–90</a></li>
+      <li class="set-node"><a href="../../hoh/floors_091-100/floor_91.html">91–100</a></li>
+    </ul>
+  </details>
+  <details class="dungeon-details">
+    <summary class="dungeon-name">Eureka Orthos</summary>
+    <ul class="sets-list">
+      <li class="set-node"><a href="../../eo/floors_001-010/floor_1.html">1–10</a></li>
+      <li class="set-node"><a href="../../eo/floors_011-020/floor_11.html">11–20</a></li>
+      <li class="set-node"><a href="../../eo/floors_021-030/floor_21.html">21–30</a></li>
+      <li class="set-node"><a href="../../eo/floors_031-040/floor_31.html">31–40</a></li>
+      <li class="set-node"><a href="../../eo/floors_041-050/floor_41.html">41–50</a></li>
+      <li class="set-node"><a href="../../eo/floors_051-060/floor_51.html">51–60</a></li>
+      <li class="set-node"><a href="../../eo/floors_061-070/floor_61.html">61–70</a></li>
+      <li class="set-node"><a href="../../eo/floors_071-080/floor_71.html">71–80</a></li>
+      <li class="set-node"><a href="../../eo/floors_081-090/floor_81.html">81–90</a></li>
+      <li class="set-node"><a href="../../eo/floors_091-100/floor_91.html">91–100</a></li>
+    </ul>
+  </details>
+  <details class="dungeon-details">
+    <summary class="dungeon-name">Pagos Tunnels</summary>
+    <ul class="sets-list">
+      <li class="set-node"><a href="../../pt/floors_001-010/floor_1.html">1–10</a></li>
+      <li class="set-node"><a href="../../pt/floors_011-020/floor_11.html">11–20</a></li>
+      <li class="set-node"><a href="../../pt/floors_021-030/floor_21.html">21–30</a></li>
+      <li class="set-node"><a href="../../pt/floors_031-040/floor_31.html">31–40</a></li>
+      <li class="set-node"><a href="../../pt/floors_041-050/floor_41.html">41–50</a></li>
+      <li class="set-node"><a href="../../pt/floors_051-060/floor_51.html">51–60</a></li>
+      <li class="set-node"><a href="../../pt/floors_061-070/floor_61.html">61–70</a></li>
+      <li class="set-node"><a href="../../pt/floors_071-080/floor_71.html">71–80</a></li>
+      <li class="set-node"><a href="../../pt/floors_081-090/floor_81.html">81–90</a></li>
+      <li class="set-node"><a href="../../pt/floors_091-100/floor_91.html">91–100</a></li>
+    </ul>
+  </details>
+</nav>
+<main>
+  <div class="top-bar"><a href="../../index.html" class="home-text-link">🏠 Back to Home</a></div>
+  <h1>Floor 180 <span style="color:var(--accent);font-size:.7em">(Boss)</span></h1>
+  <div class="set-label">Palace of the Dead &bull; Floors 171–180</div>
+  <div class="nav-links"><a href="floor_179.html">← Floor 179</a><a href="../floors_181-190/floor_181.html">Floor 181 →</a></div>
+
+<div class="boss-card">
+  <h2>Boss: Dendainsonne</h2>
+  <div class="boss-layout">
+    <div class="b-img"><img src="../../assets/potd_171-180_dendainsonne.png" alt="Dendainsonne"></div>
+    <div class="b-body"><div class="attributeList">
+<div>
+<label>HP:
+          <span>373545</span>
+</label>
+</div>
+<div>
+<label>Auto-attack:
+          
+
+
+3268
+
+        </label>
+</div>
+</div><hr class="div"><table class="ab">
+<thead>
+<tr>
+<th class="align-left">Ability</th><th>Potency</th><th class="align-left">Effect</th>
+</tr>
+</thead>
+<tr>
+<td class="abilityCell">
+<strong>Thunderbolt</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/potd_171-180_magic.png" title="Magic damage" width="17"/>
+
+300
+
+        </td>
+<td>telegraphed conal AoE</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Charybdis</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/potd_171-180_magic.png" title="Magic damage" width="17"/>
+
+300?
+
+        </td>
+<td>telegraphed circle AoE on random player that leaves behind a tornado</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Trounce</strong>
+</td>
+<td class="align-center">
+<img alt="Physical damage" class="verticalCenter" height="17" src="../../assets/potd_171-180_physical.png" title="Physical damage" width="17"/>
+
+350?
+
+        </td>
+<td>large telegraphed conal AoE</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Ecliptic Meteor</strong>
+</td>
+<td class="align-center">
+<img alt="Unique damage" class="verticalCenter" height="17" src="../../assets/potd_171-180_unique.png" title="Unique damage" width="17"/>
+
+80% of max HP
+
+        </td>
+<td>roomwide AoE; medium cast time</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Maelstrom (tornado)</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/potd_171-180_magic.png" title="Magic damage" width="17"/>
+
+130?
+
+        </td>
+<td>telegraphed circle AoE of double the tornado's size that draws players in</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Charybdis (tornado)</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/potd_171-180_magic.png" title="Magic damage" width="17"/>
+
+500?
+
+        </td>
+<td>used periodically against players inside the tornado</td>
+</tr>
+</table><div class="notes"><b>Notes:</b><ul>
+<li>
+        
+          Rotation:
+        
+        
+        
+        
+          
+  <ul>
+<li>
+        
+          Thunderbolt
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Charybdis (x2)
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Thunderbolt
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Trounce; runs to the south end of the arena to cast this
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Charybdis (x2)
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Thunderbolt
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Charybdis
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Trounce again, but from the north end
+        
+        
+        
+        
+      </li>
+</ul>
+</li>
+<li>
+        
+          Enters enrage mode at 15% - stands up and casts Ecliptic Meteor, dealing 80% max HP damage to everyone in the party. Continues to cast this over and over until the fight ends
+        
+        
+        
+        
+      </li>
+<li>
+        
+          If you are standing in front of him during meteors, he can also autoattack you (so don't do that!)
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Most jobs require a very strict strategy to get through this final push. See the job-specific notes below
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Useful macros:
+        
+        
+        
+        
+          
+  <ul>
+<li>
+        
+          Cancel Lust: /statusoff "Transfiguration"
+        
+        
+        
+        
+          
+  <ul>
+<li>
+        
+          Useful if you have trouble clicking it off quickly
+        
+        
+        
+        
+      </li>
+</ul>
+</li>
+<li>
+        
+          Cancel food: /statusoff "Well Fed"
+        
+        
+        
+        
+          
+  <ul>
+<li>
+        
+          Again useful if you have trouble cancelling it quickly otherwise
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Cancelling food is useful during enrage if you're healing through it because Meteors do damage based on your max HP. Lower max HP means less damage taken, which means less damage to heal
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Cancelling your food when not at full HP also acts like a pseudo heal since it lowers your max HP, which actually raises your current HP%
+        
+        
+        
+        
+      </li>
+</ul>
+</li>
+</ul>
+</li>
+</ul></div></div>
+  </div>
+  <h3 style="margin:14px 0 8px">Job Notes &amp; Kill Times</h3><div class="job-grid"><div class="job-tile"><div class="jname">BRD</div><ul><li>Steel required</li><li>Strength required for the final push, so you may as well have it up the entire fight!</li><li>Resolution strategy:Slowly drag him clockwise around the arena, moving a bit each time he uses an ability so you're at the end he's going to Trounce from. This makes Trounce easy to avoid, and tornados are gone before you complete a lapPop lust at 22-23%. Get 5 stacks on the boss, then drop Transfiguration immediatelyBring the boss down as close to 15% as you can and make sure all your skills are off cooldown. Be very careful with DoTs because you want them up, but you don't want them to trigger enrage before you're ready. DoTs will do about 2-3% in the course of a full lap around the map.Pop Wanderer's Minuet a bit earlier (without other skills) so you have 3 stacks for Pitch Perfect at the start of the burstWait for the double Charybidis cast. During the first, pop Resolution, hit the boss once with it, then immediately cancel Resolution and start your burst (standard Minuet rotation/opener)</li><li>Slowly drag him clockwise around the arena, moving a bit each time he uses an ability so you're at the end he's going to Trounce from. This makes Trounce easy to avoid, and tornados are gone before you complete a lap</li><li>Pop lust at 22-23%. Get 5 stacks on the boss, then drop Transfiguration immediately</li><li>Bring the boss down as close to 15% as you can and make sure all your skills are off cooldown. Be very careful with DoTs because you want them up, but you don't want them to trigger enrage before you're ready. DoTs will do about 2-3% in the course of a full lap around the map.</li><li>Pop Wanderer's Minuet a bit earlier (without other skills) so you have 3 stacks for Pitch Perfect at the start of the burst</li><li>Wait for the double Charybidis cast. During the first, pop Resolution, hit the boss once with it, then immediately cancel Resolution and start your burst (standard Minuet rotation/opener)</li><li>Be prepared for multiple attempts. You can play perfectly and still lose this fight. A win requires good luck with Pitch Perfect and Straight Shot procs.</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>~7-8m with strength and 2 lusts - 1 at start and 1 for the final push (6.55)</li></ul></div></div><div class="job-tile"><div class="jname">GNB</div><ul><li>Steel recommended for the later half of the fight to make burst setup easier</li><li>Start the fight by the gate (where he spawns), making sure to spread out the tornados. Follow him across when he goes for Trounce and repeat the pattern there. This part of the fight is easy without steel</li><li>Use strength (and steel if using) at 65% or when 8 minutes are remaining - whichever comes first</li><li>Start saving Aurora, No Mercy, and cartridges around 28%</li><li>Bring him to 19% and hold him there until he's heading north for Trounce. As he does Trounce, use sustaining potion, some mitigation (but NOT Aurora), and Lust. Hit him with lust at least 5 times and more if necessary to get him to around 16.0% HP, then drop Transfiguration immediately</li><li>Damage him slowly to between 15.3 and 15.1%, and then stop damage. You'll start the burst during the double Charybdis cast on the opposite side</li><li>Burst (tincture strat):Make sure to keep Sustainings going until after the third meteorDuring the first Charybdis cast, use strength tincture and No MercyAs soon as the second Charybdis cast starts, begin your burst with Sonic Break into Gnashing Fang comboAfter meteor #1, wait a second, then use Superbolide and AuroraAfter meteor #2, cancel your food buff if you have it. See macro above for cancelling food. This will bring you up high enough to survive meteor #3Kill him before meteor #4!</li><li>Make sure to keep Sustainings going until after the third meteor</li><li>During the first Charybdis cast, use strength tincture and No Mercy</li><li>As soon as the second Charybdis cast starts, begin your burst with Sonic Break into Gnashing Fang combo</li><li>After meteor #1, wait a second, then use Superbolide and Aurora</li><li>After meteor #2, cancel your food buff if you have it. See macro above for cancelling food. This will bring you up high enough to survive meteor #3</li><li>Kill him before meteor #4!</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>< 10m with 1 strength and 1 lust (6.15)</li></ul></div></div><div class="job-tile"><div class="jname">MCH</div><ul><li>Steel required</li><li>Strength required for the final push, so you may as well have it up the entire fight!</li><li>Lust also required for the final push</li><li>Keep sustaining pots up 100% and you shouldn't need to use Second Wind or max/super pots until the final push. If you use them, make sure the cooldown is over before starting the push</li><li>There are two main strategies used for the burst phase. These will be detailed below. The first 85% of the fight is the same for both:Slowly drag him clockwise around the arena, moving a bit each time he uses an ability so you're at the end he's going to Trounce from. This makes Trounce easy to avoid, and tornados are gone before you complete a lapStart holding gauges at 30% so they can be full for the burst phaseStop damage at 21%. Wait until after Trounce from the south end, then whenever your Sustaining Potion wears, pop a fresh one, use Tactician, and Lust. Get 5 stacks on the boss, then drop Transfiguration immediatelyDamage him slowly down to 16% and then autoattack only until around 15.2%. Be careful not to hit 15% until you're ready for the burst phaseIf your HP is in good shape, you're now ready to start the burst phase. Choose either the heal or tincture strat below</li><li>Slowly drag him clockwise around the arena, moving a bit each time he uses an ability so you're at the end he's going to Trounce from. This makes Trounce easy to avoid, and tornados are gone before you complete a lap</li><li>Start holding gauges at 30% so they can be full for the burst phase</li><li>Stop damage at 21%. Wait until after Trounce from the south end, then whenever your Sustaining Potion wears, pop a fresh one, use Tactician, and Lust. Get 5 stacks on the boss, then drop Transfiguration immediately</li><li>Damage him slowly down to 16% and then autoattack only until around 15.2%. Be careful not to hit 15% until you're ready for the burst phase</li><li>If your HP is in good shape, you're now ready to start the burst phase. Choose either the heal or tincture strat below</li><li>Heal strat involves healing after the first meteor so you can survive a second one. You must kill the boss before the third meteor hitsMake sure sustaining doesn't drop until the second meteor hits. If it does, use another RIGHT AWAY. You can afford to clip Heat Blast. You cannot afford to miss regen ticksIf you are full HP, wait until the first meteor cast is at 50% before popping another sustaining. This way, you won't need to use anotherWait for a double Charybdis castDuring the first Charybdis:Deploy turretUse ReassembleAs soon as the second Charybdis cast starts, begin your burst. Do not forget to refresh sustaining.There are many variations of this rotation. You have a couple seconds to spare, so it doesn't have to be perfect. This is what I (Daleven) do, and there is plenty of time to spareBurst 1: Drill > Gauss Round > Ricochet > Hot Shot > Wildfire Hypercharge combo > Split ShotHeal: HQ Super Potion > Second Wind. As of Endwalker, cancelling food is no longer necessaryBurst 2: Hypercharge combo > Drill</li><li>Make sure sustaining doesn't drop until the second meteor hits. If it does, use another RIGHT AWAY. You can afford to clip Heat Blast. You cannot afford to miss regen ticksIf you are full HP, wait until the first meteor cast is at 50% before popping another sustaining. This way, you won't need to use another</li><li>If you are full HP, wait until the first meteor cast is at 50% before popping another sustaining. This way, you won't need to use another</li><li>Wait for a double Charybdis cast</li><li>During the first Charybdis:Deploy turretUse Reassemble</li><li>Deploy turret</li><li>Use Reassemble</li><li>As soon as the second Charybdis cast starts, begin your burst. Do not forget to refresh sustaining.There are many variations of this rotation. You have a couple seconds to spare, so it doesn't have to be perfect. This is what I (Daleven) do, and there is plenty of time to spareBurst 1: Drill > Gauss Round > Ricochet > Hot Shot > Wildfire Hypercharge combo > Split ShotHeal: HQ Super Potion > Second Wind. As of Endwalker, cancelling food is no longer necessaryBurst 2: Hypercharge combo > Drill</li><li>There are many variations of this rotation. You have a couple seconds to spare, so it doesn't have to be perfect. This is what I (Daleven) do, and there is plenty of time to spare</li><li>Burst 1: Drill > Gauss Round > Ricochet > Hot Shot > Wildfire Hypercharge combo > Split Shot</li><li>Heal: HQ Super Potion > Second Wind. As of Endwalker, cancelling food is no longer necessary</li><li>Burst 2: Hypercharge combo > Drill</li><li>Tincture strat involves using a HQ Tincture of Dexterity (Grade 4 or higher) instead in order to kill it before the second meteor hits. Note that tinctures share recast timer with health potions, so you cannot use bothBefore you start:Make sure you are almost full HP. Use Second Wind if neededMake sure sustaining is running and fresh enough to take you to full HPUse Tincture (just before Charybdis)During first Charybdis:Deploy turretUse ReassembleAs soon as the second Charybdis cast starts, begin your burst. Rotation:Drill > Wildfire Hypercharge combo > Hot Shot > Ricochet > Hypercharge combo > Drill</li><li>Before you start:Make sure you are almost full HP. Use Second Wind if neededMake sure sustaining is running and fresh enough to take you to full HPUse Tincture (just before Charybdis)</li><li>Make sure you are almost full HP. Use Second Wind if needed</li><li>Make sure sustaining is running and fresh enough to take you to full HP</li><li>Use Tincture (just before Charybdis)</li><li>During first Charybdis:Deploy turretUse Reassemble</li><li>Deploy turret</li><li>Use Reassemble</li><li>As soon as the second Charybdis cast starts, begin your burst. Rotation:Drill > Wildfire Hypercharge combo > Hot Shot > Ricochet > Hypercharge combo > Drill</li><li>Drill > Wildfire Hypercharge combo > Hot Shot > Ricochet > Hypercharge combo > Drill</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>6m30m with strength and 1 lust (6.45)</li></ul></div></div><div class="job-tile"><div class="jname">PCT</div><div class="ktimes"><b>Kill times:</b><ul><li>6m30s with strength and 1 lust (7.16)</li></ul></div></div><div class="job-tile"><div class="jname">PLD</div><ul><li>Steel recommended for the later half of the fight to make burst setup easier</li><li>Start the fight by the gate (where he spawns), making sure to spread out the tornados. Follow him across when he goes for Trounce and repeat the pattern there. This part of the fight is easy without steel</li><li>Bring him to 19% and hold him there until he's heading north for Trounce. As he does Trounce, use sustaining potion, some mitigation, and Lust. Hit him with lust at least 5 times and more if necessary to get him to around 16.0% HP, then drop Transfiguration immediately</li><li>Damage him slowly to 15.2% and then stop damage. You'll start the burst as soon as he starts the second Charybdis cast from the south end</li><li>Burst:The goal is to survive 5 meteors and kill him before the 6thMake sure to use potions and OGCDs (including Hallowed Ground) between GCDs - don't clipMake sure to keep sustaining pots up until after the 5th meteorSave your second Spirits Within for after you cast Clemency so you don't overcap MPDPS rotation will be pretty straight-forward. Fight or Flight as you start the burst. You may need to break a combo for Clemency, but that's okAfter meteor #1, cast Clemency ASAP to get MP tickingUse Hallowed Ground to survive meteor #2Sustaining potion will bring your HP up enough to survive meteor #3. After it hits, cast Clemency twice ASAPAfter meteor #4, heal up with HQ super potion and a Clemency. Also remove food if necessary (not sure)</li><li>The goal is to survive 5 meteors and kill him before the 6th</li><li>Make sure to use potions and OGCDs (including Hallowed Ground) between GCDs - don't clip</li><li>Make sure to keep sustaining pots up until after the 5th meteor</li><li>Save your second Spirits Within for after you cast Clemency so you don't overcap MP</li><li>DPS rotation will be pretty straight-forward. Fight or Flight as you start the burst. You may need to break a combo for Clemency, but that's ok</li><li>After meteor #1, cast Clemency ASAP to get MP ticking</li><li>Use Hallowed Ground to survive meteor #2</li><li>Sustaining potion will bring your HP up enough to survive meteor #3. After it hits, cast Clemency twice ASAP</li><li>After meteor #4, heal up with HQ super potion and a Clemency. Also remove food if necessary (not sure)</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>< 11m with 1 strength and 1 lust</li></ul></div></div><div class="job-tile"><div class="jname">RPR</div><ul><li>Strength, steel, and 1 lust required</li><li>Start the fight by the gate (where he spawns), making sure to spread out the tornados. Follow him across when he goes for Trounce and repeat the pattern there</li><li>Use lust at 21-22%, get 5 stacks, drop lust, use auto-attacks to get him between 15.1 and 15.5%, then stop damage</li><li>Start damage again as soon as he starts the second cast of a double Charybdis</li><li>Hold 100% gauge until the first meteor hits, then use Bloodbath and Blood Stalk to heal back up for the second meteor</li><li>You can easily heal up again for the third meteor to be safe, but will probably kill it before</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>7m30s with strength (6.0)</li><li>6m with strength and 1 lust (7.21)</li></ul></div></div><div class="job-tile"><div class="jname">SGE</div><ul><li>Steel not required, but watch out for crits</li><li>Make sure to keep sustaining potion up during enrage for maximum uptime</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>11m30s with no offensive pomanders (6.28)</li><li>9m with strength (6.28)</li><li>8m with strength and 1 lust (6.28)</li></ul></div></div><div class="job-tile"><div class="jname">SMN</div><div class="ktimes"><b>Kill times:</b><ul><li>7m15s with strength and 1 lust (6.0)</li></ul></div></div><div class="job-tile"><div class="jname">WAR</div><ul><li>Steel recommended for the later half of the fight to make burst setup easier</li><li>Start the fight by the gate (where he spawns), making sure to spread out the tornados. Follow him across when he goes for Trounce and repeat the pattern there. This part of the fight is easy without steel</li><li>Use strength (and steel if using) at 60% or when 8 minutes are remaining - whichever comes first</li><li>Start holding gauge at 28%</li><li>Bring him to 20% and hold him there until he's running across for Trounce. As he does Trounce, use sustaining potion, some mitigation, and Lust. Hit him with lust 5 times, then drop Transfiguration immediately</li><li>Damage him slowly to 15.4%, getting Surging Tempest up, and then stop damage. You'll start the burst as soon as he starts the second Charybdis cast on the opposite side</li><li>Burst (super pot strat):Make sure to keep Sustainings going until after the third meteorBerserk and unload your gauge immediately when the second Charybdis cast startsAfter meteor #1, use Raw Instinct and Thrill of Battle, and cancel Thrill of Battle (you want the heal, but not the increased max HP). Macro: /statusoff "Thrill of Battle"After meteor #2, use Equilibrium and HQ Super PotUse Holmgang to survive meteor #4Kill before meteor #5!</li><li>Make sure to keep Sustainings going until after the third meteor</li><li>Berserk and unload your gauge immediately when the second Charybdis cast starts</li><li>After meteor #1, use Raw Instinct and Thrill of Battle, and cancel Thrill of Battle (you want the heal, but not the increased max HP). Macro: /statusoff "Thrill of Battle"</li><li>After meteor #2, use Equilibrium and HQ Super Pot</li><li>Use Holmgang to survive meteor #4</li><li>Kill before meteor #5!</li><li>Another option is to use a strength tincture instead of super potion. This involves relying on Raw Instinct and Sustaining Potion alone to heal after one meteor, and then Thrill and Equilibrium for another.</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>< 11m with 1 strength and 1 lust</li></ul></div></div></div>
+</div>
+</main>
+</body>
+</html>

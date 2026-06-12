@@ -1,0 +1,678 @@
+:root {
+  --background: #121212;
+  --surface: #202020;
+  --on-background: rgba(255, 255, 255, 0.6);
+  --on-background-bright: rgba(255, 255, 255, 0.87);
+  --on-background-dim: rgba(255, 255, 255, 0.38);
+  --on-surface: rgba(255, 255, 255, 0.87);
+  --on-surface-bright: #FFFFFF;
+  --on-surface-dim: rgba(255, 255, 255, 0.6);
+  --background-highlight: #3B340E;
+  --surface-highlight: #47401A;
+  --on-surface-highlight: #F5DA43;
+  --on-surface-dim-highlight: #E4C832;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--on-background);
+  margin: 0;
+  font-family: Helvetica, sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  color: var(--on-background-bright);
+}
+
+a {
+  color: var(--on-surface);
+}
+
+a:hover {
+  color: var(--on-surface-bright);
+}
+
+.inlineBlock {
+  display: inline-block;
+}
+
+.verticalCenter {
+  vertical-align: middle;
+}
+
+li:not(:last-child),
+li li:last-child {
+  margin-bottom: 6px;
+}
+
+li li:first-child {
+  margin-top: 6px;
+}
+
+#nav {
+  width: 200px;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background-color: var(--surface);
+  overflow-x: hidden;
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+#nav a {
+  display: block;
+  padding: 6px 16px 6px 16px;
+  font-size: 20px;
+  text-decoration: none;
+}
+
+#nav a {
+  color: var(--on-surface);
+}
+
+#nav a:hover {
+  color: var(--on-surface-bright);
+}
+
+#nav a.current {
+  background-color: var(--surface-highlight);
+  color: var(--on-surface-highlight);
+}
+
+#nav a.current:hover {
+  color: var(--on-surface-dim-highlight);
+}
+
+#nav ul {
+  margin: 0;
+  padding-left: 12px;
+  list-style: none;
+}
+
+#nav a,
+#navButton {
+  cursor: pointer;
+}
+
+#topnav {
+  display: none;
+  width: 100%;
+  height: 40px;
+  background-color: var(--surface);
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+}
+
+#navButton {
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  vertical-align: middle;
+  text-align: center;
+  font-size: 30px;
+  color: #818181;
+  user-select: none;
+}
+
+#navButton:hover {
+  color: #f1f1f1;
+}
+
+#bottomNav {
+  margin-top: auto;
+  flex-shrink: 0;
+  padding: 12px 16px;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  background-color: var(--surface);
+}
+
+#bottomNav a {
+  color: var(--on-surface-bright);
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+#bottomNav a:hover {
+  color: var(--on-surface-highlight);
+  background-color: var(--surface-highlight);
+}
+
+#bottomNav svg {
+  width: 20px;
+  height: 20px;
+}
+
+.submenu .navHeading:before {
+  content: "▶ ";
+  font-size: medium;
+  margin-left: 16px;
+}
+
+.submenu ul {
+  display: none;
+}
+
+.submenu.open .navHeading:before {
+  content: "▼ ";
+}
+
+.submenu.open ul {
+  display: block;
+}
+
+.submenu ul li {
+  margin-left: 16px;
+  margin-bottom: 0px;
+}
+
+#main {
+  margin-left: 200px;
+  padding: 12px;
+}
+
+.floorsetNav {
+  background-color: var(--surface);
+  color: var(--on-surface);
+  padding: 12px;
+}
+
+.floorsetNav a {
+  text-decoration: none;
+}
+
+.surfacePane {
+  background-color: var(--surface);
+  color: var(--on-surface);
+  padding: 12px;
+}
+
+.surfacePane>*:first-child {
+  margin-top: 0;
+}
+
+.surfacePane>*:last-child {
+  margin-bottom: 0;
+}
+
+.spaceTop {
+  margin-top: 12px;
+}
+
+#galleryContainer {
+  color: var(--on-surface);
+}
+
+.imagePane {
+  position: relative;
+  height: 200px;
+  border-bottom: 1px solid black;
+  background-color: var(--surface);
+  overflow-x: hidden;
+}
+
+#galleryLeft,
+#galleryRight {
+  position: absolute;
+  top: 50%;
+  transform: translate(0%, -50%);
+  width: auto;
+  padding: 16px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+#galleryLeft:hover,
+#galleryRight:hover {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+#galleryLeft {
+  left: 0;
+}
+
+#galleryRight {
+  right: 0;
+}
+
+.galleryImage {
+  height: 200px;
+  margin: auto;
+  line-height: 200px;
+  text-align: center;
+  display: none;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+.galleryImage,
+.galleryItem,
+.galleryJobNotes {
+  display: none;
+}
+
+.galleryImage.active,
+.galleryItem.active,
+.galleryJobNotes.active {
+  display: block;
+}
+
+.jobSpecific:not(.active) {
+  display: none;
+}
+
+.attributeList {
+  display: grid;
+  column-gap: 48px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  margin-top: 18px;
+  margin-bottom: 18px;
+}
+
+.attributeList span {
+  color: var(--on-background-bright);
+}
+
+.surfacePane .attributeList span {
+  color: var(--on-surface-bright);
+}
+
+img.surfaceImage {
+  display: block;
+  height: 200px;
+  margin: auto;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+.banded {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.banded tr:nth-child(odd) {
+  background-color: var(--surface);
+}
+
+.banded td {
+  padding: 12px;
+}
+
+.flexSplit {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.enemyList {
+  width: 100%;
+  min-width: 800px;
+  border-collapse: collapse;
+  table-layout: fixed;
+  color: var(--on-surface-bright);
+}
+
+.enemyList thead {
+  background-color: var(--on-surface);
+  color: var(--background);
+}
+
+.enemyList th {
+  padding: 8px 2px;
+}
+
+.enemyList th.floorCell {
+  width: 15px;
+}
+
+.enemyList th.aggroCell {
+  width: 36px;
+}
+
+.enemyList th.warningCell {
+  width: 72px;
+}
+
+.enemyList th.difficultyCell {
+  width: 72px;
+}
+
+.enemyList th.hpCell,
+.enemyList th.attackCell {
+  width: 60px;
+}
+
+.enemyList th.vulnerabilityCell {
+  width: 170px;
+}
+
+.enemyList tr {
+  border-bottom: 1px solid var(--background);
+}
+
+.enemyList tr:last-child {
+  border-bottom: 1px solid var(--surface);
+}
+
+.enemyList tbody tr:nth-child(even) {
+  background-color: var(--surface);
+}
+
+.enemyList tbody tr:nth-child(odd).highlight {
+  background-color: var(--background-highlight);
+}
+
+.enemyList tbody tr:nth-child(even).highlight {
+  background-color: var(--surface-highlight);
+}
+
+.enemyList tbody tr:nth-child(odd) td.highlight {
+  background-color: var(--background-highlight);
+}
+
+.enemyList tbody tr:nth-child(even) td.highlight {
+  background-color: var(--surface-highlight);
+}
+
+.enemyList th.highlight {
+  background-color: var(--on-surface-highlight);
+}
+
+.enemyList tbody tr td.highlight.enemyFloorIn {
+  background-color: var(--on-surface-dim-highlight);
+}
+
+.enemyList td img {
+  vertical-align: middle;
+}
+
+.enemyList .floorCell {
+  border-left: 1px solid var(--background);
+  border-right: 1px solid var(--background);
+}
+
+.enemyList .floorCell img {
+  pointer-events: none;
+}
+
+.enemyList td.enemyFloorIn {
+  background-color: var(--on-surface-dim);
+  text-align: center;
+}
+
+.enemyList td.agroCell {
+  padding: 1px 8px;
+}
+
+td.iconCell {
+  text-align: center;
+}
+
+th.textCell {
+  text-align: left;
+}
+
+.enemyList td.textCell {
+  padding: 8px;
+  padding-left: 1px;
+}
+
+.enemyList td.hpCell,
+.enemyList td.attackCell {
+  text-align: center;
+}
+
+.enemyList td.hpCell.extremeCell,
+.enemyList td.attackCell.extremeCell {
+  background-color: #FF1493;
+}
+
+.enemyList td.hpCell,
+.enemyList td.attackCell {
+  border-left: 1px solid var(--background);
+  border-right: 1px solid var(--background);
+  background-repeat: no-repeat;
+}
+
+.enemyList td.hpCell {
+  background-image: linear-gradient(to right, #00CC00 var(--percent), var(--percent), transparent);
+}
+
+.enemyList td.attackCell {
+  background-image: linear-gradient(to right, #CC0000 var(--percent), var(--percent), transparent);
+}
+
+.enemyList td.difficultyCell {
+  text-align: center;
+}
+
+.enemyList td.difficultyCell span.easy {
+  font-weight: bold;
+  color: #1E90FF;
+}
+
+.enemyList td.difficultyCell span.medium {
+  font-weight: bold;
+  color: #FFD700;
+}
+
+.enemyList td.difficultyCell span.hard {
+  font-weight: bold;
+  color: #FF0000;
+}
+
+.enemyList td.difficultyCell span.extreme {
+  font-weight: bold;
+  color: #FF1493;
+}
+
+.abilityCell .warningIcon {
+  vertical-align: text-top;
+}
+
+.dialog {
+  border-color: var(--on-surface-dim);
+}
+
+.dialogTop {
+  align-items: flex-start;
+}
+
+.dialogTop h2 {
+  margin-top: 0;
+}
+
+button.textButton {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: var(--on-surface);
+}
+
+button.textButton:hover {
+  color: var(--on-surface-bright);
+}
+
+.surfacePane table:not(.unstyled) {
+  border: 1px solid var(--background);
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.surfacePane th,
+.surfacePane td {
+  padding: 8px;
+}
+
+.surfacePane thead {
+  background-color: var(--on-surface);
+  color: var(--background);
+}
+
+.surfacePane table:not(.unstyled) tbody tr:nth-child(odd) {
+  background-color: var(--background);
+}
+
+.align-left {
+  text-align: left;
+}
+
+.align-center {
+  text-align: center;
+}
+
+.conditionHigh {
+  color: hsl(128, 100%, 40%);
+}
+
+.conditionMid {
+  color: yellow;
+}
+
+.conditionLow {
+  color: hsl(0, 100%, 59%);
+}
+
+.noteImage {
+  max-width: 100%;
+}
+
+span.rotated {
+  display: block;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.chartLegendEntry {
+  float: left;
+  cursor: pointer;
+}
+
+.chartLegendEntry span:last-child {
+  margin-left: 4px;
+  margin-right: 12px;
+}
+
+.percentAreaChart line {
+  stroke: black;
+  stroke-width: 1;
+  stroke-dasharray: 5;
+  opacity: 0.5;
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.percentAreaChart line.selected {
+  stroke: white;
+  stroke-width: 2;
+  opacity: 1;
+}
+
+.percentAreaChart polygon.selectedShape {
+  stroke: white;
+  stroke-width: 2;
+  stroke-dasharray: 5;
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.hscroll {
+  overflow-x: auto;
+}
+
+@media screen and (max-width: 600px) {
+
+  #nav {
+    top: 40px;
+    width: 100%;
+    height: calc(100vh - 40px);
+    display: none;
+    padding-top: 0px;
+    border: 1px solid black;
+    position: fixed;
+    flex-direction: column;
+  }
+
+  #bottomNav {
+    position: static;
+    margin-top: auto;
+    flex-shrink: 0;
+  }
+
+  #topnav {
+    display: block;
+  }
+
+  #main {
+    margin-left: 0px;
+    margin-top: 30px;
+  }
+
+  #nav.open {
+    display: flex;
+  }
+
+  /* Offset linked position on page so headings aren't hidden behind fixed topnav */
+  h1:before,
+  h2:before {
+    display: block;
+    height: 40px;
+    margin-top: -40px;
+    content: "";
+    visibility: hidden;
+  }
+}
+
+/* Notice Component */
+.notice {
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: var(--surface-highlight);
+  border-left: 4px solid var(--on-surface-highlight);
+  border-radius: 4px;
+}
+
+.notice .notice-title {
+  color: var(--on-surface-highlight);
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.notice .notice-content {
+  color: var(--on-surface);
+  margin: 0;
+}
+
+.notice .notice-content p:first-child {
+  margin-top: 0;
+}
+
+.notice .notice-content p:last-child {
+  margin-bottom: 0;
+}

@@ -1,0 +1,543 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Floor 190 — Palace of the Dead</title>
+  <style>
+  :root {
+    --bg:       #121212;
+    --surface:  #202020;
+    --surface2: #2a2a2a;
+    --bright:   rgba(255,255,255,0.87);
+    --normal:   rgba(255,255,255,0.60);
+    --dim:      rgba(255,255,255,0.38);
+    --accent:   #F5DA43;
+    --border:   #333333;
+    --warn-bg:  #1e1500;
+    --warn-bdr: #4a3800;
+    --warn-txt: #f0d080;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--normal); margin: 0; display: flex;
+  }
+  a { color: var(--bright); text-decoration: none; }
+  a:hover { color: var(--accent); text-decoration: underline; }
+  h1, h2, h3 { color: var(--bright); }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 260px; min-width: 260px;
+    background: var(--surface);
+    padding: 20px 16px;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    border-right: 1px solid var(--border);
+    font-size: 0.9em;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .home-link {
+    font-size: 1.05em; font-weight: 600; color: var(--bright) !important;
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px; border-radius: 6px;
+    background: var(--surface2);
+    transition: background 0.2s, color 0.2s;
+    margin-bottom: 12px;
+  }
+  .home-link:hover {
+    background: var(--accent); color: #121212 !important; text-decoration: none;
+  }
+  .sidebar details { margin: 0; }
+  .sidebar summary {
+    cursor: pointer; padding: 8px 12px; border-radius: 6px;
+    color: var(--bright); font-weight: 500; list-style: none;
+    display: flex; align-items: center; gap: 8px;
+    transition: background 0.2s;
+    user-select: none;
+  }
+  .sidebar summary:hover { background: var(--surface2); }
+  .sidebar summary::-webkit-details-marker { display: none; }
+  .sidebar summary::before {
+    content: '▶'; display: inline-block;
+    font-size: 0.65em; transition: transform 0.2s; color: var(--dim);
+    margin-right: 4px;
+  }
+  .sidebar details[open] > summary::before { transform: rotate(90deg); color: var(--accent); }
+  .dungeon-name { font-size: 0.95em; margin-top: 4px; }
+  .sets-list, .floors-list { list-style: none; padding: 4px 0 4px 24px; margin: 0; }
+  .floors-list { padding-left: 16px; border-left: 1px solid var(--border); margin-left: 12px; }
+  .set-summary { font-size: 0.9em; font-weight: 400; color: var(--normal); padding: 6px 12px; }
+  .sidebar li { margin: 2px 0; }
+  .sidebar a {
+    color: var(--normal); display: block; padding: 6px 12px; border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+  }
+  .sidebar a:hover { background: var(--surface2); color: var(--bright); text-decoration: none; }
+  .active-floor > a {
+    background: rgba(245, 218, 67, 0.1); color: var(--accent); font-weight: 600;
+    border-left: 3px solid var(--accent); padding-left: 9px;
+  }
+
+  /* ── Main content ── */
+  main { flex: 1; padding: 20px 30px; max-width: 1200px; }
+  .top-bar { margin-bottom: 16px; }
+  .home-text-link {
+    font-size: 0.9em; color: var(--dim); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .home-text-link:hover { color: var(--accent); }
+  .set-label { color: var(--dim); font-size: 0.88em; margin-bottom: 14px; }
+  .nav-links { display: flex; gap: 20px; margin-bottom: 20px; font-size: 0.95em; }
+
+  /* ── Enemy card ── */
+  .enemy-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px 20px; margin-bottom: 24px;
+    display: flex; gap: 24px; flex-wrap: wrap;
+  }
+  .e-img {
+    flex: 0 0 380px;
+    display: flex; align-items: flex-start; justify-content: center; padding-top: 4px;
+  }
+  .e-img img { max-width: 360px; max-height: 360px; object-fit: contain; border-radius: 4px; }
+  .e-body { flex: 1 1 300px; }
+  .e-body h2 {
+    margin: 0 0 10px; font-size: 1.2em;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    color: var(--bright);
+  }
+  .badge {
+    display: inline-block; font-size: 0.7em; font-weight: normal;
+    padding: 3px 10px; border-radius: 20px; background: #b85000; color: #fff;
+  }
+  .stats {
+    display: flex; flex-wrap: wrap; gap: 16px;
+    font-size: 0.95em; margin-bottom: 8px; align-items: center;
+  }
+  .stats span { display: flex; align-items: center; gap: 6px; }
+  .stats b { color: var(--bright); }
+  .aggro-text { font-style: italic; color: var(--normal); }
+  .vulns { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin: 8px 0; }
+  .vulns b { font-size: 0.9em; margin-right: 6px; color: var(--bright); }
+
+  .warnings {
+    background: var(--warn-bg); border: 1px solid var(--warn-bdr);
+    border-radius: 4px; padding: 6px 12px; margin: 8px 0; font-size: 0.9em;
+  }
+  .warnings b { color: var(--accent); display: block; margin-bottom: 4px; }
+  .w-item { display: inline-flex; align-items: center; gap: 5px; margin-right: 12px; color: var(--warn-txt); }
+  .w-item img { vertical-align: middle; flex-shrink: 0; }
+
+  hr.div { border: 0; border-top: 1px solid var(--border); margin: 12px 0; }
+
+  table.ab { border-collapse: collapse; width: 100%; font-size: 0.9em; margin-top: 8px; }
+  table.ab th {
+    text-align: left; border-bottom: 2px solid var(--border);
+    padding: 6px 10px; background: var(--surface2); color: var(--bright);
+  }
+  table.ab td { padding: 6px 10px; vertical-align: top; border-bottom: 1px solid var(--border); }
+  table.ab tr:last-child td { border-bottom: none; }
+
+  .notes { font-size: 0.9em; margin: 8px 0 0; }
+  .notes ul { margin: 4px 0; padding-left: 20px; }
+  .notes b { color: var(--bright); }
+
+  /* ── Boss card ── */
+  .boss-card {
+    background: #2a2010; border: 2px solid #b85000;
+    border-radius: 8px; padding: 20px; margin-bottom: 24px;
+  }
+  .boss-card > h2 { margin: 0 0 16px; color: var(--accent); font-size: 1.4em; }
+  .boss-layout { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 16px; }
+  .b-img { flex: 0 0 380px; text-align: center; }
+  .b-img img { max-width: 360px; max-height: 360px; object-fit: contain; border-radius: 4px; }
+  .b-body { flex: 1 1 300px; }
+  .job-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px; margin-top: 12px;
+  }
+  .job-tile {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 12px; font-size: 0.9em;
+  }
+  .job-tile .jname { font-weight: bold; margin-bottom: 6px; color: var(--accent); }
+  .job-tile ul { margin: 4px 0; padding-left: 18px; }
+  .job-tile .ktimes {
+    color: var(--normal); margin-top: 8px;
+    border-top: 1px solid var(--border); padding-top: 6px;
+  }
+
+  .no-data { color: var(--dim); font-style: italic; }
+
+  /* ── Mobile ── */
+  @media (max-width: 900px) {
+    body { flex-direction: column; }
+    .sidebar {
+      width: 100%; min-width: unset; height: auto;
+      max-height: 45vh; position: relative;
+      border-right: none; border-bottom: 1px solid var(--border);
+      padding: 10px 14px;
+    }
+    main { padding: 14px 16px; }
+    .e-img, .b-img {
+      flex: 0 0 100%; text-align: center; margin-bottom: 12px;
+    }
+    .e-img img, .b-img img { max-width: 100%; height: auto; }
+    table.ab { display: block; overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <a href="../../index.html" class="home-link">🏠 Home</a>
+  <details class="dungeon-details" open>
+    <summary class="dungeon-name">Palace of the Dead</summary>
+    <ul class="sets-list">
+      <li class="set-node"><a href="../floors_001-010/floor_1.html">1–10</a></li>
+      <li class="set-node"><a href="../floors_011-020/floor_11.html">11–20</a></li>
+      <li class="set-node"><a href="../floors_021-030/floor_21.html">21–30</a></li>
+      <li class="set-node"><a href="../floors_031-040/floor_31.html">31–40</a></li>
+      <li class="set-node"><a href="../floors_041-050/floor_41.html">41–50</a></li>
+      <li class="set-node"><a href="../floors_051-060/floor_51.html">51–60</a></li>
+      <li class="set-node"><a href="../floors_061-070/floor_61.html">61–70</a></li>
+      <li class="set-node"><a href="../floors_071-080/floor_71.html">71–80</a></li>
+      <li class="set-node"><a href="../floors_081-090/floor_81.html">81–90</a></li>
+      <li class="set-node"><a href="../floors_091-100/floor_91.html">91–100</a></li>
+      <li class="set-node"><a href="../floors_101-110/floor_101.html">101–110</a></li>
+      <li class="set-node"><a href="../floors_111-120/floor_111.html">111–120</a></li>
+      <li class="set-node"><a href="../floors_121-130/floor_121.html">121–130</a></li>
+      <li class="set-node"><a href="../floors_131-140/floor_131.html">131–140</a></li>
+      <li class="set-node"><a href="../floors_141-150/floor_141.html">141–150</a></li>
+      <li class="set-node"><a href="../floors_151-160/floor_151.html">151–160</a></li>
+      <li class="set-node"><a href="../floors_161-170/floor_161.html">161–170</a></li>
+      <li class="set-node"><a href="../floors_171-180/floor_171.html">171–180</a></li>
+      <li class="set-node active-set">
+        <details open><summary class="set-summary">
+          181–190</summary><ul class="floors-list">
+          <li><a href="floor_181.html">Floor 181</a></li>
+          <li><a href="floor_182.html">Floor 182</a></li>
+          <li><a href="floor_183.html">Floor 183</a></li>
+          <li><a href="floor_184.html">Floor 184</a></li>
+          <li><a href="floor_185.html">Floor 185</a></li>
+          <li><a href="floor_186.html">Floor 186</a></li>
+          <li><a href="floor_187.html">Floor 187</a></li>
+          <li><a href="floor_188.html">Floor 188</a></li>
+          <li><a href="floor_189.html">Floor 189</a></li>
+          <li class="active-floor"><a href="floor_190.html">Floor 190 ☠</a></li>
+        </ul></details>
+      </li>
+      <li class="set-node"><a href="../floors_191-200/floor_191.html">191–200</a></li>
+    </ul>
+  </details>
+  <details class="dungeon-details">
+    <summary class="dungeon-name">Heaven-on-High</summary>
+    <ul class="sets-list">
+      <li class="set-node"><a href="../../hoh/floors_001-010/floor_1.html">1–10</a></li>
+      <li class="set-node"><a href="../../hoh/floors_011-020/floor_11.html">11–20</a></li>
+      <li class="set-node"><a href="../../hoh/floors_021-030/floor_21.html">21–30</a></li>
+      <li class="set-node"><a href="../../hoh/floors_031-040/floor_31.html">31–40</a></li>
+      <li class="set-node"><a href="../../hoh/floors_041-050/floor_41.html">41–50</a></li>
+      <li class="set-node"><a href="../../hoh/floors_051-060/floor_51.html">51–60</a></li>
+      <li class="set-node"><a href="../../hoh/floors_061-070/floor_61.html">61–70</a></li>
+      <li class="set-node"><a href="../../hoh/floors_071-080/floor_71.html">71–80</a></li>
+      <li class="set-node"><a href="../../hoh/floors_081-090/floor_81.html">81–90</a></li>
+      <li class="set-node"><a href="../../hoh/floors_091-100/floor_91.html">91–100</a></li>
+    </ul>
+  </details>
+  <details class="dungeon-details">
+    <summary class="dungeon-name">Eureka Orthos</summary>
+    <ul class="sets-list">
+      <li class="set-node"><a href="../../eo/floors_001-010/floor_1.html">1–10</a></li>
+      <li class="set-node"><a href="../../eo/floors_011-020/floor_11.html">11–20</a></li>
+      <li class="set-node"><a href="../../eo/floors_021-030/floor_21.html">21–30</a></li>
+      <li class="set-node"><a href="../../eo/floors_031-040/floor_31.html">31–40</a></li>
+      <li class="set-node"><a href="../../eo/floors_041-050/floor_41.html">41–50</a></li>
+      <li class="set-node"><a href="../../eo/floors_051-060/floor_51.html">51–60</a></li>
+      <li class="set-node"><a href="../../eo/floors_061-070/floor_61.html">61–70</a></li>
+      <li class="set-node"><a href="../../eo/floors_071-080/floor_71.html">71–80</a></li>
+      <li class="set-node"><a href="../../eo/floors_081-090/floor_81.html">81–90</a></li>
+      <li class="set-node"><a href="../../eo/floors_091-100/floor_91.html">91–100</a></li>
+    </ul>
+  </details>
+  <details class="dungeon-details">
+    <summary class="dungeon-name">Pagos Tunnels</summary>
+    <ul class="sets-list">
+      <li class="set-node"><a href="../../pt/floors_001-010/floor_1.html">1–10</a></li>
+      <li class="set-node"><a href="../../pt/floors_011-020/floor_11.html">11–20</a></li>
+      <li class="set-node"><a href="../../pt/floors_021-030/floor_21.html">21–30</a></li>
+      <li class="set-node"><a href="../../pt/floors_031-040/floor_31.html">31–40</a></li>
+      <li class="set-node"><a href="../../pt/floors_041-050/floor_41.html">41–50</a></li>
+      <li class="set-node"><a href="../../pt/floors_051-060/floor_51.html">51–60</a></li>
+      <li class="set-node"><a href="../../pt/floors_061-070/floor_61.html">61–70</a></li>
+      <li class="set-node"><a href="../../pt/floors_071-080/floor_71.html">71–80</a></li>
+      <li class="set-node"><a href="../../pt/floors_081-090/floor_81.html">81–90</a></li>
+      <li class="set-node"><a href="../../pt/floors_091-100/floor_91.html">91–100</a></li>
+    </ul>
+  </details>
+</nav>
+<main>
+  <div class="top-bar"><a href="../../index.html" class="home-text-link">🏠 Back to Home</a></div>
+  <h1>Floor 190 <span style="color:var(--accent);font-size:.7em">(Boss)</span></h1>
+  <div class="set-label">Palace of the Dead &bull; Floors 181–190</div>
+  <div class="nav-links"><a href="floor_189.html">← Floor 189</a><a href="../floors_191-200/floor_191.html">Floor 191 →</a></div>
+
+<div class="boss-card">
+  <h2>Boss: The Godfather</h2>
+  <div class="boss-layout">
+    <div class="b-img"><img src="../../assets/potd_181-190_godfather.png" alt="The Godfather"></div>
+    <div class="b-body"><div class="attributeList">
+<div>
+<label>HP:
+          <span>415050</span>
+</label>
+</div>
+<div>
+<label>Auto-attack:
+          
+
+
+4145
+
+        </label>
+</div>
+</div><hr class="div"><table class="ab">
+<thead>
+<tr>
+<th class="align-left">Ability</th><th>Potency</th><th class="align-left">Effect</th>
+</tr>
+</thead>
+<tr>
+<td class="abilityCell">
+<strong>Scalding Scolding</strong>
+</td>
+<td class="align-center">
+<img alt="Physical damage" class="verticalCenter" height="17" src="../../assets/potd_181-190_physical.png" title="Physical damage" width="17"/>
+
+150
+
+        </td>
+<td>instant</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Sap</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/potd_181-190_magic.png" title="Magic damage" width="17"/>
+
+250
+
+        </td>
+<td>telegraphed circle AoE on random player</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Hypothermal Combustion (Giddy Bomb)</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/potd_181-190_magic.png" title="Magic damage" width="17"/>
+
+180?
+
+        </td>
+<td>telegraphed pointblank AoE; inflicts deep freeze</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Hypothermal Combustion (Remedy Bomb)</strong>
+</td>
+<td class="align-center">
+<img alt="Unique damage" class="verticalCenter" height="17" src="../../assets/potd_181-190_unique.png" title="Unique damage" width="17"/>
+
+80% of max HP
+
+        </td>
+<td>roomwide AoE; inflicts deep freeze (DoT potency 15, 5s)</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Flashthoom (Grey Bomb)</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/potd_181-190_magic.png" title="Magic damage" width="17"/>
+
+180?
+
+        </td>
+<td>telegraphed pointblank AoE inflicting stun (2s); also hits enemies, including the boss</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Massive Burst</strong>
+</td>
+<td class="align-center">
+<img alt="Unique damage" class="verticalCenter" height="17" src="../../assets/potd_181-190_unique.png" title="Unique damage" width="17"/>
+
+99% of max HP
+
+        </td>
+<td>roomwide AoE</td>
+</tr>
+</table><div class="notes"><b>Notes:</b><ul>
+<li>
+        
+          Rotation:
+        
+        
+        
+        
+          
+  <ul>
+<li>
+        
+          Scalding Scolding
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Remedy Bomb (blue) spawns along with several untargetable Giddy Bombs
+        
+        
+        
+        
+          
+  <ul>
+<li>
+        
+          Remedy Bomb starts using Hypothermal Combustion immediately with a long cast time. It must be killed before this goes off to prevent massive roomwide damage (80% max HP damage + 5s deep freeze)
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Giddy Bombs all use Hypothermal Combustion after a few seconds. Theirs is a small telegraphed pointblank AoE with a short cast time, so stay away from them
+        
+        
+        
+        
+      </li>
+</ul>
+</li>
+<li>
+        
+          Sap (x3)
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Scalding Scolding
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Sap
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Lava Bomb (red) spawns along with several Giddy Bombs as the boss starts casting Massive Burst.
+        
+        
+        
+        
+          
+  <ul>
+<li>
+        
+          Massive Burst will do 99% max HP damage to everyone if it finishes
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Lava Bomb does a pointblank AoE that can interrupt the boss's Massive Burst. It can be moved around by attacking it
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Giddy Bombs are the same as before, and can get in the way of your attempts to move the Lava Bomb if you're not prepared
+        
+        
+        
+        
+      </li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+        
+          Full rotation takes 1 minute, 20 seconds
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Remedy Bomb and Lava Bomb spawn locations are static. Knowing the spawn locations of Lava Bombs is especially useful, as you can then pull the boss to where it will spawn, allowing you to to keep uptime on the boss instead of running around to position the bomb
+        
+        
+          
+          <a href="../../assets/potd_181-190_190_add_positions_prokchop.png" target="_blank">
+<br/><img class="noteImage" src="../../assets/potd_181-190_190_add_positions_prokchop.png"/>
+</a>
+<br/>Image credit: Prokchop (Discord: toto#5223)
+        
+        
+      </li>
+<li>
+        
+          DO NOT open with lust if soloing, as the cleave at the start will destroy you
+        
+        
+        
+        
+      </li>
+<li>
+        
+          The safest time to use lust is during the triple Sap cast. Kill the Remedy Bomb as quickly as possible to maximize your time. DO NOT get greedy here. Drop transfiguration immediately regardless of stacks after the third Sap, as you need to be prepared for the cleave that follows
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Another option is to use Lust to kill the Remedy Bomb and get stacks on the boss at the same time. It will take 4 hits to kill the Remedy Bomb, so don't delay
+        
+        
+        
+        
+      </li>
+</ul></div></div>
+  </div>
+  <h3 style="margin:14px 0 8px">Job Notes &amp; Kill Times</h3><div class="job-grid"><div class="job-tile"><div class="jname">GNB</div><ul><li>Steel recommended</li><li>Can Superbolide the blue bomb explosions</li><li>Preposition the boss on all bomb spawns (unless using Superbolide)</li><li>Use Lust to AoE Remedy Bombs while applying vulnerability stacks to the boss</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>10m45s with 1 strength</li></ul></div></div><div class="job-tile"><div class="jname">MCH</div><ul><li>Steel required</li><li>Strength highly recommended, else you may need to use 2 steels</li><li>Use all your lusts, as they're not really useful for 191+</li><li>Keep sustaining pots up 100%</li><li>Good to use Tactician or Sprint for cleaves</li><li>Save Reassemble Drill for Remedy Bombs to give yourself lots of time to apply lust stacks during triple SapFirst Remedy Bomb is 12 seconds after pullFull boss rotation takes 1 minute, 20 seconds</li><li>First Remedy Bomb is 12 seconds after pull</li><li>Full boss rotation takes 1 minute, 20 seconds</li><li>Positioning the boss where Lava Bombs will spawn is easiestAlternately, you can position the boss in the middle and move quickly to knock the Lava Bomb into him, maybe using Sprint for extra safety. This costs you some uptime on the boss though</li><li>Alternately, you can position the boss in the middle and move quickly to knock the Lava Bomb into him, maybe using Sprint for extra safety. This costs you some uptime on the boss though</li><li>DO NOT use Ricochet or turret during Lava Bomb as you risk knocking it away from the boss</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>7m with strength and 2 lusts (6.0)</li><li>6m with strength and 3 lusts (6.15)</li></ul></div></div><div class="job-tile"><div class="jname">PCT</div><div class="ktimes"><b>Kill times:</b><ul><li>6m with strength, 3 lust, and pox (7.16)</li></ul></div></div><div class="job-tile"><div class="jname">PLD</div><ul><li>Steel required</li><li>Strength or Lust is needed to kill the Remedy Bomb fast enough</li><li>Preposition the boss on all bomb spawns</li><li>Use Lust to AoE Remedy Bombs while applying vulnerability stacks to the boss</li></ul></div><div class="job-tile"><div class="jname">RPR</div><ul><li>Steel required</li><li>Strength and 3 lust recommended</li><li>Use Arcane Crest for cleaves</li><li>Manage Bloodbath, Potions, and Second Wind well to keep your HP up. You will be taking a lot of damage</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>5m45s with strength and 3 lust (7.21)</li></ul></div></div><div class="job-tile"><div class="jname">SGE</div><div class="ktimes"><b>Kill times:</b><ul><li>8m15s with strength and 3 lust (6.0)</li></ul></div></div><div class="job-tile"><div class="jname">SMN</div><div class="ktimes"><b>Kill times:</b><ul><li>6m15s with strength and 2 lust (6.0)</li></ul></div></div><div class="job-tile"><div class="jname">WAR</div><ul><li>Steel required</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>11m with 1 strength and 1 lust, playing super safe. (7.31)</li><li>9m45s with 1 strength and 2 lust, playing super safe - saving Berserk for Lava Bombs, using lust after (6.10)</li><li>7m15s with strength and 3 lust, prepositioning on all bombs and using lusts to AoE boss and Lava Bomb (6.08)</li></ul></div></div></div>
+</div>
+</main>
+</body>
+</html>

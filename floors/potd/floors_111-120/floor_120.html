@@ -1,0 +1,482 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Floor 120 — Palace of the Dead</title>
+  <style>
+  :root {
+    --bg:       #121212;
+    --surface:  #202020;
+    --surface2: #2a2a2a;
+    --bright:   rgba(255,255,255,0.87);
+    --normal:   rgba(255,255,255,0.60);
+    --dim:      rgba(255,255,255,0.38);
+    --accent:   #F5DA43;
+    --border:   #333333;
+    --warn-bg:  #1e1500;
+    --warn-bdr: #4a3800;
+    --warn-txt: #f0d080;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--normal); margin: 0; display: flex;
+  }
+  a { color: var(--bright); text-decoration: none; }
+  a:hover { color: var(--accent); text-decoration: underline; }
+  h1, h2, h3 { color: var(--bright); }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 260px; min-width: 260px;
+    background: var(--surface);
+    padding: 20px 16px;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    border-right: 1px solid var(--border);
+    font-size: 0.9em;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .home-link {
+    font-size: 1.05em; font-weight: 600; color: var(--bright) !important;
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px; border-radius: 6px;
+    background: var(--surface2);
+    transition: background 0.2s, color 0.2s;
+    margin-bottom: 12px;
+  }
+  .home-link:hover {
+    background: var(--accent); color: #121212 !important; text-decoration: none;
+  }
+  .sidebar details { margin: 0; }
+  .sidebar summary {
+    cursor: pointer; padding: 8px 12px; border-radius: 6px;
+    color: var(--bright); font-weight: 500; list-style: none;
+    display: flex; align-items: center; gap: 8px;
+    transition: background 0.2s;
+    user-select: none;
+  }
+  .sidebar summary:hover { background: var(--surface2); }
+  .sidebar summary::-webkit-details-marker { display: none; }
+  .sidebar summary::before {
+    content: '▶'; display: inline-block;
+    font-size: 0.65em; transition: transform 0.2s; color: var(--dim);
+    margin-right: 4px;
+  }
+  .sidebar details[open] > summary::before { transform: rotate(90deg); color: var(--accent); }
+  .dungeon-name { font-size: 0.95em; margin-top: 4px; }
+  .sets-list, .floors-list { list-style: none; padding: 4px 0 4px 24px; margin: 0; }
+  .floors-list { padding-left: 16px; border-left: 1px solid var(--border); margin-left: 12px; }
+  .set-summary { font-size: 0.9em; font-weight: 400; color: var(--normal); padding: 6px 12px; }
+  .sidebar li { margin: 2px 0; }
+  .sidebar a {
+    color: var(--normal); display: block; padding: 6px 12px; border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+  }
+  .sidebar a:hover { background: var(--surface2); color: var(--bright); text-decoration: none; }
+  .active-floor > a {
+    background: rgba(245, 218, 67, 0.1); color: var(--accent); font-weight: 600;
+    border-left: 3px solid var(--accent); padding-left: 9px;
+  }
+
+  /* ── Main content ── */
+  main { flex: 1; padding: 20px 30px; max-width: 1200px; }
+  .top-bar { margin-bottom: 16px; }
+  .home-text-link {
+    font-size: 0.9em; color: var(--dim); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .home-text-link:hover { color: var(--accent); }
+  .set-label { color: var(--dim); font-size: 0.88em; margin-bottom: 14px; }
+  .nav-links { display: flex; gap: 20px; margin-bottom: 20px; font-size: 0.95em; }
+
+  /* ── Enemy card ── */
+  .enemy-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px 20px; margin-bottom: 24px;
+    display: flex; gap: 24px; flex-wrap: wrap;
+  }
+  .e-img {
+    flex: 0 0 380px;
+    display: flex; align-items: flex-start; justify-content: center; padding-top: 4px;
+  }
+  .e-img img { max-width: 360px; max-height: 360px; object-fit: contain; border-radius: 4px; }
+  .e-body { flex: 1 1 300px; }
+  .e-body h2 {
+    margin: 0 0 10px; font-size: 1.2em;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    color: var(--bright);
+  }
+  .badge {
+    display: inline-block; font-size: 0.7em; font-weight: normal;
+    padding: 3px 10px; border-radius: 20px; background: #b85000; color: #fff;
+  }
+  .stats {
+    display: flex; flex-wrap: wrap; gap: 16px;
+    font-size: 0.95em; margin-bottom: 8px; align-items: center;
+  }
+  .stats span { display: flex; align-items: center; gap: 6px; }
+  .stats b { color: var(--bright); }
+  .aggro-text { font-style: italic; color: var(--normal); }
+  .vulns { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin: 8px 0; }
+  .vulns b { font-size: 0.9em; margin-right: 6px; color: var(--bright); }
+
+  .warnings {
+    background: var(--warn-bg); border: 1px solid var(--warn-bdr);
+    border-radius: 4px; padding: 6px 12px; margin: 8px 0; font-size: 0.9em;
+  }
+  .warnings b { color: var(--accent); display: block; margin-bottom: 4px; }
+  .w-item { display: inline-flex; align-items: center; gap: 5px; margin-right: 12px; color: var(--warn-txt); }
+  .w-item img { vertical-align: middle; flex-shrink: 0; }
+
+  hr.div { border: 0; border-top: 1px solid var(--border); margin: 12px 0; }
+
+  table.ab { border-collapse: collapse; width: 100%; font-size: 0.9em; margin-top: 8px; }
+  table.ab th {
+    text-align: left; border-bottom: 2px solid var(--border);
+    padding: 6px 10px; background: var(--surface2); color: var(--bright);
+  }
+  table.ab td { padding: 6px 10px; vertical-align: top; border-bottom: 1px solid var(--border); }
+  table.ab tr:last-child td { border-bottom: none; }
+
+  .notes { font-size: 0.9em; margin: 8px 0 0; }
+  .notes ul { margin: 4px 0; padding-left: 20px; }
+  .notes b { color: var(--bright); }
+
+  /* ── Boss card ── */
+  .boss-card {
+    background: #2a2010; border: 2px solid #b85000;
+    border-radius: 8px; padding: 20px; margin-bottom: 24px;
+  }
+  .boss-card > h2 { margin: 0 0 16px; color: var(--accent); font-size: 1.4em; }
+  .boss-layout { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 16px; }
+  .b-img { flex: 0 0 380px; text-align: center; }
+  .b-img img { max-width: 360px; max-height: 360px; object-fit: contain; border-radius: 4px; }
+  .b-body { flex: 1 1 300px; }
+  .job-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px; margin-top: 12px;
+  }
+  .job-tile {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 12px; font-size: 0.9em;
+  }
+  .job-tile .jname { font-weight: bold; margin-bottom: 6px; color: var(--accent); }
+  .job-tile ul { margin: 4px 0; padding-left: 18px; }
+  .job-tile .ktimes {
+    color: var(--normal); margin-top: 8px;
+    border-top: 1px solid var(--border); padding-top: 6px;
+  }
+
+  .no-data { color: var(--dim); font-style: italic; }
+
+  /* ── Mobile ── */
+  @media (max-width: 900px) {
+    body { flex-direction: column; }
+    .sidebar {
+      width: 100%; min-width: unset; height: auto;
+      max-height: 45vh; position: relative;
+      border-right: none; border-bottom: 1px solid var(--border);
+      padding: 10px 14px;
+    }
+    main { padding: 14px 16px; }
+    .e-img, .b-img {
+      flex: 0 0 100%; text-align: center; margin-bottom: 12px;
+    }
+    .e-img img, .b-img img { max-width: 100%; height: auto; }
+    table.ab { display: block; overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <a href="../../index.html" class="home-link">🏠 Home</a>
+  <details class="dungeon-details" open>
+    <summary class="dungeon-name">Palace of the Dead</summary>
+    <ul class="sets-list">
+      <li class="set-node"><a href="../floors_001-010/floor_1.html">1–10</a></li>
+      <li class="set-node"><a href="../floors_011-020/floor_11.html">11–20</a></li>
+      <li class="set-node"><a href="../floors_021-030/floor_21.html">21–30</a></li>
+      <li class="set-node"><a href="../floors_031-040/floor_31.html">31–40</a></li>
+      <li class="set-node"><a href="../floors_041-050/floor_41.html">41–50</a></li>
+      <li class="set-node"><a href="../floors_051-060/floor_51.html">51–60</a></li>
+      <li class="set-node"><a href="../floors_061-070/floor_61.html">61–70</a></li>
+      <li class="set-node"><a href="../floors_071-080/floor_71.html">71–80</a></li>
+      <li class="set-node"><a href="../floors_081-090/floor_81.html">81–90</a></li>
+      <li class="set-node"><a href="../floors_091-100/floor_91.html">91–100</a></li>
+      <li class="set-node"><a href="../floors_101-110/floor_101.html">101–110</a></li>
+      <li class="set-node active-set">
+        <details open><summary class="set-summary">
+          111–120</summary><ul class="floors-list">
+          <li><a href="floor_111.html">Floor 111</a></li>
+          <li><a href="floor_112.html">Floor 112</a></li>
+          <li><a href="floor_113.html">Floor 113</a></li>
+          <li><a href="floor_114.html">Floor 114</a></li>
+          <li><a href="floor_115.html">Floor 115</a></li>
+          <li><a href="floor_116.html">Floor 116</a></li>
+          <li><a href="floor_117.html">Floor 117</a></li>
+          <li><a href="floor_118.html">Floor 118</a></li>
+          <li><a href="floor_119.html">Floor 119</a></li>
+          <li class="active-floor"><a href="floor_120.html">Floor 120 ☠</a></li>
+        </ul></details>
+      </li>
+      <li class="set-node"><a href="../floors_121-130/floor_121.html">121–130</a></li>
+      <li class="set-node"><a href="../floors_131-140/floor_131.html">131–140</a></li>
+      <li class="set-node"><a href="../floors_141-150/floor_141.html">141–150</a></li>
+      <li class="set-node"><a href="../floors_151-160/floor_151.html">151–160</a></li>
+      <li class="set-node"><a href="../floors_161-170/floor_161.html">161–170</a></li>
+      <li class="set-node"><a href="../floors_171-180/floor_171.html">171–180</a></li>
+      <li class="set-node"><a href="../floors_181-190/floor_181.html">181–190</a></li>
+      <li class="set-node"><a href="../floors_191-200/floor_191.html">191–200</a></li>
+    </ul>
+  </details>
+  <details class="dungeon-details">
+    <summary class="dungeon-name">Heaven-on-High</summary>
+    <ul class="sets-list">
+      <li class="set-node"><a href="../../hoh/floors_001-010/floor_1.html">1–10</a></li>
+      <li class="set-node"><a href="../../hoh/floors_011-020/floor_11.html">11–20</a></li>
+      <li class="set-node"><a href="../../hoh/floors_021-030/floor_21.html">21–30</a></li>
+      <li class="set-node"><a href="../../hoh/floors_031-040/floor_31.html">31–40</a></li>
+      <li class="set-node"><a href="../../hoh/floors_041-050/floor_41.html">41–50</a></li>
+      <li class="set-node"><a href="../../hoh/floors_051-060/floor_51.html">51–60</a></li>
+      <li class="set-node"><a href="../../hoh/floors_061-070/floor_61.html">61–70</a></li>
+      <li class="set-node"><a href="../../hoh/floors_071-080/floor_71.html">71–80</a></li>
+      <li class="set-node"><a href="../../hoh/floors_081-090/floor_81.html">81–90</a></li>
+      <li class="set-node"><a href="../../hoh/floors_091-100/floor_91.html">91–100</a></li>
+    </ul>
+  </details>
+  <details class="dungeon-details">
+    <summary class="dungeon-name">Eureka Orthos</summary>
+    <ul class="sets-list">
+      <li class="set-node"><a href="../../eo/floors_001-010/floor_1.html">1–10</a></li>
+      <li class="set-node"><a href="../../eo/floors_011-020/floor_11.html">11–20</a></li>
+      <li class="set-node"><a href="../../eo/floors_021-030/floor_21.html">21–30</a></li>
+      <li class="set-node"><a href="../../eo/floors_031-040/floor_31.html">31–40</a></li>
+      <li class="set-node"><a href="../../eo/floors_041-050/floor_41.html">41–50</a></li>
+      <li class="set-node"><a href="../../eo/floors_051-060/floor_51.html">51–60</a></li>
+      <li class="set-node"><a href="../../eo/floors_061-070/floor_61.html">61–70</a></li>
+      <li class="set-node"><a href="../../eo/floors_071-080/floor_71.html">71–80</a></li>
+      <li class="set-node"><a href="../../eo/floors_081-090/floor_81.html">81–90</a></li>
+      <li class="set-node"><a href="../../eo/floors_091-100/floor_91.html">91–100</a></li>
+    </ul>
+  </details>
+  <details class="dungeon-details">
+    <summary class="dungeon-name">Pagos Tunnels</summary>
+    <ul class="sets-list">
+      <li class="set-node"><a href="../../pt/floors_001-010/floor_1.html">1–10</a></li>
+      <li class="set-node"><a href="../../pt/floors_011-020/floor_11.html">11–20</a></li>
+      <li class="set-node"><a href="../../pt/floors_021-030/floor_21.html">21–30</a></li>
+      <li class="set-node"><a href="../../pt/floors_031-040/floor_31.html">31–40</a></li>
+      <li class="set-node"><a href="../../pt/floors_041-050/floor_41.html">41–50</a></li>
+      <li class="set-node"><a href="../../pt/floors_051-060/floor_51.html">51–60</a></li>
+      <li class="set-node"><a href="../../pt/floors_061-070/floor_61.html">61–70</a></li>
+      <li class="set-node"><a href="../../pt/floors_071-080/floor_71.html">71–80</a></li>
+      <li class="set-node"><a href="../../pt/floors_081-090/floor_81.html">81–90</a></li>
+      <li class="set-node"><a href="../../pt/floors_091-100/floor_91.html">91–100</a></li>
+    </ul>
+  </details>
+</nav>
+<main>
+  <div class="top-bar"><a href="../../index.html" class="home-text-link">🏠 Back to Home</a></div>
+  <h1>Floor 120 <span style="color:var(--accent);font-size:.7em">(Boss)</span></h1>
+  <div class="set-label">Palace of the Dead &bull; Floors 111–120</div>
+  <div class="nav-links"><a href="floor_119.html">← Floor 119</a><a href="../floors_121-130/floor_121.html">Floor 121 →</a></div>
+
+<div class="boss-card">
+  <h2>Boss: Kirtimukha</h2>
+  <div class="boss-layout">
+    <div class="b-img"><img src="../../assets/potd_111-120_kirtimukha.png" alt="Kirtimukha"></div>
+    <div class="b-body"><div class="attributeList">
+<div>
+<label>HP:
+          <span>186163</span>
+</label>
+</div>
+<div>
+<label>Auto-attack:
+          
+
+
+1134
+
+        </label>
+</div>
+</div><hr class="div"><table class="ab">
+<thead>
+<tr>
+<th class="align-left">Ability</th><th>Potency</th><th class="align-left">Effect</th>
+</tr>
+</thead>
+<tr>
+<td class="abilityCell">
+<strong>Bloody Caress</strong>
+</td>
+<td class="align-center">
+<img alt="Physical damage" class="verticalCenter" height="17" src="../../assets/potd_111-120_physical.png" title="Physical damage" width="17"/>
+
+150
+
+        </td>
+<td>instant</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Acid Mist</strong>
+</td>
+<td class="align-center">
+          
+
+
+n/a
+
+        </td>
+<td>telegraphed pointblank AoE; inflicts poison (magic DoT potency 150, 30s)</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Gold Dust</strong>
+</td>
+<td class="align-center">
+          
+
+
+n/a
+
+        </td>
+<td>telegraphed circle AoE on random player; inflicts poison (magic DoT potency 150, 30s)</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Leafstorm</strong>
+</td>
+<td class="align-center">
+<img alt="Physical damage" class="verticalCenter" height="17" src="../../assets/potd_111-120_physical.png" title="Physical damage" width="17"/>
+
+200
+
+        </td>
+<td>roomwide AoE</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Rotten Stench</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/potd_111-120_magic.png" title="Magic damage" width="17"/>
+
+1100
+
+        </td>
+<td>telegraphed wide line AoE</td>
+</tr>
+</table><div class="notes"><b>Notes:</b><ul>
+<li>
+        
+          Rotation:
+        
+        
+        
+        
+          
+  <ul>
+<li>
+        
+          Bloody Caress
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Acid Mist
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Gold Dust
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Leafstorm
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Boss runs to north end and stays there until after Rotten Stench phase
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Two Deep Palace Hornet adds appear
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Rotten Stench x3
+        
+        
+        
+        
+      </li>
+</ul>
+</li>
+<li>
+        
+          Full rotation takes 56 seconds
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Kill adds quickly, or they will use Final Sting, which does 70% max HP damage (each). This can be outranged, but the adds will keep using it repeatedly until it hits or they die
+        
+        
+        
+        
+      </li>
+<li>
+        
+          If you use lust during the second Rotten Stench cast, it will last long enough to kill 2 sets of adds. Steel may be needed to survive long enough on non-tanks though
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Rotten Stench will one-shot a DPS or healer without steel
+        
+        
+        
+        
+      </li>
+</ul></div></div>
+  </div>
+  <h3 style="margin:14px 0 8px">Job Notes &amp; Kill Times</h3><div class="job-grid"><div class="job-tile"><div class="jname">BRD</div><ul><li>Risky without strength; might not kill adds in time</li><li>Steel is not required</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>~5m with strength (6.55)</li></ul></div></div><div class="job-tile"><div class="jname">GNB</div><ul><li>Strength recommended</li><li>Superbolide can be used to block Final Sting from both adds, allowing you to ignore one set</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>4m with strength and 1 lust used to kill 2 sets of adds (6.15)</li></ul></div></div><div class="job-tile"><div class="jname">MCH</div><ul><li>Easy with no pomanders</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>5m30s with no offensive pomanders (6.28)</li><li>3m45s with strength (6.45)</li></ul></div></div><div class="job-tile"><div class="jname">PCT</div><div class="ktimes"><b>Kill times:</b><ul><li>2m with strength and 1 lust (7.16)</li></ul></div></div><div class="job-tile"><div class="jname">PLD</div><ul><li>Strength recommended</li><li>Probably best to save Fight or Flight for adds (though boss rotation is slightly quicker than recast time)</li><li>Without strength, you won't be able to consistently kill both adds. Instead, you can kill one and eat Final Sting from the other. Just make sure your HP is full for it. The boss will do Acid Mist at the same time, allowing you to heal up safely</li><li>Hallowed Ground can be used to block Final Sting from both adds, allowing you to ignore one set</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>9m with no offensive pomanders, killing only 1 bee per set (6.0)</li><li>6m30s with 1 lust to AoE first adds and boss, ignoring second set of adds by using Hallowed Ground for Final Stings, and killing only 1 bee per set after that (6.0)</li><li>6m15s with strength and 1 lust used to AoE first adds and boss, and killing all adds (6.0)</li></ul></div></div><div class="job-tile"><div class="jname">RPR</div><div class="ktimes"><b>Kill times:</b><ul><li>2m30s with strength and 1 lust (7.21)</li></ul></div></div><div class="job-tile"><div class="jname">SGE</div><ul><li>Easy with strength</li><li>Without strength, use 1 Phlegma + Dyskrasia to kill each pair of adds. Timing is tight but consistent - you should kill the adds just as they start casting Final StingBoss rotation is slightly longer than Phlegma recast time, so if you have 2 casts ready when the adds spawn, you can safely use them both</li><li>Boss rotation is slightly longer than Phlegma recast time, so if you have 2 casts ready when the adds spawn, you can safely use them both</li><li>If you're late dodging a poison AoE, it's faster to just tank both AoEs and Esuna afterward than to interrupt a Dosis cast to get out</li><li>Steel not needed when lusting thanks to Kardia</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>6m20s with no offensive pomanders (6.28)</li><li>5m15s with 1 lust used to clear 2 sets of adds (6.28)</li><li>5m with strength (6.28)</li></ul></div></div><div class="job-tile"><div class="jname">WAR</div><ul><li>Holmgang can be used to survive Final Stings, allowing you to ignore one set of adds</li><li>For a faster kill, you can skip killing one of the adds in each set. Just make sure you're at full HP for Final Sting, and have a heal ready before the boss comes back at you. The boss uses Acid Mist at the same time as the adds' Final Sting, so this is actually pretty safe.</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>6m30s with 1 lust to AoE first adds and boss, ignoring second set of adds by using Holmgang for Final Stings, and killing only 1 bee per set after that (6.10)</li><li>4m30s with strength, 1 lust used to AoE first adds and boss, ignoring second set of adds by using Holmgang for Final Stings, and killing only 1 bee per set after that (6.08)</li></ul></div></div><div class="job-tile"><div class="jname">WHM</div><ul><li>Easy with strength</li><li>Without strength, make sure to save your Assize for the adds. Aero the adds as soon as they spawn, then Assize + 3 Stone IIIs on each. If your Aero is late, autoattacks on the adds can make up for a DoT tick</li><li>If you're late dodging a poison AoE, it's faster to just tank both AoEs and Esuna afterward than to interrupt a Stone cast to get out</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>7m15s with no offensive pomanders (7.16)</li></ul></div></div></div>
+</div>
+</main>
+</body>
+</html>

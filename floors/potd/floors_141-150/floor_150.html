@@ -1,0 +1,603 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Floor 150 — Palace of the Dead</title>
+  <style>
+  :root {
+    --bg:       #121212;
+    --surface:  #202020;
+    --surface2: #2a2a2a;
+    --bright:   rgba(255,255,255,0.87);
+    --normal:   rgba(255,255,255,0.60);
+    --dim:      rgba(255,255,255,0.38);
+    --accent:   #F5DA43;
+    --border:   #333333;
+    --warn-bg:  #1e1500;
+    --warn-bdr: #4a3800;
+    --warn-txt: #f0d080;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--normal); margin: 0; display: flex;
+  }
+  a { color: var(--bright); text-decoration: none; }
+  a:hover { color: var(--accent); text-decoration: underline; }
+  h1, h2, h3 { color: var(--bright); }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 260px; min-width: 260px;
+    background: var(--surface);
+    padding: 20px 16px;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    border-right: 1px solid var(--border);
+    font-size: 0.9em;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .home-link {
+    font-size: 1.05em; font-weight: 600; color: var(--bright) !important;
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px; border-radius: 6px;
+    background: var(--surface2);
+    transition: background 0.2s, color 0.2s;
+    margin-bottom: 12px;
+  }
+  .home-link:hover {
+    background: var(--accent); color: #121212 !important; text-decoration: none;
+  }
+  .sidebar details { margin: 0; }
+  .sidebar summary {
+    cursor: pointer; padding: 8px 12px; border-radius: 6px;
+    color: var(--bright); font-weight: 500; list-style: none;
+    display: flex; align-items: center; gap: 8px;
+    transition: background 0.2s;
+    user-select: none;
+  }
+  .sidebar summary:hover { background: var(--surface2); }
+  .sidebar summary::-webkit-details-marker { display: none; }
+  .sidebar summary::before {
+    content: '▶'; display: inline-block;
+    font-size: 0.65em; transition: transform 0.2s; color: var(--dim);
+    margin-right: 4px;
+  }
+  .sidebar details[open] > summary::before { transform: rotate(90deg); color: var(--accent); }
+  .dungeon-name { font-size: 0.95em; margin-top: 4px; }
+  .sets-list, .floors-list { list-style: none; padding: 4px 0 4px 24px; margin: 0; }
+  .floors-list { padding-left: 16px; border-left: 1px solid var(--border); margin-left: 12px; }
+  .set-summary { font-size: 0.9em; font-weight: 400; color: var(--normal); padding: 6px 12px; }
+  .sidebar li { margin: 2px 0; }
+  .sidebar a {
+    color: var(--normal); display: block; padding: 6px 12px; border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+  }
+  .sidebar a:hover { background: var(--surface2); color: var(--bright); text-decoration: none; }
+  .active-floor > a {
+    background: rgba(245, 218, 67, 0.1); color: var(--accent); font-weight: 600;
+    border-left: 3px solid var(--accent); padding-left: 9px;
+  }
+
+  /* ── Main content ── */
+  main { flex: 1; padding: 20px 30px; max-width: 1200px; }
+  .top-bar { margin-bottom: 16px; }
+  .home-text-link {
+    font-size: 0.9em; color: var(--dim); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .home-text-link:hover { color: var(--accent); }
+  .set-label { color: var(--dim); font-size: 0.88em; margin-bottom: 14px; }
+  .nav-links { display: flex; gap: 20px; margin-bottom: 20px; font-size: 0.95em; }
+
+  /* ── Enemy card ── */
+  .enemy-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px 20px; margin-bottom: 24px;
+    display: flex; gap: 24px; flex-wrap: wrap;
+  }
+  .e-img {
+    flex: 0 0 380px;
+    display: flex; align-items: flex-start; justify-content: center; padding-top: 4px;
+  }
+  .e-img img { max-width: 360px; max-height: 360px; object-fit: contain; border-radius: 4px; }
+  .e-body { flex: 1 1 300px; }
+  .e-body h2 {
+    margin: 0 0 10px; font-size: 1.2em;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    color: var(--bright);
+  }
+  .badge {
+    display: inline-block; font-size: 0.7em; font-weight: normal;
+    padding: 3px 10px; border-radius: 20px; background: #b85000; color: #fff;
+  }
+  .stats {
+    display: flex; flex-wrap: wrap; gap: 16px;
+    font-size: 0.95em; margin-bottom: 8px; align-items: center;
+  }
+  .stats span { display: flex; align-items: center; gap: 6px; }
+  .stats b { color: var(--bright); }
+  .aggro-text { font-style: italic; color: var(--normal); }
+  .vulns { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin: 8px 0; }
+  .vulns b { font-size: 0.9em; margin-right: 6px; color: var(--bright); }
+
+  .warnings {
+    background: var(--warn-bg); border: 1px solid var(--warn-bdr);
+    border-radius: 4px; padding: 6px 12px; margin: 8px 0; font-size: 0.9em;
+  }
+  .warnings b { color: var(--accent); display: block; margin-bottom: 4px; }
+  .w-item { display: inline-flex; align-items: center; gap: 5px; margin-right: 12px; color: var(--warn-txt); }
+  .w-item img { vertical-align: middle; flex-shrink: 0; }
+
+  hr.div { border: 0; border-top: 1px solid var(--border); margin: 12px 0; }
+
+  table.ab { border-collapse: collapse; width: 100%; font-size: 0.9em; margin-top: 8px; }
+  table.ab th {
+    text-align: left; border-bottom: 2px solid var(--border);
+    padding: 6px 10px; background: var(--surface2); color: var(--bright);
+  }
+  table.ab td { padding: 6px 10px; vertical-align: top; border-bottom: 1px solid var(--border); }
+  table.ab tr:last-child td { border-bottom: none; }
+
+  .notes { font-size: 0.9em; margin: 8px 0 0; }
+  .notes ul { margin: 4px 0; padding-left: 20px; }
+  .notes b { color: var(--bright); }
+
+  /* ── Boss card ── */
+  .boss-card {
+    background: #2a2010; border: 2px solid #b85000;
+    border-radius: 8px; padding: 20px; margin-bottom: 24px;
+  }
+  .boss-card > h2 { margin: 0 0 16px; color: var(--accent); font-size: 1.4em; }
+  .boss-layout { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 16px; }
+  .b-img { flex: 0 0 380px; text-align: center; }
+  .b-img img { max-width: 360px; max-height: 360px; object-fit: contain; border-radius: 4px; }
+  .b-body { flex: 1 1 300px; }
+  .job-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px; margin-top: 12px;
+  }
+  .job-tile {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 12px; font-size: 0.9em;
+  }
+  .job-tile .jname { font-weight: bold; margin-bottom: 6px; color: var(--accent); }
+  .job-tile ul { margin: 4px 0; padding-left: 18px; }
+  .job-tile .ktimes {
+    color: var(--normal); margin-top: 8px;
+    border-top: 1px solid var(--border); padding-top: 6px;
+  }
+
+  .no-data { color: var(--dim); font-style: italic; }
+
+  /* ── Mobile ── */
+  @media (max-width: 900px) {
+    body { flex-direction: column; }
+    .sidebar {
+      width: 100%; min-width: unset; height: auto;
+      max-height: 45vh; position: relative;
+      border-right: none; border-bottom: 1px solid var(--border);
+      padding: 10px 14px;
+    }
+    main { padding: 14px 16px; }
+    .e-img, .b-img {
+      flex: 0 0 100%; text-align: center; margin-bottom: 12px;
+    }
+    .e-img img, .b-img img { max-width: 100%; height: auto; }
+    table.ab { display: block; overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <a href="../../index.html" class="home-link">🏠 Home</a>
+  <details class="dungeon-details" open>
+    <summary class="dungeon-name">Palace of the Dead</summary>
+    <ul class="sets-list">
+      <li class="set-node"><a href="../floors_001-010/floor_1.html">1–10</a></li>
+      <li class="set-node"><a href="../floors_011-020/floor_11.html">11–20</a></li>
+      <li class="set-node"><a href="../floors_021-030/floor_21.html">21–30</a></li>
+      <li class="set-node"><a href="../floors_031-040/floor_31.html">31–40</a></li>
+      <li class="set-node"><a href="../floors_041-050/floor_41.html">41–50</a></li>
+      <li class="set-node"><a href="../floors_051-060/floor_51.html">51–60</a></li>
+      <li class="set-node"><a href="../floors_061-070/floor_61.html">61–70</a></li>
+      <li class="set-node"><a href="../floors_071-080/floor_71.html">71–80</a></li>
+      <li class="set-node"><a href="../floors_081-090/floor_81.html">81–90</a></li>
+      <li class="set-node"><a href="../floors_091-100/floor_91.html">91–100</a></li>
+      <li class="set-node"><a href="../floors_101-110/floor_101.html">101–110</a></li>
+      <li class="set-node"><a href="../floors_111-120/floor_111.html">111–120</a></li>
+      <li class="set-node"><a href="../floors_121-130/floor_121.html">121–130</a></li>
+      <li class="set-node"><a href="../floors_131-140/floor_131.html">131–140</a></li>
+      <li class="set-node active-set">
+        <details open><summary class="set-summary">
+          141–150</summary><ul class="floors-list">
+          <li><a href="floor_141.html">Floor 141</a></li>
+          <li><a href="floor_142.html">Floor 142</a></li>
+          <li><a href="floor_143.html">Floor 143</a></li>
+          <li><a href="floor_144.html">Floor 144</a></li>
+          <li><a href="floor_145.html">Floor 145</a></li>
+          <li><a href="floor_146.html">Floor 146</a></li>
+          <li><a href="floor_147.html">Floor 147</a></li>
+          <li><a href="floor_148.html">Floor 148</a></li>
+          <li><a href="floor_149.html">Floor 149</a></li>
+          <li class="active-floor"><a href="floor_150.html">Floor 150 ☠</a></li>
+        </ul></details>
+      </li>
+      <li class="set-node"><a href="../floors_151-160/floor_151.html">151–160</a></li>
+      <li class="set-node"><a href="../floors_161-170/floor_161.html">161–170</a></li>
+      <li class="set-node"><a href="../floors_171-180/floor_171.html">171–180</a></li>
+      <li class="set-node"><a href="../floors_181-190/floor_181.html">181–190</a></li>
+      <li class="set-node"><a href="../floors_191-200/floor_191.html">191–200</a></li>
+    </ul>
+  </details>
+  <details class="dungeon-details">
+    <summary class="dungeon-name">Heaven-on-High</summary>
+    <ul class="sets-list">
+      <li class="set-node"><a href="../../hoh/floors_001-010/floor_1.html">1–10</a></li>
+      <li class="set-node"><a href="../../hoh/floors_011-020/floor_11.html">11–20</a></li>
+      <li class="set-node"><a href="../../hoh/floors_021-030/floor_21.html">21–30</a></li>
+      <li class="set-node"><a href="../../hoh/floors_031-040/floor_31.html">31–40</a></li>
+      <li class="set-node"><a href="../../hoh/floors_041-050/floor_41.html">41–50</a></li>
+      <li class="set-node"><a href="../../hoh/floors_051-060/floor_51.html">51–60</a></li>
+      <li class="set-node"><a href="../../hoh/floors_061-070/floor_61.html">61–70</a></li>
+      <li class="set-node"><a href="../../hoh/floors_071-080/floor_71.html">71–80</a></li>
+      <li class="set-node"><a href="../../hoh/floors_081-090/floor_81.html">81–90</a></li>
+      <li class="set-node"><a href="../../hoh/floors_091-100/floor_91.html">91–100</a></li>
+    </ul>
+  </details>
+  <details class="dungeon-details">
+    <summary class="dungeon-name">Eureka Orthos</summary>
+    <ul class="sets-list">
+      <li class="set-node"><a href="../../eo/floors_001-010/floor_1.html">1–10</a></li>
+      <li class="set-node"><a href="../../eo/floors_011-020/floor_11.html">11–20</a></li>
+      <li class="set-node"><a href="../../eo/floors_021-030/floor_21.html">21–30</a></li>
+      <li class="set-node"><a href="../../eo/floors_031-040/floor_31.html">31–40</a></li>
+      <li class="set-node"><a href="../../eo/floors_041-050/floor_41.html">41–50</a></li>
+      <li class="set-node"><a href="../../eo/floors_051-060/floor_51.html">51–60</a></li>
+      <li class="set-node"><a href="../../eo/floors_061-070/floor_61.html">61–70</a></li>
+      <li class="set-node"><a href="../../eo/floors_071-080/floor_71.html">71–80</a></li>
+      <li class="set-node"><a href="../../eo/floors_081-090/floor_81.html">81–90</a></li>
+      <li class="set-node"><a href="../../eo/floors_091-100/floor_91.html">91–100</a></li>
+    </ul>
+  </details>
+  <details class="dungeon-details">
+    <summary class="dungeon-name">Pagos Tunnels</summary>
+    <ul class="sets-list">
+      <li class="set-node"><a href="../../pt/floors_001-010/floor_1.html">1–10</a></li>
+      <li class="set-node"><a href="../../pt/floors_011-020/floor_11.html">11–20</a></li>
+      <li class="set-node"><a href="../../pt/floors_021-030/floor_21.html">21–30</a></li>
+      <li class="set-node"><a href="../../pt/floors_031-040/floor_31.html">31–40</a></li>
+      <li class="set-node"><a href="../../pt/floors_041-050/floor_41.html">41–50</a></li>
+      <li class="set-node"><a href="../../pt/floors_051-060/floor_51.html">51–60</a></li>
+      <li class="set-node"><a href="../../pt/floors_061-070/floor_61.html">61–70</a></li>
+      <li class="set-node"><a href="../../pt/floors_071-080/floor_71.html">71–80</a></li>
+      <li class="set-node"><a href="../../pt/floors_081-090/floor_81.html">81–90</a></li>
+      <li class="set-node"><a href="../../pt/floors_091-100/floor_91.html">91–100</a></li>
+    </ul>
+  </details>
+</nav>
+<main>
+  <div class="top-bar"><a href="../../index.html" class="home-text-link">🏠 Back to Home</a></div>
+  <h1>Floor 150 <span style="color:var(--accent);font-size:.7em">(Boss)</span></h1>
+  <div class="set-label">Palace of the Dead &bull; Floors 141–150</div>
+  <div class="nav-links"><a href="floor_149.html">← Floor 149</a><a href="../floors_151-160/floor_151.html">Floor 151 →</a></div>
+
+<div class="boss-card">
+  <h2>Boss: Tisiphone</h2>
+  <div class="boss-layout">
+    <div class="b-img"><img src="../../assets/potd_141-150_tisiphone.png" alt="Tisiphone"></div>
+    <div class="b-body"><div class="attributeList">
+<div>
+<label>HP:
+          <span>249251</span>
+</label>
+</div>
+<div>
+<label>Auto-attack:
+          
+
+
+1835
+
+        </label>
+</div>
+</div><hr class="div"><table class="ab">
+<thead>
+<tr>
+<th class="align-left">Ability</th><th>Potency</th><th class="align-left">Effect</th>
+</tr>
+</thead>
+<tr>
+<td class="abilityCell">
+<strong>Dark Mist</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/potd_141-150_magic.png" title="Magic damage" width="17"/>
+
+320
+
+        </td>
+<td>telegraphed pointblank AoE; inflicts terror (10s)</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Void Fire IV</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/potd_141-150_magic.png" title="Magic damage" width="17"/>
+
+350
+
+        </td>
+<td>large telegraphed circle AoE on random player</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Void Aero</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/potd_141-150_magic.png" title="Magic damage" width="17"/>
+
+350
+
+        </td>
+<td>telegraphed wide line AoE</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Summon Darkness</strong>
+</td>
+<td class="align-center">
+          
+
+
+n/a
+
+        </td>
+<td>summons one of four types of adds (see rotation)</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Fatal Allure</strong>
+</td>
+<td class="align-center">
+          
+
+
+n/a
+
+        </td>
+<td>draws succubus add to boss and inflicts terror on it</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Blood Sword</strong>
+</td>
+<td class="align-center">
+          
+
+
+n/a
+
+        </td>
+<td>kills succubus add, absorbing its remaining HP</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Blood Rain</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/potd_141-150_magic.png" title="Magic damage" width="17"/>
+
+350
+
+        </td>
+<td>roomwide AoE; also hits zombie adds. Never crits</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Sweet Steel (succubus add)</strong>
+</td>
+<td class="align-center">
+<img alt="Physical damage" class="verticalCenter" height="17" src="../../assets/potd_141-150_physical.png" title="Physical damage" width="17"/>
+
+120
+
+        </td>
+<td>instant</td>
+</tr>
+<tr>
+<td class="abilityCell">
+<strong>Void Fire II (succubus add)</strong>
+</td>
+<td class="align-center">
+<img alt="Magic damage" class="verticalCenter" height="17" src="../../assets/potd_141-150_magic.png" title="Magic damage" width="17"/>
+
+300
+
+        </td>
+<td>telegraphed circle AoE</td>
+</tr>
+</table><div class="notes"><b>Notes:</b><ul>
+<li>
+        
+          Rotation:
+        
+        
+        
+        
+          
+  <ul>
+<li>
+        
+          Void Fire IV
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Summon Darkness (Gargoyle): calls an untargetable gargoyle that will use a large telegraphed line AoE at the same time as Dark Mist
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Dark Mist
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Summon Darkness (Zombies): calls 4 zombie adds that will slowly crawl towards you. If one touches you, you will be bound until it dies
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Void Fire IV
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Void Aero
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Summon Darkness (Vodoriga): calls an untargetable vodoriga that will use a telegraphed circle AoE just after the next Void Fire IV
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Void Fire IV
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Dark Mist
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Summon Darkness (Succubus): calls a succubus add - in addition to autoattacks, uses Sweet Steel and Void Fire II
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Void Aero
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Void Fire IV
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Fatal Allure
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Blood Sword - the HP drain is 1:1, so whether you DPS the add or the boss doesn't matter in terms of damage
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Blood Rain - kills any remaining zombies
+        
+        
+        
+        
+      </li>
+</ul>
+</li>
+<li>
+        
+          Entire rotation is about 1m50s
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Don't let the zombies catch you
+        
+        
+        
+        
+      </li>
+<li>
+        
+          Physical ranged jobs can just kite the zombies until they despawn. It's likely better for others to kill them. They have pretty low HP
+        
+        
+        
+        
+      </li>
+<li>
+        
+          If you're not killing the succubus add, it's worth putting DoTs on it anyway
+        
+        
+        
+        
+      </li>
+<li>
+        
+          In party play, Summon Darkness (Gargoyle/Vodoriga) summons one add for each party member
+        
+        
+        
+        
+      </li>
+</ul></div></div>
+  </div>
+  <h3 style="margin:14px 0 8px">Job Notes &amp; Kill Times</h3><div class="job-grid"><div class="job-tile"><div class="jname">BRD</div><ul><li>Kite and ignore the zombie adds</li><li>DoTs on the succubus add will do about the same damage as two regular GCDs on boss, so doesn't make much difference</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>~6m30s with strength (6.55)</li></ul></div></div><div class="job-tile"><div class="jname">GNB</div><ul><li>Strength highly recommended</li><li>Gather zombie adds in the middle and AoE them down. You can get hit by the Void Fire IV AoE from boss - its damage is pretty low. You'll want to get out of the second AoE that comes in right after though</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>6m45s with strength, 1 lust, and steel at least until lust is done. Lust used when first set of zombies is gathered in middle, and spammed for the full duration to take out the zombies, damage the boss, and also damage the succubus a lot (6.15)</li></ul></div></div><div class="job-tile"><div class="jname">MCH</div><ul><li>More comfortable with steel, but not necessary</li><li>Blood Rain hurts without steel, so make sure to keep your HP topped</li><li>Kite and ignore all adds; focus down the boss</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>6m30s with no offensive pomanders (6.45)</li><li>4m45s with strength (6.45)</li></ul></div></div><div class="job-tile"><div class="jname">PCT</div><div class="ktimes"><b>Kill times:</b><ul><li>4m with strength and 1 lust at start (7.16)</li></ul></div></div><div class="job-tile"><div class="jname">PLD</div><ul><li>Steel recommended</li><li>Gather zombie adds in the middle and AoE them down. Probably want to save Fight or Flight and Circle of Scorn for this. You can get hit by the Void Fire IV AoE from boss - its damage is pretty low. You'll want to get out of the second AoE that comes in right after though. Maybe use Hallowed Ground if you're not going to make it out, but it is possible to kill the adds fast enough even without strength</li><li>Put DoTs on the succubus add, but focus the boss</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>10m15s with 7m30s strength and 1 lust used to AoE first adds (6.0)</li><li>9m with 1 full strength and 1 lust used to AoE first adds (6.0)</li></ul></div></div><div class="job-tile"><div class="jname">RPR</div><div class="ktimes"><b>Kill times:</b><ul><li>4m45s with strength (6.0)</li><li>5m20s with steel, no strength and 1 lust - killed before the 3rd Succubus is consumed (7.21)</li></ul></div></div><div class="job-tile"><div class="jname">SGE</div><ul><li>Kite and ignore zombies. Save your Phlegma casts for AoEing Tisiphone and the succubus add, but be careful of the add's damage if you don't have steel up</li><li>Should deal around 14% net damage per cycle without strength</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>12m45s with no offensive pomanders (6.28)</li><li>9m with strength (6.28)</li><li>8m with strength and 1 lust (6.0)</li></ul></div></div><div class="job-tile"><div class="jname">SMN</div><div class="ktimes"><b>Kill times:</b><ul><li>4m15s with strength and 1 lust (6.0)</li></ul></div></div><div class="job-tile"><div class="jname">WAR</div><ul><li>Not bad without steel; just keep your HP up for Blood Rain</li><li>Gather zombie adds in the middle and AoE them down. You can get hit by the Void Fire IV AoE from boss - its damage is pretty low. You'll want to get out of the second AoE that comes in right after though</li><li>If not using strength, save Berserk or gauge for zombies</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>16-17m with no offensive pomanders (6.2)</li><li>8m30s with 1 strength, 1 lust, and steel at least until lust is done. Lust used when first set of zombies is gathered in middle, and spammed for almost the full duration to take out the zombies, damage the boss, and also damage the succubus a lot. Dropped when HP got low. Steel helps stay in lust longer. This is a conservative timing - it is possible to kill her just before the 4th Fatal Allure, taking only 7m15s (6.10)</li></ul></div></div><div class="job-tile"><div class="jname">WHM</div><ul><li>With strength, a single Assize will kill all the zombies. Otherwise kite them around until the succubus add spawns, then use the next Assize (will come up a few seconds later) to clear them and also get AoE on the succubus</li><li>2-target Holy is a 60 potency win over Stone III, so good Holy AoE on the boss and succubus add can give around 2 Stone GCDs worth of damage. But BE CAREFUL if no steel - a triple crit (2 auto-attacks + Sweet Steel) can kill from full health</li><li>Also be careful of Blood Rain without steel, since your HP will probably be low from succubus add damage. 7000 HP is enough to be safe</li><li>Should deal 14-15% net damage per cycle without strength</li></ul><div class="ktimes"><b>Kill times:</b><ul><li>12m15s with no offensive pomanders (7.16)</li></ul></div></div></div>
+</div>
+</main>
+</body>
+</html>
