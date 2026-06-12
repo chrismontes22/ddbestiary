@@ -23,6 +23,7 @@
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: var(--bg); color: var(--normal); margin: 0; display: flex;
+    padding-bottom: 64px;
   }
   a { color: var(--bright); text-decoration: none; }
   a:hover { color: var(--accent); text-decoration: underline; }
@@ -93,11 +94,62 @@
   .set-label { color: var(--dim); font-size: 0.88em; margin-bottom: 14px; }
   .nav-links { display: flex; gap: 20px; margin-bottom: 20px; font-size: 0.95em; }
 
+  /* ── Summary table ── */
+  .enemy-summary {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; margin-bottom: 28px; overflow: hidden;
+  }
+  .summary-table {
+    border-collapse: collapse; width: 100%; font-size: 0.92em;
+  }
+  .summary-table thead tr { background: var(--surface2); }
+  .summary-table th {
+    text-align: left; padding: 8px 12px;
+    color: var(--bright); font-weight: 600;
+    border-bottom: 2px solid var(--border);
+  }
+  .summary-table th.col-aggro { width: 40px; text-align: center; }
+  .summary-table th.col-warn  { width: 180px; }
+  .summary-table td {
+    padding: 7px 12px; border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .summary-table tbody tr:last-child td { border-bottom: none; }
+  .summary-table tbody tr:hover { background: var(--surface2); }
+  .summary-table td.col-aggro { text-align: center; }
+  .summary-table a { color: var(--bright); }
+  .summary-table a:hover { color: var(--accent); }
+  .badge-sm {
+    display: inline-block; font-size: 0.68em; padding: 2px 6px;
+    border-radius: 10px; background: #b85000; color: #fff;
+    vertical-align: middle; margin-left: 4px;
+  }
+
+  /* Warning icon tooltips — hover on desktop, long-press on mobile */
+  .w-tooltip-wrap {
+    position: relative; display: inline-block;
+    cursor: help; margin-right: 4px;
+  }
+  .w-tooltip-wrap .w-tooltip {
+    display: none;
+    position: absolute; bottom: calc(100% + 6px); left: 50%;
+    transform: translateX(-50%);
+    background: #1a1400; border: 1px solid var(--warn-bdr);
+    color: var(--warn-txt); font-size: 0.82em;
+    padding: 5px 9px; border-radius: 4px;
+    white-space: nowrap; z-index: 200;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+  .w-tooltip-wrap:hover .w-tooltip,
+  .w-tooltip-wrap.tip-active .w-tooltip { display: block; }
+
   /* ── Enemy card ── */
   .enemy-card {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 8px; padding: 16px 20px; margin-bottom: 24px;
     display: flex; gap: 24px; flex-wrap: wrap;
+    scroll-margin-top: 16px;
   }
   .e-img {
     flex: 0 0 380px;
@@ -173,6 +225,103 @@
 
   .no-data { color: var(--dim); font-style: italic; }
 
+  /* ── Persistent bottom navigation bar ── */
+  .floor-nav-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: 56px;
+    background: rgba(20, 20, 20, 0.97);
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    z-index: 100;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .floor-nav-arrow {
+    flex: 0 0 80px; display: flex; align-items: center; justify-content: center;
+  }
+  .floor-nav-arrow a, .floor-nav-disabled {
+    font-size: 1.8em; line-height: 1;
+    width: 52px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; transition: background 0.15s, color 0.15s;
+    user-select: none;
+  }
+  .floor-nav-arrow a {
+    color: var(--bright); background: var(--surface2);
+    text-decoration: none;
+  }
+  .floor-nav-arrow a:hover {
+    background: var(--accent); color: #121212; text-decoration: none;
+  }
+  .floor-nav-disabled { color: var(--border); background: transparent; cursor: default; }
+  .floor-nav-label {
+    flex: 1; text-align: center;
+    font-size: 0.95em; color: var(--dim); letter-spacing: 0.02em;
+  }
+
+  /* ── Persistent enemy quick-list ── */
+  .enemy-quicklist {
+    position: fixed;
+    bottom: 64px;
+    right: 16px;
+    background: rgba(22, 22, 22, 0.98);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 0.85em;
+    z-index: 99;
+    min-width: 170px;
+    max-width: 250px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.55);
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .enemy-quicklist.scroll-hidden {
+    opacity: 0; pointer-events: none;
+    transform: translateY(10px);
+  }
+  /* Toggle button — always-visible header of the panel */
+  .eq-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; padding: 10px 14px;
+    background: none; border: none; cursor: pointer;
+    color: var(--bright); font-size: 0.85em; font-weight: 600;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    border-radius: 10px;
+    min-height: 44px;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s;
+  }
+  .eq-toggle:hover { background: rgba(255,255,255,0.06); }
+  .eq-toggle:active { background: rgba(255,255,255,0.1); }
+  .eq-toggle-label { flex: 1; text-align: left; }
+  .eq-caret {
+    font-size: 0.7em; color: var(--accent);
+    margin-left: 8px;
+    flex-shrink: 0;
+  }
+  /* Collapsible body */
+  .eq-body {
+    overflow: hidden;
+  }
+  .eq-body ul {
+    list-style: none; margin: 0; padding: 0 0 8px;
+    border-top: 1px solid var(--border);
+  }
+  .eq-body li { margin: 0; }
+  .eq-body a {
+    color: var(--normal);
+    display: flex; align-items: center;
+    padding: 9px 14px;
+    min-height: 40px;
+    transition: background 0.12s, color 0.12s;
+  }
+  .eq-body li:last-child a { border-radius: 0 0 10px 10px; }
+  .eq-body a:hover, .eq-body a:focus {
+    background: rgba(255,255,255,0.07); color: var(--bright); text-decoration: none;
+  }
+  .eq-body a:active { background: rgba(245,218,67,0.12); color: var(--accent); }
+
   /* ── Mobile ── */
   @media (max-width: 900px) {
     body { flex-direction: column; }
@@ -188,8 +337,29 @@
     }
     .e-img img, .b-img img { max-width: 100%; height: auto; }
     table.ab { display: block; overflow-x: auto; }
+    .enemy-quicklist { right: 8px; left: 8px; max-width: none; min-width: 0; border-radius: 10px; }
+    .floor-nav-arrow { flex: 0 0 64px; }
   }
 </style>
+<script>
+// Long-press tooltip support for mobile warning icons in summary table
+(function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    var LONG = 450;
+    document.querySelectorAll('.w-tooltip-wrap').forEach(function(el) {
+      var timer;
+      el.addEventListener('touchstart', function() {
+        timer = setTimeout(function() { el.classList.add('tip-active'); }, LONG);
+      }, { passive: true });
+      el.addEventListener('touchend', function() {
+        clearTimeout(timer);
+        setTimeout(function() { el.classList.remove('tip-active'); }, 1400);
+      });
+      el.addEventListener('touchcancel', function() { clearTimeout(timer); });
+    });
+  });
+})();
+</script>
 </head>
 <body>
 
@@ -286,7 +456,61 @@
   <div class="set-label">Palace of the Dead &bull; Floors 51–60</div>
   <div class="nav-links"><a href="floor_55.html">← Floor 55</a><a href="floor_57.html">Floor 57 →</a></div>
 
-<div class="enemy-card">
+<div id="enemy-summary" class="enemy-summary">
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th class="col-aggro" title="Aggro type">!</th>
+        <th class="col-name">Enemy</th>
+        <th class="col-warn">Warnings</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_051-060_eye.svg" title="Sight agro" width="24"/></td>
+        <td class="col-name"><a href="#enemy-palace-imp">Palace Imp</a></td>
+        <td class="col-warn"><span class="w-tooltip-wrap"><img alt="Unclassified dangerous ability" class="warningIcon" height="16" src="../../assets/potd_051-060_warning.svg" title="Unclassified dangerous ability" width="16"/><span class="w-tooltip">Unclassified dangerous</span></span></td>
+      </tr>
+      <tr>
+        <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_051-060_radar.svg" title="Proximity agro" width="24"/></td>
+        <td class="col-name"><a href="#enemy-palace-idol">Palace Idol</a> <span class="badge-sm">P</span></td>
+        <td class="col-warn"></td>
+      </tr>
+      <tr>
+        <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_051-060_radar.svg" title="Proximity agro" width="24"/></td>
+        <td class="col-name"><a href="#enemy-palace-pot">Palace Pot</a></td>
+        <td class="col-warn"><span class="w-tooltip-wrap"><img alt="Gaze ability" class="warningIcon" height="16" src="../../assets/potd_051-060_gaze.svg" title="Gaze ability" width="16"/><span class="w-tooltip">Gaze</span></span></td>
+      </tr>
+      <tr>
+        <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_051-060_eye.svg" title="Sight agro" width="24"/></td>
+        <td class="col-name"><a href="#enemy-palace-taurus">Palace Taurus</a></td>
+        <td class="col-warn"></td>
+      </tr>
+      <tr>
+        <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_051-060_eye.svg" title="Sight agro" width="24"/></td>
+        <td class="col-name"><a href="#enemy-palace-vodoriga">Palace Vodoriga</a></td>
+        <td class="col-warn"></td>
+      </tr>
+      <tr>
+        <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_051-060_radar.svg" title="Proximity agro" width="24"/></td>
+        <td class="col-name"><a href="#enemy-mimic">Mimic</a></td>
+        <td class="col-warn"></td>
+      </tr>
+      <tr>
+        <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_051-060_radar.svg" title="Proximity agro" width="24"/></td>
+        <td class="col-name"><a href="#enemy-blackening-marketeer-fallen-npc">Blackening Marketeer (Fallen NPC)</a></td>
+        <td class="col-warn"></td>
+      </tr>
+      <tr>
+        <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_051-060_radar.svg" title="Proximity agro" width="24"/></td>
+        <td class="col-name"><a href="#enemy-moldering-merchant-fallen-npc">Moldering Merchant (Fallen NPC)</a></td>
+        <td class="col-warn"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="enemy-card" id="enemy-palace-imp">
   <div class="e-img"><img class="galleryImage" src="../../assets/potd_051-060_imp.png"/></div>
   <div class="e-body">
     <h2>Palace Imp</h2>
@@ -332,7 +556,7 @@ n/a
   </div>
 </div>
 
-<div class="enemy-card">
+<div class="enemy-card" id="enemy-palace-idol">
   <div class="e-img"><img class="galleryImage" src="../../assets/potd_051-060_idol.png"/></div>
   <div class="e-body">
     <h2>Palace Idol<span class="badge">Patrol</span></h2>
@@ -379,7 +603,7 @@ n/a
   </div>
 </div>
 
-<div class="enemy-card">
+<div class="enemy-card" id="enemy-palace-pot">
   <div class="e-img"><img class="galleryImage" src="../../assets/potd_051-060_pot.png"/></div>
   <div class="e-body">
     <h2>Palace Pot</h2>
@@ -415,7 +639,7 @@ n/a
   </div>
 </div>
 
-<div class="enemy-card">
+<div class="enemy-card" id="enemy-palace-taurus">
   <div class="e-img"><img class="galleryImage" src="../../assets/potd_051-060_taurus.png"/></div>
   <div class="e-body">
     <h2>Palace Taurus</h2>
@@ -450,7 +674,7 @@ n/a
   </div>
 </div>
 
-<div class="enemy-card">
+<div class="enemy-card" id="enemy-palace-vodoriga">
   <div class="e-img"><img class="galleryImage" src="../../assets/potd_051-060_vodoriga.png"/></div>
   <div class="e-body">
     <h2>Palace Vodoriga</h2>
@@ -485,7 +709,7 @@ n/a
   </div>
 </div>
 
-<div class="enemy-card">
+<div class="enemy-card" id="enemy-mimic">
   <div class="e-img"><img class="galleryImage" src="../../assets/potd_051-060_mimic.png"/></div>
   <div class="e-body">
     <h2>Mimic</h2>
@@ -550,7 +774,7 @@ n/a
   </div>
 </div>
 
-<div class="enemy-card">
+<div class="enemy-card" id="enemy-blackening-marketeer-fallen-npc">
   <div class="e-img"><img class="galleryImage" src="../../assets/potd_051-060_marketeer.png"/></div>
   <div class="e-body">
     <h2>Blackening Marketeer (Fallen NPC)</h2>
@@ -600,7 +824,7 @@ n/a
   </div>
 </div>
 
-<div class="enemy-card">
+<div class="enemy-card" id="enemy-moldering-merchant-fallen-npc">
   <div class="e-img"><img class="galleryImage" src="../../assets/potd_051-060_merchant.png"/></div>
   <div class="e-body">
     <h2>Moldering Merchant (Fallen NPC)</h2>
@@ -650,5 +874,101 @@ n/a
   </div>
 </div>
 </main>
+
+<!-- Persistent bottom navigation arrows -->
+<div class="floor-nav-bar">
+  <div class="floor-nav-arrow floor-nav-prev">
+    <a href="floor_55.html" title="Floor 55">&#8592;</a>
+  </div>
+  <div class="floor-nav-label">Floor 56</div>
+  <div class="floor-nav-arrow floor-nav-next">
+    <a href="floor_57.html" title="Floor 57">&#8594;</a>
+  </div>
+</div>
+
+
+<!-- Persistent enemy quick-list (shown after scrolling past summary table) -->
+<div id="enemy-quicklist" class="enemy-quicklist scroll-hidden">
+  <button id="eq-toggle" class="eq-toggle" aria-expanded="true" aria-controls="eq-body" title="Toggle enemy list">
+    <span class="eq-toggle-label">Enemies</span>
+    <span class="eq-caret" aria-hidden="true">▲</span>
+  </button>
+  <div id="eq-body" class="eq-body">
+    <ul>
+      <li><a href="#enemy-palace-imp">Palace Imp</a></li>
+      <li><a href="#enemy-palace-idol">Palace Idol</a></li>
+      <li><a href="#enemy-palace-pot">Palace Pot</a></li>
+      <li><a href="#enemy-palace-taurus">Palace Taurus</a></li>
+      <li><a href="#enemy-palace-vodoriga">Palace Vodoriga</a></li>
+      <li><a href="#enemy-mimic">Mimic</a></li>
+      <li><a href="#enemy-blackening-marketeer-fallen-npc">Blackening Marketeer (Fallen NPC)</a></li>
+      <li><a href="#enemy-moldering-merchant-fallen-npc">Moldering Merchant (Fallen NPC)</a></li>
+    </ul>
+  </div>
+</div>
+<script>
+(function() {
+  var STORAGE_KEY = 'eq-collapsed';
+  var summary   = document.getElementById('enemy-summary');
+  var panel     = document.getElementById('enemy-quicklist');
+  var toggle    = document.getElementById('eq-toggle');
+  var body      = document.getElementById('eq-body');
+  var caret     = toggle ? toggle.querySelector('.eq-caret') : null;
+  if (!summary || !panel || !toggle || !body) return;
+
+  // ── Collapsed state (persisted) ──────────────────────────────────────────
+  var collapsed = false;
+  try { collapsed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(e) {}
+
+  function applyCollapsed(val, animate) {
+    collapsed = val;
+    try { localStorage.setItem(STORAGE_KEY, val ? '1' : '0'); } catch(e) {}
+    toggle.setAttribute('aria-expanded', String(!val));
+    if (val) {
+      if (animate) {
+        body.style.maxHeight = body.scrollHeight + 'px';
+        requestAnimationFrame(function() {
+          body.style.transition = 'max-height 0.22s ease, opacity 0.18s ease';
+          body.style.maxHeight  = '0';
+          body.style.opacity    = '0';
+        });
+      } else {
+        body.style.maxHeight = '0';
+        body.style.opacity   = '0';
+      }
+      if (caret) caret.textContent = '▼';
+    } else {
+      body.style.transition = 'max-height 0.25s ease, opacity 0.2s ease';
+      body.style.maxHeight  = body.scrollHeight + 'px';
+      body.style.opacity    = '1';
+      if (caret) caret.textContent = '▲';
+      // Remove fixed max-height after expand so dynamic content fits
+      body.addEventListener('transitionend', function onEnd() {
+        body.style.maxHeight = '';
+        body.removeEventListener('transitionend', onEnd);
+      });
+    }
+  }
+
+  // Apply stored state immediately (no animation)
+  applyCollapsed(collapsed, false);
+
+  toggle.addEventListener('click', function() { applyCollapsed(!collapsed, true); });
+
+  // ── Scroll visibility ─────────────────────────────────────────────────────
+  function onScroll() {
+    var rect = summary.getBoundingClientRect();
+    if (rect.bottom < 80) {
+      panel.classList.remove('scroll-hidden');
+    } else {
+      panel.classList.add('scroll-hidden');
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
+
+
 </body>
 </html>

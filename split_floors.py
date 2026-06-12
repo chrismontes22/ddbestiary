@@ -99,7 +99,7 @@ SIDEBAR_TEMPLATE = Template(
 
 ENEMY_CARD_TEMPLATE = Template(
     r"""
-<div class="enemy-card">
+<div class="enemy-card" id="enemy-{{ anchor }}">
   <div class="e-img">{{ img_html }}</div>
   <div class="e-body">
     <h2>{{ name }}{{ badge }}</h2>
@@ -131,6 +131,31 @@ BOSS_CARD_TEMPLATE = Template(
 """
 )
 
+SUMMARY_TABLE_TEMPLATE = Template(
+    r"""
+<div id="enemy-summary" class="enemy-summary">
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th class="col-aggro" title="Aggro type">!</th>
+        <th class="col-name">Enemy</th>
+        <th class="col-warn">Warnings</th>
+      </tr>
+    </thead>
+    <tbody>
+      {%- for row in rows %}
+      <tr>
+        <td class="col-aggro">{{ row.aggro_html }}</td>
+        <td class="col-name"><a href="#enemy-{{ row.anchor }}">{{ row.name }}</a>{% if row.patrol %} <span class="badge-sm">P</span>{% endif %}</td>
+        <td class="col-warn">{{ row.warn_icons }}</td>
+      </tr>
+      {%- endfor %}
+    </tbody>
+  </table>
+</div>
+"""
+)
+
 PAGE_TEMPLATE = Template(
     r"""
 <!DOCTYPE html>
@@ -150,6 +175,97 @@ PAGE_TEMPLATE = Template(
   <div class="nav-links">{{ prev_link }}{{ next_link }}</div>
 {{ content }}
 </main>
+
+<!-- Persistent bottom navigation arrows -->
+<div class="floor-nav-bar">
+  <div class="floor-nav-arrow floor-nav-prev">
+    {% if prev_url %}<a href="{{ prev_url }}" title="Floor {{ prev_num }}">&#8592;</a>{% else %}<span class="floor-nav-disabled">&#8592;</span>{% endif %}
+  </div>
+  <div class="floor-nav-label">Floor {{ floor_num }}</div>
+  <div class="floor-nav-arrow floor-nav-next">
+    {% if next_url %}<a href="{{ next_url }}" title="Floor {{ next_num }}">&#8594;</a>{% else %}<span class="floor-nav-disabled">&#8594;</span>{% endif %}
+  </div>
+</div>
+
+{% if enemy_names %}
+<!-- Persistent enemy quick-list (shown after scrolling past summary table) -->
+<div id="enemy-quicklist" class="enemy-quicklist scroll-hidden">
+  <button id="eq-toggle" class="eq-toggle" aria-expanded="true" aria-controls="eq-body" title="Toggle enemy list">
+    <span class="eq-toggle-label">Enemies</span>
+    <span class="eq-caret" aria-hidden="true">▲</span>
+  </button>
+  <div id="eq-body" class="eq-body">
+    <ul>
+      {%- for e in enemy_names %}
+      <li><a href="#enemy-{{ e.anchor }}">{{ e.name }}</a></li>
+      {%- endfor %}
+    </ul>
+  </div>
+</div>
+<script>
+(function() {
+  var STORAGE_KEY = 'eq-collapsed';
+  var summary   = document.getElementById('enemy-summary');
+  var panel     = document.getElementById('enemy-quicklist');
+  var toggle    = document.getElementById('eq-toggle');
+  var body      = document.getElementById('eq-body');
+  var caret     = toggle ? toggle.querySelector('.eq-caret') : null;
+  if (!summary || !panel || !toggle || !body) return;
+
+  // ── Collapsed state (persisted) ──────────────────────────────────────────
+  var collapsed = false;
+  try { collapsed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(e) {}
+
+  function applyCollapsed(val, animate) {
+    collapsed = val;
+    try { localStorage.setItem(STORAGE_KEY, val ? '1' : '0'); } catch(e) {}
+    toggle.setAttribute('aria-expanded', String(!val));
+    if (val) {
+      if (animate) {
+        body.style.maxHeight = body.scrollHeight + 'px';
+        requestAnimationFrame(function() {
+          body.style.transition = 'max-height 0.22s ease, opacity 0.18s ease';
+          body.style.maxHeight  = '0';
+          body.style.opacity    = '0';
+        });
+      } else {
+        body.style.maxHeight = '0';
+        body.style.opacity   = '0';
+      }
+      if (caret) caret.textContent = '▼';
+    } else {
+      body.style.transition = 'max-height 0.25s ease, opacity 0.2s ease';
+      body.style.maxHeight  = body.scrollHeight + 'px';
+      body.style.opacity    = '1';
+      if (caret) caret.textContent = '▲';
+      // Remove fixed max-height after expand so dynamic content fits
+      body.addEventListener('transitionend', function onEnd() {
+        body.style.maxHeight = '';
+        body.removeEventListener('transitionend', onEnd);
+      });
+    }
+  }
+
+  // Apply stored state immediately (no animation)
+  applyCollapsed(collapsed, false);
+
+  toggle.addEventListener('click', function() { applyCollapsed(!collapsed, true); });
+
+  // ── Scroll visibility ─────────────────────────────────────────────────────
+  function onScroll() {
+    var rect = summary.getBoundingClientRect();
+    if (rect.bottom < 80) {
+      panel.classList.remove('scroll-hidden');
+    } else {
+      panel.classList.add('scroll-hidden');
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
+{% endif %}
+
 </body>
 </html>
 """
@@ -173,6 +289,7 @@ PAGE_CSS = """<style>
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: var(--bg); color: var(--normal); margin: 0; display: flex;
+    padding-bottom: 64px;
   }
   a { color: var(--bright); text-decoration: none; }
   a:hover { color: var(--accent); text-decoration: underline; }
@@ -243,11 +360,62 @@ PAGE_CSS = """<style>
   .set-label { color: var(--dim); font-size: 0.88em; margin-bottom: 14px; }
   .nav-links { display: flex; gap: 20px; margin-bottom: 20px; font-size: 0.95em; }
 
+  /* ── Summary table ── */
+  .enemy-summary {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; margin-bottom: 28px; overflow: hidden;
+  }
+  .summary-table {
+    border-collapse: collapse; width: 100%; font-size: 0.92em;
+  }
+  .summary-table thead tr { background: var(--surface2); }
+  .summary-table th {
+    text-align: left; padding: 8px 12px;
+    color: var(--bright); font-weight: 600;
+    border-bottom: 2px solid var(--border);
+  }
+  .summary-table th.col-aggro { width: 40px; text-align: center; }
+  .summary-table th.col-warn  { width: 180px; }
+  .summary-table td {
+    padding: 7px 12px; border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .summary-table tbody tr:last-child td { border-bottom: none; }
+  .summary-table tbody tr:hover { background: var(--surface2); }
+  .summary-table td.col-aggro { text-align: center; }
+  .summary-table a { color: var(--bright); }
+  .summary-table a:hover { color: var(--accent); }
+  .badge-sm {
+    display: inline-block; font-size: 0.68em; padding: 2px 6px;
+    border-radius: 10px; background: #b85000; color: #fff;
+    vertical-align: middle; margin-left: 4px;
+  }
+
+  /* Warning icon tooltips — hover on desktop, long-press on mobile */
+  .w-tooltip-wrap {
+    position: relative; display: inline-block;
+    cursor: help; margin-right: 4px;
+  }
+  .w-tooltip-wrap .w-tooltip {
+    display: none;
+    position: absolute; bottom: calc(100% + 6px); left: 50%;
+    transform: translateX(-50%);
+    background: #1a1400; border: 1px solid var(--warn-bdr);
+    color: var(--warn-txt); font-size: 0.82em;
+    padding: 5px 9px; border-radius: 4px;
+    white-space: nowrap; z-index: 200;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+  .w-tooltip-wrap:hover .w-tooltip,
+  .w-tooltip-wrap.tip-active .w-tooltip { display: block; }
+
   /* ── Enemy card ── */
   .enemy-card {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 8px; padding: 16px 20px; margin-bottom: 24px;
     display: flex; gap: 24px; flex-wrap: wrap;
+    scroll-margin-top: 16px;
   }
   .e-img {
     flex: 0 0 380px;
@@ -323,6 +491,103 @@ PAGE_CSS = """<style>
 
   .no-data { color: var(--dim); font-style: italic; }
 
+  /* ── Persistent bottom navigation bar ── */
+  .floor-nav-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: 56px;
+    background: rgba(20, 20, 20, 0.97);
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    z-index: 100;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .floor-nav-arrow {
+    flex: 0 0 80px; display: flex; align-items: center; justify-content: center;
+  }
+  .floor-nav-arrow a, .floor-nav-disabled {
+    font-size: 1.8em; line-height: 1;
+    width: 52px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; transition: background 0.15s, color 0.15s;
+    user-select: none;
+  }
+  .floor-nav-arrow a {
+    color: var(--bright); background: var(--surface2);
+    text-decoration: none;
+  }
+  .floor-nav-arrow a:hover {
+    background: var(--accent); color: #121212; text-decoration: none;
+  }
+  .floor-nav-disabled { color: var(--border); background: transparent; cursor: default; }
+  .floor-nav-label {
+    flex: 1; text-align: center;
+    font-size: 0.95em; color: var(--dim); letter-spacing: 0.02em;
+  }
+
+  /* ── Persistent enemy quick-list ── */
+  .enemy-quicklist {
+    position: fixed;
+    bottom: 64px;
+    right: 16px;
+    background: rgba(22, 22, 22, 0.98);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 0.85em;
+    z-index: 99;
+    min-width: 170px;
+    max-width: 250px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.55);
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .enemy-quicklist.scroll-hidden {
+    opacity: 0; pointer-events: none;
+    transform: translateY(10px);
+  }
+  /* Toggle button — always-visible header of the panel */
+  .eq-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; padding: 10px 14px;
+    background: none; border: none; cursor: pointer;
+    color: var(--bright); font-size: 0.85em; font-weight: 600;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    border-radius: 10px;
+    min-height: 44px;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s;
+  }
+  .eq-toggle:hover { background: rgba(255,255,255,0.06); }
+  .eq-toggle:active { background: rgba(255,255,255,0.1); }
+  .eq-toggle-label { flex: 1; text-align: left; }
+  .eq-caret {
+    font-size: 0.7em; color: var(--accent);
+    margin-left: 8px;
+    flex-shrink: 0;
+  }
+  /* Collapsible body */
+  .eq-body {
+    overflow: hidden;
+  }
+  .eq-body ul {
+    list-style: none; margin: 0; padding: 0 0 8px;
+    border-top: 1px solid var(--border);
+  }
+  .eq-body li { margin: 0; }
+  .eq-body a {
+    color: var(--normal);
+    display: flex; align-items: center;
+    padding: 9px 14px;
+    min-height: 40px;
+    transition: background 0.12s, color 0.12s;
+  }
+  .eq-body li:last-child a { border-radius: 0 0 10px 10px; }
+  .eq-body a:hover, .eq-body a:focus {
+    background: rgba(255,255,255,0.07); color: var(--bright); text-decoration: none;
+  }
+  .eq-body a:active { background: rgba(245,218,67,0.12); color: var(--accent); }
+
   /* ── Mobile ── */
   @media (max-width: 900px) {
     body { flex-direction: column; }
@@ -338,8 +603,29 @@ PAGE_CSS = """<style>
     }
     .e-img img, .b-img img { max-width: 100%; height: auto; }
     table.ab { display: block; overflow-x: auto; }
+    .enemy-quicklist { right: 8px; left: 8px; max-width: none; min-width: 0; border-radius: 10px; }
+    .floor-nav-arrow { flex: 0 0 64px; }
   }
-</style>"""
+</style>
+<script>
+// Long-press tooltip support for mobile warning icons in summary table
+(function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    var LONG = 450;
+    document.querySelectorAll('.w-tooltip-wrap').forEach(function(el) {
+      var timer;
+      el.addEventListener('touchstart', function() {
+        timer = setTimeout(function() { el.classList.add('tip-active'); }, LONG);
+      }, { passive: true });
+      el.addEventListener('touchend', function() {
+        clearTimeout(timer);
+        setTimeout(function() { el.classList.remove('tip-active'); }, 1400);
+      });
+      el.addEventListener('touchcancel', function() { clearTimeout(timer); });
+    });
+  });
+})();
+</script>"""
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -371,6 +657,11 @@ def assets_folder_name(source_path: Path) -> str:
 def stem(src: str) -> str:
     """Get filename stem from a path, e.g. 'gaze' from '.../gaze.svg'."""
     return Path(src).stem.lower()
+
+
+def make_anchor(name: str) -> str:
+    """Turn an enemy name into a safe HTML id/anchor string."""
+    return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
 
 
 # ── Path fixer ────────────────────────────────────────────────────────────────
@@ -439,8 +730,7 @@ def parse_enemies(soup: BeautifulSoup):
         aa_td = tr.find("td", class_="attackCell")
         all_icons = tr.find_all("td", class_="iconCell")
 
-        # FIX: The first iconCell is the warning icon. The remaining are vulnerabilities.
-        # We skip the first one so warnings don't appear in the vulnerabilities section.
+        # The first iconCell is warnings; rest are vulnerabilities
         vuln_cells = all_icons[1:] if len(all_icons) > 1 else []
 
         enemies.append({
@@ -559,8 +849,9 @@ def generate_sidebar(dungeon_key, current_set_start, current_floor):
     return SIDEBAR_TEMPLATE.render(dungeons=ctx_dungeons)
 
 
-# ── Warning formatter ─────────────────────────────────────────────────────────
+# ── Warning formatters ────────────────────────────────────────────────────────
 def format_warnings(warn_html: str, fix) -> str:
+    """Full warning row for enemy cards (icon + text label)."""
     if not warn_html.strip():
         return ""
     fixed = fix(warn_html)
@@ -582,11 +873,64 @@ def format_warnings(warn_html: str, fix) -> str:
     return " ".join(parts)
 
 
-# ── Card builders ─────────────────────────────────────────────────────────────
+def format_warning_icons_for_summary(warn_html: str, fix) -> str:
+    """Icons only with tooltip wrappers — for the compact summary table."""
+    if not warn_html.strip():
+        return ""
+    fixed = fix(warn_html)
+    soup = BeautifulSoup(fixed, "html.parser")
+    parts = []
+    for img in soup.find_all("img"):
+        src = img.get("src", "")
+        key = stem(src)
+        if "idle_gaze" in src:
+            text = WARNING_TEXT["idle_gaze"]
+        elif key in WARNING_TEXT:
+            text = WARNING_TEXT[key]
+        else:
+            text = (
+                img.get("title", "")
+                or img.get("alt", "")
+            ).replace(" ability", "").replace("Large or untelegraphed ", "").strip()
+        parts.append(
+            f'<span class="w-tooltip-wrap">{img}'
+            f'<span class="w-tooltip">{text}</span></span>'
+        )
+    return "".join(parts)
+
+
+# ── Card / table builders ─────────────────────────────────────────────────────
+def build_summary_table(floor_enemies, floor_num, fix, fix_val):
+    """Compact overview table at the top of an enemy floor page."""
+    rows = []
+    for enemy in floor_enemies:
+        name_txt = enemy["name"]
+        anchor = make_anchor(name_txt)
+
+        aggro_html = ""
+        if enemy["aggro_img"]:
+            ai = deepcopy(enemy["aggro_img"])
+            ai["src"] = fix_val(ai.get("src", ""))
+            aggro_html = str(ai)
+
+        warn_icons = format_warning_icons_for_summary(enemy["warn_html"], fix)
+        is_patrol = floor_num in enemy["patrol"]
+
+        rows.append({
+            "anchor": anchor,
+            "name": name_txt,
+            "aggro_html": aggro_html,
+            "warn_icons": warn_icons,
+            "patrol": is_patrol,
+        })
+
+    return SUMMARY_TABLE_TEMPLATE.render(rows=rows)
+
+
 def build_enemy_card(enemy, gallery_items, all_imgs, floor_num, fix, fix_val):
     name_txt = enemy["name"]
+    anchor = make_anchor(name_txt)
 
-    # Robustly match the gallery item by name to ensure correct image mapping
     gallery_tag = None
     item_idx = -1
     for i, item in enumerate(gallery_items):
@@ -596,7 +940,6 @@ def build_enemy_card(enemy, gallery_items, all_imgs, floor_num, fix, fix_val):
             item_idx = i
             break
 
-    # Fallback to the original index if name matching fails
     if gallery_tag is None and enemy["gallery_index"] < len(gallery_items):
         gallery_tag = gallery_items[enemy["gallery_index"]]
         item_idx = enemy["gallery_index"]
@@ -606,7 +949,6 @@ def build_enemy_card(enemy, gallery_items, all_imgs, floor_num, fix, fix_val):
         if floor_num in enemy["patrol"] else ""
     )
 
-    # Aggro icon + text
     aggro_html = ""
     if enemy["aggro_img"]:
         ai = deepcopy(enemy["aggro_img"])
@@ -615,7 +957,6 @@ def build_enemy_card(enemy, gallery_items, all_imgs, floor_num, fix, fix_val):
     if enemy["aggro_text"]:
         aggro_html += f' <span class="aggro-text">{enemy["aggro_text"]}</span>'
 
-    # Vulnerability icons
     vuln_imgs = ""
     for cell in enemy["vuln_cells"]:
         frag = BeautifulSoup(fix(cell), "html.parser")
@@ -623,20 +964,17 @@ def build_enemy_card(enemy, gallery_items, all_imgs, floor_num, fix, fix_val):
         if img:
             vuln_imgs += str(img)
 
-    # Warnings
     warn_section = ""
     w = format_warnings(enemy["warn_html"], fix)
     if w:
         warn_section = f'<div class="warnings"><b>⚠ Warnings</b>{w}</div>'
 
-    # Ability table
     ab_html = ""
     if gallery_tag:
         tbl = gallery_tag.find("table")
         if tbl:
             ab_html = fix(str(tbl)).replace("<table", '<table class="ab"', 1)
 
-    # Notes
     notes_html = ""
     if gallery_tag:
         h4 = gallery_tag.find("h4", string=re.compile(r"^Notes", re.I))
@@ -645,7 +983,6 @@ def build_enemy_card(enemy, gallery_items, all_imgs, floor_num, fix, fix_val):
             if ul:
                 notes_html = f'<div class="notes"><b>Notes:</b>{ul}</div>'
 
-    # Image — pulled from the pre-fetched all_imgs list using the matched index
     img_html = '<span class="no-data">No image</span>'
     if item_idx != -1 and item_idx < len(all_imgs):
         ic = deepcopy(all_imgs[item_idx])
@@ -653,6 +990,7 @@ def build_enemy_card(enemy, gallery_items, all_imgs, floor_num, fix, fix_val):
         img_html = str(ic)
 
     return ENEMY_CARD_TEMPLATE.render(
+        anchor=anchor,
         name=name_txt,
         badge=badge,
         img_html=img_html,
@@ -718,7 +1056,6 @@ def process_file(source_path: Path, out_root: Path, dungeon_key: str):
     gallery_items = parse_gallery_items(soup)
     boss = parse_boss(soup)
 
-    # Pre-fetch all images for robust mapping
     container = soup.find("div", id="galleryContainer")
     all_imgs = container.select("div.imagePane img.galleryImage") if container else []
 
@@ -726,12 +1063,10 @@ def process_file(source_path: Path, out_root: Path, dungeon_key: str):
     out_dir = out_root / dungeon_key / set_folder
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Copy all image assets to a single shared folder at the output root
     global_assets = out_root / "assets"
     global_assets.mkdir(exist_ok=True)
     src_assets = source_path.parent / assets_folder
 
-    # Prefix prevents cross-dungeon/cross-set filename collisions
     img_exts = {".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".ico"}
     prefix = f"{dungeon_key}_{start_floor:03d}-{end_floor:03d}_"
 
@@ -739,10 +1074,9 @@ def process_file(source_path: Path, out_root: Path, dungeon_key: str):
         for f in src_assets.iterdir():
             if f.is_file() and f.suffix.lower() in img_exts:
                 dest = global_assets / (prefix + f.name)
-                if not dest.exists():  # don't overwrite duplicates
+                if not dest.exists():
                     shutil.copy2(f, dest)
 
-    # All asset src/href values rewrite to ../../assets/<prefix><filename>
     fix, fix_val = make_fixer(assets_folder, prefix)
 
     for floor_num in range(start_floor, end_floor + 1):
@@ -751,32 +1085,53 @@ def process_file(source_path: Path, out_root: Path, dungeon_key: str):
         if is_boss:
             content = build_boss_card(boss, fix, fix_val)
             boss_sfx = ' <span style="color:var(--accent);font-size:.7em">(Boss)</span>'
+            enemy_names = []
         else:
             fe = [e for e in enemies if floor_num in e["floors"]]
-            content = (
-                "\n".join(build_enemy_card(e, gallery_items, all_imgs, floor_num, fix, fix_val) for e in fe)
-                if fe else '<p class="no-data">No regular enemies on this floor.</p>'
-            )
+            if fe:
+                summary = build_summary_table(fe, floor_num, fix, fix_val)
+                cards = "\n".join(
+                    build_enemy_card(e, gallery_items, all_imgs, floor_num, fix, fix_val)
+                    for e in fe
+                )
+                content = summary + "\n" + cards
+                enemy_names = [
+                    {"name": e["name"], "anchor": make_anchor(e["name"])}
+                    for e in fe
+                ]
+            else:
+                content = '<p class="no-data">No regular enemies on this floor.</p>'
+                enemy_names = []
             boss_sfx = ""
 
-        # Nav — seamless cross-set navigation
+        # Nav URLs — seamless cross-set navigation
         if floor_num > start_floor:
-            prev_link = f'<a href="floor_{floor_num-1}.html">← Floor {floor_num-1}</a>'
+            prev_url = f"floor_{floor_num-1}.html"
+            prev_num = floor_num - 1
         elif start_floor > 1:
             ps = start_floor - 10
             pe = start_floor - 1
-            prev_link = f'<a href="../floors_{ps:03d}-{pe:03d}/floor_{pe}.html">← Floor {pe}</a>'
+            prev_url = f"../floors_{ps:03d}-{pe:03d}/floor_{pe}.html"
+            prev_num = pe
         else:
-            prev_link = ""
+            prev_url = ""
+            prev_num = None
 
         if floor_num < end_floor:
-            next_link = f'<a href="floor_{floor_num+1}.html">Floor {floor_num+1} →</a>'
+            next_url = f"floor_{floor_num+1}.html"
+            next_num = floor_num + 1
         elif end_floor < dungeon_max:
             ns = end_floor + 1
             ne = end_floor + 10
-            next_link = f'<a href="../floors_{ns:03d}-{ne:03d}/floor_{ns}.html">Floor {ns} →</a>'
+            next_url = f"../floors_{ns:03d}-{ne:03d}/floor_{ns}.html"
+            next_num = ns
         else:
-            next_link = ""
+            next_url = ""
+            next_num = None
+
+        # Inline top nav links (preserved for convenience)
+        prev_link = f'<a href="{prev_url}">← Floor {prev_num}</a>' if prev_url else ""
+        next_link = f'<a href="{next_url}">Floor {next_num} →</a>' if next_url else ""
 
         sidebar = generate_sidebar(dungeon_key, start_floor, floor_num)
 
@@ -790,7 +1145,12 @@ def process_file(source_path: Path, out_root: Path, dungeon_key: str):
             boss_sfx=boss_sfx,
             prev_link=prev_link,
             next_link=next_link,
+            prev_url=prev_url,
+            next_url=next_url,
+            prev_num=prev_num,
+            next_num=next_num,
             content=content,
+            enemy_names=enemy_names,
         )
         (out_dir / f"floor_{floor_num}.html").write_text(page, encoding="utf-8")
 
