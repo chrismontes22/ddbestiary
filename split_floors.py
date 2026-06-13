@@ -140,14 +140,18 @@ SUMMARY_TABLE_TEMPLATE = Template(
         <th class="col-aggro" title="Aggro type">!</th>
         <th class="col-name">Enemy</th>
         <th class="col-warn">Warnings</th>
+        <th class="col-hp">HP</th>
+        <th class="col-aa">AA</th>
       </tr>
     </thead>
     <tbody>
       {%- for row in rows %}
-      <tr>
+      <tr{% if row.is_mimic %} class="mimic-row"{% endif %}>
         <td class="col-aggro">{{ row.aggro_html }}</td>
         <td class="col-name"><a href="#enemy-{{ row.anchor }}">{{ row.name }}</a>{% if row.patrol %} <span class="badge-sm">P</span>{% endif %}</td>
         <td class="col-warn">{{ row.warn_icons }}</td>
+        <td class="col-hp">{{ row.hp_html }}</td>
+        <td class="col-aa">{{ row.aa_html }}</td>
       </tr>
       {%- endfor %}
     </tbody>
@@ -188,70 +192,18 @@ PAGE_TEMPLATE = Template(
 </div>
 
 {% if enemy_names %}
-<!-- Persistent enemy quick-list (shown after scrolling past summary table) -->
+<!-- Persistent back-to-summary link -->
 <div id="enemy-quicklist" class="enemy-quicklist scroll-hidden">
-  <button id="eq-toggle" class="eq-toggle" aria-expanded="true" aria-controls="eq-body" title="Toggle enemy list">
-    <span class="eq-toggle-label">Enemies</span>
-    <span class="eq-caret" aria-hidden="true">▲</span>
-  </button>
-  <div id="eq-body" class="eq-body">
-    <ul>
-      {%- for e in enemy_names %}
-      <li><a href="#enemy-{{ e.anchor }}">{{ e.name }}</a></li>
-      {%- endfor %}
-    </ul>
-  </div>
+  <a href="#enemy-summary" class="back-to-summary" title="Scroll back to summary table">
+    <span class="eq-toggle-label">⬆ Back to Summary</span>
+  </a>
 </div>
 <script>
 (function() {
-  var STORAGE_KEY = 'eq-collapsed';
   var summary   = document.getElementById('enemy-summary');
   var panel     = document.getElementById('enemy-quicklist');
-  var toggle    = document.getElementById('eq-toggle');
-  var body      = document.getElementById('eq-body');
-  var caret     = toggle ? toggle.querySelector('.eq-caret') : null;
-  if (!summary || !panel || !toggle || !body) return;
+  if (!summary || !panel) return;
 
-  // ── Collapsed state (persisted) ──────────────────────────────────────────
-  var collapsed = false;
-  try { collapsed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(e) {}
-
-  function applyCollapsed(val, animate) {
-    collapsed = val;
-    try { localStorage.setItem(STORAGE_KEY, val ? '1' : '0'); } catch(e) {}
-    toggle.setAttribute('aria-expanded', String(!val));
-    if (val) {
-      if (animate) {
-        body.style.maxHeight = body.scrollHeight + 'px';
-        requestAnimationFrame(function() {
-          body.style.transition = 'max-height 0.22s ease, opacity 0.18s ease';
-          body.style.maxHeight  = '0';
-          body.style.opacity    = '0';
-        });
-      } else {
-        body.style.maxHeight = '0';
-        body.style.opacity   = '0';
-      }
-      if (caret) caret.textContent = '▼';
-    } else {
-      body.style.transition = 'max-height 0.25s ease, opacity 0.2s ease';
-      body.style.maxHeight  = body.scrollHeight + 'px';
-      body.style.opacity    = '1';
-      if (caret) caret.textContent = '▲';
-      // Remove fixed max-height after expand so dynamic content fits
-      body.addEventListener('transitionend', function onEnd() {
-        body.style.maxHeight = '';
-        body.removeEventListener('transitionend', onEnd);
-      });
-    }
-  }
-
-  // Apply stored state immediately (no animation)
-  applyCollapsed(collapsed, false);
-
-  toggle.addEventListener('click', function() { applyCollapsed(!collapsed, true); });
-
-  // ── Scroll visibility ─────────────────────────────────────────────────────
   function onScroll() {
     var rect = summary.getBoundingClientRect();
     if (rect.bottom < 80) {
@@ -364,6 +316,7 @@ PAGE_CSS = """<style>
   .enemy-summary {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 8px; margin-bottom: 28px; overflow: hidden;
+    scroll-margin-top: 160px; /* Leaves space for the Floor # when scrolled to */
   }
   .summary-table {
     border-collapse: collapse; width: 100%; font-size: 0.92em;
@@ -375,7 +328,9 @@ PAGE_CSS = """<style>
     border-bottom: 2px solid var(--border);
   }
   .summary-table th.col-aggro { width: 40px; text-align: center; }
-  .summary-table th.col-warn  { width: 180px; }
+  .summary-table th.col-warn  { width: 120px; }
+  .summary-table th.col-hp, .summary-table td.col-hp { width: 140px; text-align: left; }
+  .summary-table th.col-aa, .summary-table td.col-aa { width: 140px; text-align: left; }
   .summary-table td {
     padding: 7px 12px; border-bottom: 1px solid var(--border);
     vertical-align: middle;
@@ -389,6 +344,58 @@ PAGE_CSS = """<style>
     display: inline-block; font-size: 0.68em; padding: 2px 6px;
     border-radius: 10px; background: #b85000; color: #fff;
     vertical-align: middle; margin-left: 4px;
+  }
+
+  /* Summary table HP/AA bars */
+  .bar-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+    min-width: 80px;
+    height: 22px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.03);
+  }
+  .bar-bg {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    z-index: 1;
+    transition: width 0.3s ease;
+  }
+  .bar-hp { background: rgba(76, 175, 80, 0.35); }
+  .bar-aa { background: rgba(244, 67, 54, 0.35); }
+  .bar-wrap span {
+    position: relative;
+    z-index: 2;
+    padding: 0 6px;
+    font-size: 0.88em;
+    font-weight: 600;
+    color: var(--bright);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    white-space: nowrap;
+  }
+
+  /* Mimic separator */
+  .summary-table tbody tr.mimic-row td {
+    /* Using box-shadow avoids border-collapse conflicts and guarantees visibility */
+    box-shadow: inset 0 3px 0 0 var(--accent);
+  }
+
+  /* Enemy name links */
+  .summary-table td.col-name a {
+    color: var(--bright);
+    text-decoration: underline;
+    text-decoration-color: var(--dim);
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    transition: color 0.15s, text-decoration-color 0.15s, text-decoration-thickness 0.15s;
+  }
+  .summary-table td.col-name a:hover {
+    color: var(--accent);
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
   }
 
   /* Warning icon tooltips — hover on desktop, long-press on mobile */
@@ -525,7 +532,7 @@ PAGE_CSS = """<style>
     font-size: 0.95em; color: var(--dim); letter-spacing: 0.02em;
   }
 
-  /* ── Persistent enemy quick-list ── */
+  /* ── Persistent back-to-summary link ── */
   .enemy-quicklist {
     position: fixed;
     bottom: 64px;
@@ -546,47 +553,17 @@ PAGE_CSS = """<style>
     opacity: 0; pointer-events: none;
     transform: translateY(10px);
   }
-  /* Toggle button — always-visible header of the panel */
-  .eq-toggle {
-    display: flex; align-items: center; justify-content: space-between;
-    width: 100%; padding: 10px 14px;
-    background: none; border: none; cursor: pointer;
-    color: var(--bright); font-size: 0.85em; font-weight: 600;
+  #enemy-quicklist a.back-to-summary {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; padding: 12px 14px;
+    color: var(--bright); font-size: 0.9em; font-weight: 600;
     letter-spacing: 0.04em; text-transform: uppercase;
-    border-radius: 10px;
-    min-height: 44px;
-    -webkit-tap-highlight-color: transparent;
-    transition: background 0.15s;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
   }
-  .eq-toggle:hover { background: rgba(255,255,255,0.06); }
-  .eq-toggle:active { background: rgba(255,255,255,0.1); }
-  .eq-toggle-label { flex: 1; text-align: left; }
-  .eq-caret {
-    font-size: 0.7em; color: var(--accent);
-    margin-left: 8px;
-    flex-shrink: 0;
+  #enemy-quicklist a.back-to-summary:hover {
+    background: rgba(255,255,255,0.06); color: var(--accent);
   }
-  /* Collapsible body */
-  .eq-body {
-    overflow: hidden;
-  }
-  .eq-body ul {
-    list-style: none; margin: 0; padding: 0 0 8px;
-    border-top: 1px solid var(--border);
-  }
-  .eq-body li { margin: 0; }
-  .eq-body a {
-    color: var(--normal);
-    display: flex; align-items: center;
-    padding: 9px 14px;
-    min-height: 40px;
-    transition: background 0.12s, color 0.12s;
-  }
-  .eq-body li:last-child a { border-radius: 0 0 10px 10px; }
-  .eq-body a:hover, .eq-body a:focus {
-    background: rgba(255,255,255,0.07); color: var(--bright); text-decoration: none;
-  }
-  .eq-body a:active { background: rgba(245,218,67,0.12); color: var(--accent); }
 
   /* ── Mobile ── */
   @media (max-width: 900px) {
@@ -605,6 +582,15 @@ PAGE_CSS = """<style>
     table.ab { display: block; overflow-x: auto; }
     .enemy-quicklist { right: 8px; left: 8px; max-width: none; min-width: 0; border-radius: 10px; }
     .floor-nav-arrow { flex: 0 0 64px; }
+    
+    /* Make summary table horizontally scrollable on mobile so it fits perfectly */
+    .enemy-summary {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .summary-table {
+      min-width: 650px;
+    }
   }
 </style>
 <script>
@@ -662,6 +648,13 @@ def stem(src: str) -> str:
 def make_anchor(name: str) -> str:
     """Turn an enemy name into a safe HTML id/anchor string."""
     return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+
+
+def parse_number(s):
+    """Extract integer value from strings like '12,345' or '1,234,567'."""
+    if not s: return 0
+    digits = re.sub(r'\D', '', str(s))
+    return int(digits) if digits else 0
 
 
 # ── Path fixer ────────────────────────────────────────────────────────────────
@@ -902,10 +895,16 @@ def format_warning_icons_for_summary(warn_html: str, fix) -> str:
 # ── Card / table builders ─────────────────────────────────────────────────────
 def build_summary_table(floor_enemies, floor_num, fix, fix_val):
     """Compact overview table at the top of an enemy floor page."""
+    max_hp = max((parse_number(e["hp"]) for e in floor_enemies), default=1)
+    max_aa = max((parse_number(e["aa"]) for e in floor_enemies), default=1)
+    if max_hp == 0: max_hp = 1
+    if max_aa == 0: max_aa = 1
+
     rows = []
     for enemy in floor_enemies:
         name_txt = enemy["name"]
         anchor = make_anchor(name_txt)
+        is_mimic = 'mimic' in name_txt.lower()
 
         aggro_html = ""
         if enemy["aggro_img"]:
@@ -916,12 +915,30 @@ def build_summary_table(floor_enemies, floor_num, fix, fix_val):
         warn_icons = format_warning_icons_for_summary(enemy["warn_html"], fix)
         is_patrol = floor_num in enemy["patrol"]
 
+        # HP and AA bars
+        hp_val = parse_number(enemy["hp"])
+        aa_val = parse_number(enemy["aa"])
+        
+        hp_pct = int((hp_val / max_hp) * 100) if hp_val > 0 else 0
+        aa_pct = int((aa_val / max_aa) * 100) if aa_val > 0 else 0
+        
+        hp_html = ""
+        if enemy["hp"]:
+            hp_html = f'<div class="bar-wrap"><div class="bar-bg bar-hp" style="width:{hp_pct}%"></div><span>{enemy["hp"]}</span></div>'
+            
+        aa_html = ""
+        if enemy["aa"]:
+            aa_html = f'<div class="bar-wrap"><div class="bar-bg bar-aa" style="width:{aa_pct}%"></div><span>{enemy["aa"]}</span></div>'
+
         rows.append({
             "anchor": anchor,
             "name": name_txt,
             "aggro_html": aggro_html,
             "warn_icons": warn_icons,
             "patrol": is_patrol,
+            "is_mimic": is_mimic,
+            "hp_html": hp_html,
+            "aa_html": aa_html,
         })
 
     return SUMMARY_TABLE_TEMPLATE.render(rows=rows)

@@ -98,6 +98,7 @@
   .enemy-summary {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 8px; margin-bottom: 28px; overflow: hidden;
+    scroll-margin-top: 160px; /* Leaves space for the Floor # when scrolled to */
   }
   .summary-table {
     border-collapse: collapse; width: 100%; font-size: 0.92em;
@@ -109,7 +110,9 @@
     border-bottom: 2px solid var(--border);
   }
   .summary-table th.col-aggro { width: 40px; text-align: center; }
-  .summary-table th.col-warn  { width: 180px; }
+  .summary-table th.col-warn  { width: 120px; }
+  .summary-table th.col-hp, .summary-table td.col-hp { width: 140px; text-align: left; }
+  .summary-table th.col-aa, .summary-table td.col-aa { width: 140px; text-align: left; }
   .summary-table td {
     padding: 7px 12px; border-bottom: 1px solid var(--border);
     vertical-align: middle;
@@ -123,6 +126,58 @@
     display: inline-block; font-size: 0.68em; padding: 2px 6px;
     border-radius: 10px; background: #b85000; color: #fff;
     vertical-align: middle; margin-left: 4px;
+  }
+
+  /* Summary table HP/AA bars */
+  .bar-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+    min-width: 80px;
+    height: 22px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.03);
+  }
+  .bar-bg {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    z-index: 1;
+    transition: width 0.3s ease;
+  }
+  .bar-hp { background: rgba(76, 175, 80, 0.35); }
+  .bar-aa { background: rgba(244, 67, 54, 0.35); }
+  .bar-wrap span {
+    position: relative;
+    z-index: 2;
+    padding: 0 6px;
+    font-size: 0.88em;
+    font-weight: 600;
+    color: var(--bright);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    white-space: nowrap;
+  }
+
+  /* Mimic separator */
+  .summary-table tbody tr.mimic-row td {
+    /* Using box-shadow avoids border-collapse conflicts and guarantees visibility */
+    box-shadow: inset 0 3px 0 0 var(--accent);
+  }
+
+  /* Enemy name links */
+  .summary-table td.col-name a {
+    color: var(--bright);
+    text-decoration: underline;
+    text-decoration-color: var(--dim);
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    transition: color 0.15s, text-decoration-color 0.15s, text-decoration-thickness 0.15s;
+  }
+  .summary-table td.col-name a:hover {
+    color: var(--accent);
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
   }
 
   /* Warning icon tooltips — hover on desktop, long-press on mobile */
@@ -259,7 +314,7 @@
     font-size: 0.95em; color: var(--dim); letter-spacing: 0.02em;
   }
 
-  /* ── Persistent enemy quick-list ── */
+  /* ── Persistent back-to-summary link ── */
   .enemy-quicklist {
     position: fixed;
     bottom: 64px;
@@ -280,47 +335,17 @@
     opacity: 0; pointer-events: none;
     transform: translateY(10px);
   }
-  /* Toggle button — always-visible header of the panel */
-  .eq-toggle {
-    display: flex; align-items: center; justify-content: space-between;
-    width: 100%; padding: 10px 14px;
-    background: none; border: none; cursor: pointer;
-    color: var(--bright); font-size: 0.85em; font-weight: 600;
+  #enemy-quicklist a.back-to-summary {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; padding: 12px 14px;
+    color: var(--bright); font-size: 0.9em; font-weight: 600;
     letter-spacing: 0.04em; text-transform: uppercase;
-    border-radius: 10px;
-    min-height: 44px;
-    -webkit-tap-highlight-color: transparent;
-    transition: background 0.15s;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
   }
-  .eq-toggle:hover { background: rgba(255,255,255,0.06); }
-  .eq-toggle:active { background: rgba(255,255,255,0.1); }
-  .eq-toggle-label { flex: 1; text-align: left; }
-  .eq-caret {
-    font-size: 0.7em; color: var(--accent);
-    margin-left: 8px;
-    flex-shrink: 0;
+  #enemy-quicklist a.back-to-summary:hover {
+    background: rgba(255,255,255,0.06); color: var(--accent);
   }
-  /* Collapsible body */
-  .eq-body {
-    overflow: hidden;
-  }
-  .eq-body ul {
-    list-style: none; margin: 0; padding: 0 0 8px;
-    border-top: 1px solid var(--border);
-  }
-  .eq-body li { margin: 0; }
-  .eq-body a {
-    color: var(--normal);
-    display: flex; align-items: center;
-    padding: 9px 14px;
-    min-height: 40px;
-    transition: background 0.12s, color 0.12s;
-  }
-  .eq-body li:last-child a { border-radius: 0 0 10px 10px; }
-  .eq-body a:hover, .eq-body a:focus {
-    background: rgba(255,255,255,0.07); color: var(--bright); text-decoration: none;
-  }
-  .eq-body a:active { background: rgba(245,218,67,0.12); color: var(--accent); }
 
   /* ── Mobile ── */
   @media (max-width: 900px) {
@@ -339,6 +364,15 @@
     table.ab { display: block; overflow-x: auto; }
     .enemy-quicklist { right: 8px; left: 8px; max-width: none; min-width: 0; border-radius: 10px; }
     .floor-nav-arrow { flex: 0 0 64px; }
+    
+    /* Make summary table horizontally scrollable on mobile so it fits perfectly */
+    .enemy-summary {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .summary-table {
+      min-width: 650px;
+    }
   }
 </style>
 <script>
@@ -463,6 +497,8 @@
         <th class="col-aggro" title="Aggro type">!</th>
         <th class="col-name">Enemy</th>
         <th class="col-warn">Warnings</th>
+        <th class="col-hp">HP</th>
+        <th class="col-aa">AA</th>
       </tr>
     </thead>
     <tbody>
@@ -470,31 +506,43 @@
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_061-070_eye.svg" title="Sight agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-heavenly-mannenso">Heavenly Mannenso</a></td>
         <td class="col-warn"></td>
+        <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:75%"></div><span>34K</span></div></td>
+        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:56%"></div><span>2932</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sound agro" height="24" src="../../assets/hoh_061-070_ear.svg" title="Sound agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-heavenly-wakakusa-seedling">Heavenly Wakakusa (Seedling)</a></td>
         <td class="col-warn"></td>
+        <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:75%"></div><span>34K</span></div></td>
+        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:57%"></div><span>3003</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_061-070_eye.svg" title="Sight agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-heavenly-jubokko-biloko">Heavenly Jubokko (Biloko)</a> <span class="badge-sm">P</span></td>
         <td class="col-warn"></td>
+        <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:80%"></div><span>36K</span></div></td>
+        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:67%"></div><span>3540</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/hoh_061-070_radar.svg" title="Proximity agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-heavenly-onryo">Heavenly Onryo</a></td>
         <td class="col-warn"></td>
+        <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:77%"></div><span>35K</span></div></td>
+        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:64%"></div><span>3350</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_061-070_eye.svg" title="Sight agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-heavenly-iwamushi-coblyn">Heavenly Iwamushi (Coblyn)</a></td>
         <td class="col-warn"></td>
+        <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:75%"></div><span>34K</span></div></td>
+        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:61%"></div><span>3194</span></div></td>
       </tr>
-      <tr>
+      <tr class="mimic-row">
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/hoh_061-070_radar.svg" title="Proximity agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-quivering-coffer-mimic">Quivering Coffer (Mimic)</a></td>
         <td class="col-warn"></td>
+        <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>45K</span></div></td>
+        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>5228</span></div></td>
       </tr>
     </tbody>
   </table>
@@ -782,73 +830,18 @@ n/a
 </div>
 
 
-<!-- Persistent enemy quick-list (shown after scrolling past summary table) -->
+<!-- Persistent back-to-summary link -->
 <div id="enemy-quicklist" class="enemy-quicklist scroll-hidden">
-  <button id="eq-toggle" class="eq-toggle" aria-expanded="true" aria-controls="eq-body" title="Toggle enemy list">
-    <span class="eq-toggle-label">Enemies</span>
-    <span class="eq-caret" aria-hidden="true">▲</span>
-  </button>
-  <div id="eq-body" class="eq-body">
-    <ul>
-      <li><a href="#enemy-heavenly-mannenso">Heavenly Mannenso</a></li>
-      <li><a href="#enemy-heavenly-wakakusa-seedling">Heavenly Wakakusa (Seedling)</a></li>
-      <li><a href="#enemy-heavenly-jubokko-biloko">Heavenly Jubokko (Biloko)</a></li>
-      <li><a href="#enemy-heavenly-onryo">Heavenly Onryo</a></li>
-      <li><a href="#enemy-heavenly-iwamushi-coblyn">Heavenly Iwamushi (Coblyn)</a></li>
-      <li><a href="#enemy-quivering-coffer-mimic">Quivering Coffer (Mimic)</a></li>
-    </ul>
-  </div>
+  <a href="#enemy-summary" class="back-to-summary" title="Scroll back to summary table">
+    <span class="eq-toggle-label">⬆ Back to Summary</span>
+  </a>
 </div>
 <script>
 (function() {
-  var STORAGE_KEY = 'eq-collapsed';
   var summary   = document.getElementById('enemy-summary');
   var panel     = document.getElementById('enemy-quicklist');
-  var toggle    = document.getElementById('eq-toggle');
-  var body      = document.getElementById('eq-body');
-  var caret     = toggle ? toggle.querySelector('.eq-caret') : null;
-  if (!summary || !panel || !toggle || !body) return;
+  if (!summary || !panel) return;
 
-  // ── Collapsed state (persisted) ──────────────────────────────────────────
-  var collapsed = false;
-  try { collapsed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(e) {}
-
-  function applyCollapsed(val, animate) {
-    collapsed = val;
-    try { localStorage.setItem(STORAGE_KEY, val ? '1' : '0'); } catch(e) {}
-    toggle.setAttribute('aria-expanded', String(!val));
-    if (val) {
-      if (animate) {
-        body.style.maxHeight = body.scrollHeight + 'px';
-        requestAnimationFrame(function() {
-          body.style.transition = 'max-height 0.22s ease, opacity 0.18s ease';
-          body.style.maxHeight  = '0';
-          body.style.opacity    = '0';
-        });
-      } else {
-        body.style.maxHeight = '0';
-        body.style.opacity   = '0';
-      }
-      if (caret) caret.textContent = '▼';
-    } else {
-      body.style.transition = 'max-height 0.25s ease, opacity 0.2s ease';
-      body.style.maxHeight  = body.scrollHeight + 'px';
-      body.style.opacity    = '1';
-      if (caret) caret.textContent = '▲';
-      // Remove fixed max-height after expand so dynamic content fits
-      body.addEventListener('transitionend', function onEnd() {
-        body.style.maxHeight = '';
-        body.removeEventListener('transitionend', onEnd);
-      });
-    }
-  }
-
-  // Apply stored state immediately (no animation)
-  applyCollapsed(collapsed, false);
-
-  toggle.addEventListener('click', function() { applyCollapsed(!collapsed, true); });
-
-  // ── Scroll visibility ─────────────────────────────────────────────────────
   function onScroll() {
     var rect = summary.getBoundingClientRect();
     if (rect.bottom < 80) {
