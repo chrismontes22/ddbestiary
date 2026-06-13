@@ -316,7 +316,7 @@ PAGE_CSS = """<style>
   .enemy-summary {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 8px; margin-bottom: 28px; overflow: hidden;
-    scroll-margin-top: 160px; /* Leaves space for the Floor # when scrolled to */
+    scroll-margin-top: 80px; /* Leaves just enough room to clear the top bar, landing on the first card */
   }
   .summary-table {
     border-collapse: collapse; width: 100%; font-size: 0.92em;
@@ -377,9 +377,8 @@ PAGE_CSS = """<style>
     white-space: nowrap;
   }
 
-  /* Mimic separator */
+  /* Mimic separator (Desktop) */
   .summary-table tbody tr.mimic-row td {
-    /* Using box-shadow avoids border-collapse conflicts and guarantees visibility */
     box-shadow: inset 0 3px 0 0 var(--accent);
   }
 
@@ -527,9 +526,14 @@ PAGE_CSS = """<style>
     background: var(--accent); color: #121212; text-decoration: none;
   }
   .floor-nav-disabled { color: var(--border); background: transparent; cursor: default; }
+  
+  /* Prominent floor number label */
   .floor-nav-label {
     flex: 1; text-align: center;
-    font-size: 0.95em; color: var(--dim); letter-spacing: 0.02em;
+    font-size: 1.2em;
+    font-weight: 700;
+    color: var(--bright);
+    letter-spacing: 0.03em;
   }
 
   /* ── Persistent back-to-summary link ── */
@@ -583,7 +587,7 @@ PAGE_CSS = """<style>
     .enemy-quicklist { right: 8px; left: 8px; max-width: none; min-width: 0; border-radius: 10px; }
     .floor-nav-arrow { flex: 0 0 64px; }
 
-    /* ── Summary table → card layout on mobile ── */
+    /* ── Summary table → compact card layout on mobile ── */
     .enemy-summary {
       background: transparent;
       border: none;
@@ -606,13 +610,14 @@ PAGE_CSS = """<style>
         "hp    hp"
         "aa    aa"
         "warn  warn";
-      gap: 6px 12px;
+      gap: 4px 10px;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      margin-bottom: 10px;
-      padding: 12px 14px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      padding: 8px 10px;
       align-items: center;
+      position: relative;
     }
     .summary-table tr:hover { background: var(--surface2); }
 
@@ -628,15 +633,15 @@ PAGE_CSS = """<style>
       justify-self: start;
     }
     .summary-table td.col-aggro img {
-      width: 26px;
-      height: 26px;
+      width: 22px;
+      height: 22px;
       vertical-align: middle;
     }
 
     .summary-table td.col-name {
       grid-area: name;
       font-weight: 600;
-      font-size: 1em;
+      font-size: 0.95em;
       color: var(--bright);
     }
     .summary-table td.col-name a {
@@ -653,23 +658,24 @@ PAGE_CSS = """<style>
       width: 100%;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
     .summary-table td.col-hp::before {
       content: "HP";
       color: var(--dim);
-      font-size: 0.75em;
+      font-size: 0.7em;
       font-weight: 700;
       letter-spacing: 0.04em;
-      flex: 0 0 22px;
+      flex: 0 0 20px;
     }
     .summary-table td.col-hp .bar-wrap {
       flex: 1;
       min-width: 0;
-      height: 20px;
+      height: 18px;
     }
     .summary-table td.col-hp .bar-wrap span {
-      font-size: 0.82em;
+      font-size: 0.78em;
+      padding: 0 4px;
     }
 
     .summary-table td.col-aa {
@@ -677,50 +683,51 @@ PAGE_CSS = """<style>
       width: 100%;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
     .summary-table td.col-aa::before {
       content: "AA";
       color: var(--dim);
-      font-size: 0.75em;
+      font-size: 0.7em;
       font-weight: 700;
       letter-spacing: 0.04em;
-      flex: 0 0 22px;
+      flex: 0 0 20px;
     }
     .summary-table td.col-aa .bar-wrap {
       flex: 1;
       min-width: 0;
-      height: 20px;
+      height: 18px;
     }
     .summary-table td.col-aa .bar-wrap span {
-      font-size: 0.82em;
+      font-size: 0.78em;
+      padding: 0 4px;
     }
 
     .summary-table td.col-warn {
       grid-area: warn;
-      margin-top: 4px;
-      padding-top: 8px;
+      margin-top: 2px;
+      padding-top: 4px;
       border-top: 1px solid var(--border);
     }
     .summary-table td.col-warn:empty {
-      display: none;
+      display: none; /* Hides the row entirely if no warnings, saving vertical space */
     }
     .summary-table td.col-warn .w-tooltip-wrap {
-      margin-right: 6px;
+      margin-right: 4px;
     }
     .summary-table td.col-warn .w-tooltip-wrap img {
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       vertical-align: middle;
     }
 
-    /* Mimic separator — yellow line above the card */
+    /* Mimic separator — yellow line strictly ABOVE the card */
     .summary-table tbody tr.mimic-row {
-      border-top: 3px solid var(--accent);
-      margin-top: 18px;
+      border-top: 3px solid var(--accent) !important;
+      margin-top: 16px;
     }
     .summary-table tbody tr.mimic-row td {
-      box-shadow: none;
+      box-shadow: none !important;
     }
   }
 </style>
@@ -739,6 +746,20 @@ PAGE_CSS = """<style>
         setTimeout(function() { el.classList.remove('tip-active'); }, 1400);
       });
       el.addEventListener('touchcancel', function() { clearTimeout(timer); });
+    });
+
+    // Make entire summary table row clickable (acts as a link to the enemy card)
+    document.querySelectorAll('.summary-table tbody tr').forEach(function(row) {
+      var link = row.querySelector('.col-name a');
+      if (link) {
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', function(e) {
+          // Prevent double-firing if the user actually clicked the inner name link
+          if (e.target.tagName !== 'A') {
+            window.location.hash = link.getAttribute('href');
+          }
+        });
+      }
     });
   });
 })();
