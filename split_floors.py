@@ -582,14 +582,145 @@ PAGE_CSS = """<style>
     table.ab { display: block; overflow-x: auto; }
     .enemy-quicklist { right: 8px; left: 8px; max-width: none; min-width: 0; border-radius: 10px; }
     .floor-nav-arrow { flex: 0 0 64px; }
-    
-    /* Make summary table horizontally scrollable on mobile so it fits perfectly */
+
+    /* ── Summary table → card layout on mobile ── */
     .enemy-summary {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      overflow: visible;
     }
     .summary-table {
-      min-width: 650px;
+      min-width: 0;
+      background: transparent;
+    }
+    .summary-table thead { display: none; }
+    .summary-table,
+    .summary-table tbody { display: block; }
+
+    .summary-table tr {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-areas:
+        "aggro name"
+        "hp    hp"
+        "aa    aa"
+        "warn  warn";
+      gap: 6px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      padding: 12px 14px;
+      align-items: center;
+    }
+    .summary-table tr:hover { background: var(--surface2); }
+
+    .summary-table td {
+      padding: 0;
+      border-bottom: none;
+      width: auto;
+    }
+
+    .summary-table td.col-aggro {
+      grid-area: aggro;
+      text-align: left;
+      justify-self: start;
+    }
+    .summary-table td.col-aggro img {
+      width: 26px;
+      height: 26px;
+      vertical-align: middle;
+    }
+
+    .summary-table td.col-name {
+      grid-area: name;
+      font-weight: 600;
+      font-size: 1em;
+      color: var(--bright);
+    }
+    .summary-table td.col-name a {
+      color: var(--bright);
+      text-decoration: none;
+    }
+    .summary-table td.col-name a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    .summary-table td.col-hp {
+      grid-area: hp;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .summary-table td.col-hp::before {
+      content: "HP";
+      color: var(--dim);
+      font-size: 0.75em;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      flex: 0 0 22px;
+    }
+    .summary-table td.col-hp .bar-wrap {
+      flex: 1;
+      min-width: 0;
+      height: 20px;
+    }
+    .summary-table td.col-hp .bar-wrap span {
+      font-size: 0.82em;
+    }
+
+    .summary-table td.col-aa {
+      grid-area: aa;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .summary-table td.col-aa::before {
+      content: "AA";
+      color: var(--dim);
+      font-size: 0.75em;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      flex: 0 0 22px;
+    }
+    .summary-table td.col-aa .bar-wrap {
+      flex: 1;
+      min-width: 0;
+      height: 20px;
+    }
+    .summary-table td.col-aa .bar-wrap span {
+      font-size: 0.82em;
+    }
+
+    .summary-table td.col-warn {
+      grid-area: warn;
+      margin-top: 4px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+    .summary-table td.col-warn:empty {
+      display: none;
+    }
+    .summary-table td.col-warn .w-tooltip-wrap {
+      margin-right: 6px;
+    }
+    .summary-table td.col-warn .w-tooltip-wrap img {
+      width: 18px;
+      height: 18px;
+      vertical-align: middle;
+    }
+
+    /* Mimic separator — yellow line above the card */
+    .summary-table tbody tr.mimic-row {
+      border-top: 3px solid var(--accent);
+      margin-top: 18px;
+    }
+    .summary-table tbody tr.mimic-row td {
+      box-shadow: none;
     }
   }
 </style>
