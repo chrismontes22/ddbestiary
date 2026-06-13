@@ -98,7 +98,7 @@
   .enemy-summary {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 8px; margin-bottom: 28px; overflow: hidden;
-    scroll-margin-top: 80px; /* Leaves just enough room to clear the top bar, landing on the first card */
+    scroll-margin-top: 140px; /* Scrolls lower, landing just above the first card */
   }
   .summary-table {
     border-collapse: collapse; width: 100%; font-size: 0.92em;
@@ -110,7 +110,7 @@
     border-bottom: 2px solid var(--border);
   }
   .summary-table th.col-aggro { width: 40px; text-align: center; }
-  .summary-table th.col-warn  { width: 120px; }
+  .summary-table th.col-warn  { width: 160px; }
   .summary-table th.col-hp, .summary-table td.col-hp { width: 140px; text-align: left; }
   .summary-table th.col-aa, .summary-table td.col-aa { width: 140px; text-align: left; }
   .summary-table td {
@@ -120,6 +120,7 @@
   .summary-table tbody tr:last-child td { border-bottom: none; }
   .summary-table tbody tr:hover { background: var(--surface2); }
   .summary-table td.col-aggro { text-align: center; }
+  .summary-table td.col-warn { vertical-align: top; }
   .summary-table a { color: var(--bright); }
   .summary-table a:hover { color: var(--accent); }
   .badge-sm {
@@ -159,6 +160,28 @@
     white-space: nowrap;
   }
 
+  /* Warning list in summary table */
+  .warn-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .warn-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75em;
+    color: var(--warn-txt);
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+  .warn-item img {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    vertical-align: middle;
+  }
+
   /* Mimic separator (Desktop) */
   .summary-table tbody tr.mimic-row td {
     box-shadow: inset 0 3px 0 0 var(--accent);
@@ -179,7 +202,7 @@
     text-decoration-thickness: 2px;
   }
 
-  /* Warning icon tooltips — hover on desktop, long-press on mobile */
+  /* Warning icon tooltips — hover on desktop, long-press on mobile (for enemy cards) */
   .w-tooltip-wrap {
     position: relative; display: inline-block;
     cursor: help; margin-right: 4px;
@@ -487,20 +510,23 @@
 
     .summary-table td.col-warn {
       grid-area: warn;
-      margin-top: 2px;
-      padding-top: 4px;
+      margin-top: 4px;
+      padding-top: 6px;
       border-top: 1px solid var(--border);
+      width: 100%;
     }
     .summary-table td.col-warn:empty {
-      display: none; /* Hides the row entirely if no warnings, saving vertical space */
+      display: none;
     }
-    .summary-table td.col-warn .w-tooltip-wrap {
-      margin-right: 4px;
+    .summary-table td.col-warn .warn-list {
+      gap: 3px;
     }
-    .summary-table td.col-warn .w-tooltip-wrap img {
+    .summary-table td.col-warn .warn-item {
+      font-size: 0.78em;
+    }
+    .summary-table td.col-warn .warn-item img {
       width: 16px;
       height: 16px;
-      vertical-align: middle;
     }
 
     /* Mimic separator — yellow line strictly ABOVE the card */
@@ -514,7 +540,7 @@
   }
 </style>
 <script>
-// Long-press tooltip support for mobile warning icons in summary table
+// Long-press tooltip support for mobile warning icons in enemy cards
 (function() {
   document.addEventListener('DOMContentLoaded', function() {
     var LONG = 450;
@@ -657,14 +683,14 @@
       <tr>
         <td class="col-aggro"><img alt="Sound agro" height="24" src="../../assets/potd_011-020_ear.svg" title="Sound agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-palace-slime">Palace Slime</a></td>
-        <td class="col-warn"><span class="w-tooltip-wrap"><img alt="High damage enrage or self-destruct" class="warningIcon" height="16" src="../../assets/potd_011-020_explosion.svg" title="High damage enrage or self-destruct" width="16"/><span class="w-tooltip">High damage enrage or self-destruct</span></span></td>
+        <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="High damage enrage or self-destruct" class="warningIcon" height="16" src="../../assets/potd_011-020_explosion.svg" title="High damage enrage or self-destruct" width="16"/> <span>High damage enrage or self-destruct</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:57%"></div><span>904</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:53%"></div><span>67</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_011-020_eye.svg" title="Sight agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-palace-cobra">Palace Cobra</a> <span class="badge-sm">P</span></td>
-        <td class="col-warn"><span class="w-tooltip-wrap"><img alt="Gaze ability" class="warningIcon" height="16" src="../../assets/potd_011-020_gaze.svg" title="Gaze ability" width="16"/><span class="w-tooltip">Gaze</span></span><span class="w-tooltip-wrap"><img alt="Unclassified dangerous ability" class="warningIcon" height="16" src="../../assets/potd_011-020_warning.svg" title="Unclassified dangerous ability" width="16"/><span class="w-tooltip">Unclassified dangerous</span></span></td>
+        <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Gaze ability" class="warningIcon" height="16" src="../../assets/potd_011-020_gaze.svg" title="Gaze ability" width="16"/> <span>Gaze</span></div><div class="warn-item"><img alt="Unclassified dangerous ability" class="warningIcon" height="16" src="../../assets/potd_011-020_warning.svg" title="Unclassified dangerous ability" width="16"/> <span>Unclassified dangerous</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:65%"></div><span>1027</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:64%"></div><span>81</span></div></td>
       </tr>

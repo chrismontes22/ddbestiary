@@ -98,7 +98,7 @@
   .enemy-summary {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 8px; margin-bottom: 28px; overflow: hidden;
-    scroll-margin-top: 80px; /* Leaves just enough room to clear the top bar, landing on the first card */
+    scroll-margin-top: 140px; /* Scrolls lower, landing just above the first card */
   }
   .summary-table {
     border-collapse: collapse; width: 100%; font-size: 0.92em;
@@ -110,7 +110,7 @@
     border-bottom: 2px solid var(--border);
   }
   .summary-table th.col-aggro { width: 40px; text-align: center; }
-  .summary-table th.col-warn  { width: 120px; }
+  .summary-table th.col-warn  { width: 160px; }
   .summary-table th.col-hp, .summary-table td.col-hp { width: 140px; text-align: left; }
   .summary-table th.col-aa, .summary-table td.col-aa { width: 140px; text-align: left; }
   .summary-table td {
@@ -120,6 +120,7 @@
   .summary-table tbody tr:last-child td { border-bottom: none; }
   .summary-table tbody tr:hover { background: var(--surface2); }
   .summary-table td.col-aggro { text-align: center; }
+  .summary-table td.col-warn { vertical-align: top; }
   .summary-table a { color: var(--bright); }
   .summary-table a:hover { color: var(--accent); }
   .badge-sm {
@@ -159,6 +160,28 @@
     white-space: nowrap;
   }
 
+  /* Warning list in summary table */
+  .warn-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .warn-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75em;
+    color: var(--warn-txt);
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+  .warn-item img {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    vertical-align: middle;
+  }
+
   /* Mimic separator (Desktop) */
   .summary-table tbody tr.mimic-row td {
     box-shadow: inset 0 3px 0 0 var(--accent);
@@ -179,7 +202,7 @@
     text-decoration-thickness: 2px;
   }
 
-  /* Warning icon tooltips — hover on desktop, long-press on mobile */
+  /* Warning icon tooltips — hover on desktop, long-press on mobile (for enemy cards) */
   .w-tooltip-wrap {
     position: relative; display: inline-block;
     cursor: help; margin-right: 4px;
@@ -487,20 +510,23 @@
 
     .summary-table td.col-warn {
       grid-area: warn;
-      margin-top: 2px;
-      padding-top: 4px;
+      margin-top: 4px;
+      padding-top: 6px;
       border-top: 1px solid var(--border);
+      width: 100%;
     }
     .summary-table td.col-warn:empty {
-      display: none; /* Hides the row entirely if no warnings, saving vertical space */
+      display: none;
     }
-    .summary-table td.col-warn .w-tooltip-wrap {
-      margin-right: 4px;
+    .summary-table td.col-warn .warn-list {
+      gap: 3px;
     }
-    .summary-table td.col-warn .w-tooltip-wrap img {
+    .summary-table td.col-warn .warn-item {
+      font-size: 0.78em;
+    }
+    .summary-table td.col-warn .warn-item img {
       width: 16px;
       height: 16px;
-      vertical-align: middle;
     }
 
     /* Mimic separator — yellow line strictly ABOVE the card */
@@ -514,7 +540,7 @@
   }
 </style>
 <script>
-// Long-press tooltip support for mobile warning icons in summary table
+// Long-press tooltip support for mobile warning icons in enemy cards
 (function() {
   document.addEventListener('DOMContentLoaded', function() {
     var LONG = 450;
@@ -657,37 +683,37 @@
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/eo_081-090_eye.svg" title="Sight agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-orthos-pegasus">Orthos Pegasus</a></td>
-        <td class="col-warn"><span class="w-tooltip-wrap"><img alt="Draw-in, knockback, heavy, or other movement-affecting status" class="warningIcon" height="16" src="../../assets/eo_081-090_movement.svg" title="Draw-in, knockback, heavy, or other movement-affecting status" width="16"/><span class="w-tooltip">Draw-in, knockback, heavy, or other movement-affecting status</span></span><span class="w-tooltip-wrap"><img alt="Large or untelegraphed pointblank AoE" class="warningIcon" height="16" src="../../assets/eo_081-090_pointblank.svg" title="Large or untelegraphed pointblank AoE" width="16"/><span class="w-tooltip">pointblank AoE</span></span></td>
+        <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Draw-in, knockback, heavy, or other movement-affecting status" class="warningIcon" height="16" src="../../assets/eo_081-090_movement.svg" title="Draw-in, knockback, heavy, or other movement-affecting status" width="16"/> <span>Draw-in, knockback, heavy, or other movement-affecting status</span></div><div class="warn-item"><img alt="Large or untelegraphed pointblank AoE" class="warningIcon" height="16" src="../../assets/eo_081-090_pointblank.svg" title="Large or untelegraphed pointblank AoE" width="16"/> <span>pointblank AoE</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:24%"></div><span>344K</span></div></td>
-        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:59%"></div><span>5857</span></div></td>
+        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:39%"></div><span>5857</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/eo_081-090_radar.svg" title="Proximity agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-orthos-specter">Orthos Specter</a> <span class="badge-sm">P</span></td>
-        <td class="col-warn"><span class="w-tooltip-wrap"><img alt="Large or untelegraphed directional AoE" class="warningIcon" height="16" src="../../assets/eo_081-090_directional.svg" title="Large or untelegraphed directional AoE" width="16"/><span class="w-tooltip">directional AoE</span></span><span class="w-tooltip-wrap"><img alt="Large or untelegraphed donut AoE" class="warningIcon" height="16" src="../../assets/eo_081-090_donut.svg" title="Large or untelegraphed donut AoE" width="16"/><span class="w-tooltip">donut AoE</span></span><span class="w-tooltip-wrap"><img alt="Large or untelegraphed pointblank AoE" class="warningIcon" height="16" src="../../assets/eo_081-090_pointblank.svg" title="Large or untelegraphed pointblank AoE" width="16"/><span class="w-tooltip">pointblank AoE</span></span></td>
+        <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Large or untelegraphed directional AoE" class="warningIcon" height="16" src="../../assets/eo_081-090_directional.svg" title="Large or untelegraphed directional AoE" width="16"/> <span>directional AoE</span></div><div class="warn-item"><img alt="Large or untelegraphed donut AoE" class="warningIcon" height="16" src="../../assets/eo_081-090_donut.svg" title="Large or untelegraphed donut AoE" width="16"/> <span>donut AoE</span></div><div class="warn-item"><img alt="Large or untelegraphed pointblank AoE" class="warningIcon" height="16" src="../../assets/eo_081-090_pointblank.svg" title="Large or untelegraphed pointblank AoE" width="16"/> <span>pointblank AoE</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:23%"></div><span>328K</span></div></td>
-        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:0%"></div><span>10K</span></div></td>
+        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:66%"></div><span>10K</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/eo_081-090_radar.svg" title="Proximity agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-orthos-wraith">Orthos Wraith</a></td>
-        <td class="col-warn"><span class="w-tooltip-wrap"><img alt="Large or untelegraphed pointblank AoE" class="warningIcon" height="16" src="../../assets/eo_081-090_pointblank.svg" title="Large or untelegraphed pointblank AoE" width="16"/><span class="w-tooltip">pointblank AoE</span></span></td>
+        <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Large or untelegraphed pointblank AoE" class="warningIcon" height="16" src="../../assets/eo_081-090_pointblank.svg" title="Large or untelegraphed pointblank AoE" width="16"/> <span>pointblank AoE</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:24%"></div><span>344K</span></div></td>
-        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:0%"></div><span>11K</span></div></td>
+        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:73%"></div><span>11K</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/eo_081-090_eye.svg" title="Sight agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-orthos-ahriman">Orthos Ahriman</a></td>
-        <td class="col-warn"><span class="w-tooltip-wrap"><img alt="Large or untelegraphed directional AoE" class="warningIcon" height="16" src="../../assets/eo_081-090_directional.svg" title="Large or untelegraphed directional AoE" width="16"/><span class="w-tooltip">directional AoE</span></span></td>
+        <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Large or untelegraphed directional AoE" class="warningIcon" height="16" src="../../assets/eo_081-090_directional.svg" title="Large or untelegraphed directional AoE" width="16"/> <span>directional AoE</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:22%"></div><span>310K</span></div></td>
-        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>9873</span></div></td>
+        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:65%"></div><span>9873</span></div></td>
       </tr>
       <tr class="mimic-row">
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/eo_081-090_radar.svg" title="Proximity agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-mimic">Mimic</a></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:32%"></div><span>458K</span></div></td>
-        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:0%"></div><span>15K</span></div></td>
+        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>15K</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/eo_081-090_eye.svg" title="Sight agro" width="24"/></td>

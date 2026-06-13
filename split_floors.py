@@ -316,7 +316,7 @@ PAGE_CSS = """<style>
   .enemy-summary {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 8px; margin-bottom: 28px; overflow: hidden;
-    scroll-margin-top: 80px; /* Leaves just enough room to clear the top bar, landing on the first card */
+    scroll-margin-top: 140px; /* Scrolls lower, landing just above the first card */
   }
   .summary-table {
     border-collapse: collapse; width: 100%; font-size: 0.92em;
@@ -328,7 +328,7 @@ PAGE_CSS = """<style>
     border-bottom: 2px solid var(--border);
   }
   .summary-table th.col-aggro { width: 40px; text-align: center; }
-  .summary-table th.col-warn  { width: 120px; }
+  .summary-table th.col-warn  { width: 160px; }
   .summary-table th.col-hp, .summary-table td.col-hp { width: 140px; text-align: left; }
   .summary-table th.col-aa, .summary-table td.col-aa { width: 140px; text-align: left; }
   .summary-table td {
@@ -338,6 +338,7 @@ PAGE_CSS = """<style>
   .summary-table tbody tr:last-child td { border-bottom: none; }
   .summary-table tbody tr:hover { background: var(--surface2); }
   .summary-table td.col-aggro { text-align: center; }
+  .summary-table td.col-warn { vertical-align: top; }
   .summary-table a { color: var(--bright); }
   .summary-table a:hover { color: var(--accent); }
   .badge-sm {
@@ -377,6 +378,28 @@ PAGE_CSS = """<style>
     white-space: nowrap;
   }
 
+  /* Warning list in summary table */
+  .warn-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .warn-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75em;
+    color: var(--warn-txt);
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+  .warn-item img {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    vertical-align: middle;
+  }
+
   /* Mimic separator (Desktop) */
   .summary-table tbody tr.mimic-row td {
     box-shadow: inset 0 3px 0 0 var(--accent);
@@ -397,7 +420,7 @@ PAGE_CSS = """<style>
     text-decoration-thickness: 2px;
   }
 
-  /* Warning icon tooltips — hover on desktop, long-press on mobile */
+  /* Warning icon tooltips — hover on desktop, long-press on mobile (for enemy cards) */
   .w-tooltip-wrap {
     position: relative; display: inline-block;
     cursor: help; margin-right: 4px;
@@ -705,20 +728,23 @@ PAGE_CSS = """<style>
 
     .summary-table td.col-warn {
       grid-area: warn;
-      margin-top: 2px;
-      padding-top: 4px;
+      margin-top: 4px;
+      padding-top: 6px;
       border-top: 1px solid var(--border);
+      width: 100%;
     }
     .summary-table td.col-warn:empty {
-      display: none; /* Hides the row entirely if no warnings, saving vertical space */
+      display: none;
     }
-    .summary-table td.col-warn .w-tooltip-wrap {
-      margin-right: 4px;
+    .summary-table td.col-warn .warn-list {
+      gap: 3px;
     }
-    .summary-table td.col-warn .w-tooltip-wrap img {
+    .summary-table td.col-warn .warn-item {
+      font-size: 0.78em;
+    }
+    .summary-table td.col-warn .warn-item img {
       width: 16px;
       height: 16px;
-      vertical-align: middle;
     }
 
     /* Mimic separator — yellow line strictly ABOVE the card */
@@ -732,7 +758,7 @@ PAGE_CSS = """<style>
   }
 </style>
 <script>
-// Long-press tooltip support for mobile warning icons in summary table
+// Long-press tooltip support for mobile warning icons in enemy cards
 (function() {
   document.addEventListener('DOMContentLoaded', function() {
     var LONG = 450;
@@ -803,10 +829,13 @@ def make_anchor(name: str) -> str:
 
 
 def parse_number(s):
-    """Extract integer value from strings like '12,345' or '1,234,567'."""
+    """Extract integer value from strings like '12,345', '10k', or '1,234,567'."""
     if not s: return 0
-    digits = re.sub(r'\D', '', str(s))
-    return int(digits) if digits else 0
+    s = str(s).strip().lower()
+    multiplier = 1000 if 'k' in s else 1
+    s_clean = s.replace('k', '')
+    digits = re.sub(r'\D', '', s_clean)
+    return int(digits) * multiplier if digits else 0
 
 
 # ── Path fixer ────────────────────────────────────────────────────────────────
@@ -1018,8 +1047,8 @@ def format_warnings(warn_html: str, fix) -> str:
     return " ".join(parts)
 
 
-def format_warning_icons_for_summary(warn_html: str, fix) -> str:
-    """Icons only with tooltip wrappers — for the compact summary table."""
+def format_warnings_for_summary(warn_html: str, fix) -> str:
+    """Icons with text labels, stacked vertically for readability in summary table."""
     if not warn_html.strip():
         return ""
     fixed = fix(warn_html)
@@ -1037,11 +1066,9 @@ def format_warning_icons_for_summary(warn_html: str, fix) -> str:
                 img.get("title", "")
                 or img.get("alt", "")
             ).replace(" ability", "").replace("Large or untelegraphed ", "").strip()
-        parts.append(
-            f'<span class="w-tooltip-wrap">{img}'
-            f'<span class="w-tooltip">{text}</span></span>'
-        )
-    return "".join(parts)
+        
+        parts.append(f'<div class="warn-item">{img} <span>{text}</span></div>')
+    return f'<div class="warn-list">{"".join(parts)}</div>'
 
 
 # ── Card / table builders ─────────────────────────────────────────────────────
@@ -1064,7 +1091,7 @@ def build_summary_table(floor_enemies, floor_num, fix, fix_val):
             ai["src"] = fix_val(ai.get("src", ""))
             aggro_html = str(ai)
 
-        warn_icons = format_warning_icons_for_summary(enemy["warn_html"], fix)
+        warn_icons = format_warnings_for_summary(enemy["warn_html"], fix)
         is_patrol = floor_num in enemy["patrol"]
 
         # HP and AA bars
