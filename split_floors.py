@@ -166,7 +166,7 @@ SUMMARY_TABLE_TEMPLATE = Template(
 """
 )
 
-# MODIFIED: button href now points to #summary-start
+# MODIFIED: bottom nav arrows append #summary-start via JS when clicked
 PAGE_TEMPLATE = Template(
     r"""
 <!DOCTYPE html>
@@ -190,11 +190,11 @@ PAGE_TEMPLATE = Template(
 <!-- Persistent bottom navigation arrows -->
 <div class="floor-nav-bar">
   <div class="floor-nav-arrow floor-nav-prev">
-    {% if prev_url %}<a href="{{ prev_url }}" title="Floor {{ prev_num }}">&#8592;</a>{% else %}<span class="floor-nav-disabled">&#8592;</span>{% endif %}
+    {% if prev_url %}<a href="{{ prev_url }}#summary-start" class="floor-nav-btn" title="Floor {{ prev_num }}">&#8592;</a>{% else %}<span class="floor-nav-disabled">&#8592;</span>{% endif %}
   </div>
   <div class="floor-nav-label">Floor {{ floor_num }}</div>
   <div class="floor-nav-arrow floor-nav-next">
-    {% if next_url %}<a href="{{ next_url }}" title="Floor {{ next_num }}">&#8594;</a>{% else %}<span class="floor-nav-disabled">&#8594;</span>{% endif %}
+    {% if next_url %}<a href="{{ next_url }}#summary-start" class="floor-nav-btn" title="Floor {{ next_num }}">&#8594;</a>{% else %}<span class="floor-nav-disabled">&#8594;</span>{% endif %}
   </div>
 </div>
 
@@ -225,12 +225,30 @@ PAGE_TEMPLATE = Template(
 </script>
 {% endif %}
 
+<script>
+// If we arrived via a bottom-nav arrow (#summary-start in the URL hash),
+// scroll to #summary-start once the page is ready.
+(function() {
+  if (window.location.hash === '#summary-start') {
+    // Defer until layout is complete so scroll-margin works correctly.
+    window.addEventListener('load', function() {
+      var target = document.getElementById('summary-start');
+      if (target) {
+        target.scrollIntoView({ behavior: 'instant', block: 'start' });
+      }
+    });
+  }
+})();
+</script>
+
 </body>
 </html>
 """
 )
 
-# MODIFIED: removed scroll-margin-top from .enemy-summary, added small scroll-margin for #summary-start
+# MODIFIED:
+#   - #summary-start gets scroll-margin-top so it lands correctly
+#   - Mobile HP/AA bars are placed side-by-side in one row
 PAGE_CSS = """<style>
   :root {
     --bg:       #121212;
@@ -324,14 +342,12 @@ PAGE_CSS = """<style>
   .enemy-summary {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 8px; margin-bottom: 28px; overflow: hidden;
-    /* Removed scroll-margin-top so that the anchor inside controls the scroll */
   }
-  /* The anchor inside the table body ensures we scroll to the first row */
   #summary-start {
-    scroll-margin-top: 16px;  /* small offset so the first row isn't hidden under the navbar */
+    scroll-margin-top: 16px;
   }
   .summary-table {
-    border-collapse: separate; /* Allows margin and ::before pseudo-elements on rows */
+    border-collapse: separate;
     border-spacing: 0;
     width: 100%; font-size: 0.92em;
   }
@@ -416,7 +432,7 @@ PAGE_CSS = """<style>
   /* ── Mimic separator row (yellow line above mimic) ── */
   .summary-table tbody tr.mimic-separator td {
     position: relative;
-    height: 20px;               /* vertical spacing before mimic */
+    height: 20px;
     padding: 0;
     border: none;
   }
@@ -447,7 +463,7 @@ PAGE_CSS = """<style>
     text-decoration-thickness: 2px;
   }
 
-  /* Warning icon tooltips — hover on desktop, long-press on mobile (for enemy cards) */
+  /* Warning icon tooltips */
   .w-tooltip-wrap {
     position: relative; display: inline-block;
     cursor: help; margin-right: 4px;
@@ -576,7 +592,7 @@ PAGE_CSS = """<style>
     background: var(--accent); color: #121212; text-decoration: none;
   }
   .floor-nav-disabled { color: var(--border); background: transparent; cursor: default; }
-  
+
   /* Prominent floor number label */
   .floor-nav-label {
     flex: 1; text-align: center;
@@ -610,7 +626,7 @@ PAGE_CSS = """<style>
   #enemy-quicklist a.back-to-summary {
     display: flex; align-items: center; justify-content: center;
     width: 100%; padding: 12px 14px;
-    color: var(--accent); /* Yellow text */
+    color: var(--accent);
     font-size: 0.9em; font-weight: 600;
     letter-spacing: 0.04em; text-transform: uppercase;
     text-decoration: none;
@@ -658,9 +674,8 @@ PAGE_CSS = """<style>
       grid-template-columns: auto 1fr;
       grid-template-areas:
         "name aggro"
-        "hp    hp"
-        "aa    aa"
-        "warn  warn";
+        "bars bars"
+        "warn warn";
       gap: 4px 10px;
       background: var(--surface);
       border: 1px solid var(--border);
@@ -704,13 +719,50 @@ PAGE_CSS = """<style>
       text-decoration: underline;
     }
 
+    /* HP and AA share a single row side by side */
+    .summary-table td.col-hp,
+    .summary-table td.col-aa {
+      grid-area: unset; /* remove individual grid-area */
+    }
+    /* Both HP and AA sit inside a shared flex row via the grid "bars" area.
+       We use a CSS trick: make col-hp start the bars row and col-aa follow it. */
     .summary-table td.col-hp {
-      grid-area: hp;
-      width: 100%;
+      grid-area: bars;
       display: flex;
       align-items: center;
       gap: 6px;
+      width: 100%;
     }
+    .summary-table td.col-aa {
+      /* Pull col-aa into the same visual row as col-hp using negative margin +
+         absolute positioning isn't clean in grid, so we use the approach of
+         hiding col-aa from the grid and rendering its content inside col-hp
+         via a sibling combinator trick — but that needs JS.
+         Instead: give col-aa grid-column span and overlap via subgrid workaround.
+         Cleanest pure-CSS solution: give col-aa the same row, different column. */
+      grid-row: 3;       /* same row as col-hp (bars) */
+      grid-column: 2;    /* right half */
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+    }
+    /* Re-assign the grid areas more explicitly for the bars row */
+    .summary-table tr {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto auto;
+      grid-template-areas:
+        "name  aggro"
+        "hp-bar aa-bar"
+        "warn   warn";
+    }
+    .summary-table td.col-hp   { grid-area: hp-bar; }
+    .summary-table td.col-aa   { grid-area: aa-bar; }
+    .summary-table td.col-warn { grid-area: warn; grid-column: 1 / -1; }
+    .summary-table td.col-name { grid-column: 1; }
+    .summary-table td.col-aggro { grid-column: 2; justify-self: end; }
+
+    /* Label prefix before each bar */
     .summary-table td.col-hp::before {
       content: "HP";
       color: var(--dim);
@@ -718,23 +770,6 @@ PAGE_CSS = """<style>
       font-weight: 700;
       letter-spacing: 0.04em;
       flex: 0 0 20px;
-    }
-    .summary-table td.col-hp .bar-wrap {
-      flex: 1;
-      min-width: 0;
-      height: 18px;
-    }
-    .summary-table td.col-hp .bar-wrap span {
-      font-size: 0.78em;
-      padding: 0 4px;
-    }
-
-    .summary-table td.col-aa {
-      grid-area: aa;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
     .summary-table td.col-aa::before {
       content: "AA";
@@ -744,18 +779,21 @@ PAGE_CSS = """<style>
       letter-spacing: 0.04em;
       flex: 0 0 20px;
     }
+
+    /* Bars themselves */
+    .summary-table td.col-hp .bar-wrap,
     .summary-table td.col-aa .bar-wrap {
       flex: 1;
       min-width: 0;
       height: 18px;
     }
+    .summary-table td.col-hp .bar-wrap span,
     .summary-table td.col-aa .bar-wrap span {
       font-size: 0.78em;
       padding: 0 4px;
     }
 
     .summary-table td.col-warn {
-      grid-area: warn;
       margin-top: 4px;
       padding-top: 6px;
       border-top: 1px solid var(--border);
@@ -813,7 +851,6 @@ PAGE_CSS = """<style>
       if (link) {
         row.style.cursor = 'pointer';
         row.addEventListener('click', function(e) {
-          // Prevent double-firing if the user actually clicked the inner name link
           if (e.target.tagName !== 'A') {
             window.location.hash = link.getAttribute('href');
           }
@@ -1099,24 +1136,52 @@ def format_warnings_for_summary(warn_html: str, fix) -> str:
                 img.get("title", "")
                 or img.get("alt", "")
             ).replace(" ability", "").replace("Large or untelegraphed ", "").strip()
-        
+
         parts.append(f'<div class="warn-item">{img} <span>{text}</span></div>')
     return f'<div class="warn-list">{"".join(parts)}</div>'
 
 
 # ── Card / table builders ─────────────────────────────────────────────────────
 def build_summary_table(floor_enemies, floor_num, fix, fix_val):
-    """Compact overview table at the top of an enemy floor page."""
-    max_hp = max((parse_number(e["hp"]) for e in floor_enemies), default=1)
-    max_aa = max((parse_number(e["aa"]) for e in floor_enemies), default=1)
-    if max_hp == 0: max_hp = 1
-    if max_aa == 0: max_aa = 1
+    """Compact overview table at the top of an enemy floor page.
+
+    Bar fill is calculated relative to the max value of the enemies *above*
+    the mimic separator line.  Enemies below the line (mimics and anything
+    after them) may exceed that reference max; in that case their bar is
+    capped at 100 % (fully filled) rather than overflowing.
+    """
+
+    # ── Determine which enemies are "above" vs "below" the mimic line ──────
+    # The first mimic encountered marks the boundary.
+    first_mimic_idx = next(
+        (i for i, e in enumerate(floor_enemies) if "mimic" in e["name"].lower()),
+        len(floor_enemies),   # sentinel: no mimic → all enemies are "above"
+    )
+
+    above_enemies = floor_enemies[:first_mimic_idx]
+    below_enemies = floor_enemies[first_mimic_idx:]
+
+    # Reference maxima come solely from the above-the-line group.
+    ref_max_hp = max((parse_number(e["hp"]) for e in above_enemies), default=1) or 1
+    ref_max_aa = max((parse_number(e["aa"]) for e in above_enemies), default=1) or 1
+
+    def make_bar(value_str: str, ref_max: int, bar_class: str) -> str:
+        if not value_str:
+            return ""
+        val = parse_number(value_str)
+        pct = min(100, int((val / ref_max) * 100)) if val > 0 else 0
+        return (
+            f'<div class="bar-wrap">'
+            f'<div class="bar-bg {bar_class}" style="width:{pct}%"></div>'
+            f'<span>{value_str}</span>'
+            f'</div>'
+        )
 
     rows = []
     for enemy in floor_enemies:
         name_txt = enemy["name"]
         anchor = make_anchor(name_txt)
-        is_mimic = 'mimic' in name_txt.lower()
+        is_mimic = "mimic" in name_txt.lower()
 
         aggro_html = ""
         if enemy["aggro_img"]:
@@ -1127,22 +1192,10 @@ def build_summary_table(floor_enemies, floor_num, fix, fix_val):
         warn_icons = format_warnings_for_summary(enemy["warn_html"], fix)
         is_patrol = floor_num in enemy["patrol"]
 
-        # HP and AA bars
-        hp_val = parse_number(enemy["hp"])
-        aa_val = parse_number(enemy["aa"])
-        
-        hp_pct = int((hp_val / max_hp) * 100) if hp_val > 0 else 0
-        aa_pct = int((aa_val / max_aa) * 100) if aa_val > 0 else 0
-        
-        hp_html = ""
-        if enemy["hp"]:
-            hp_html = f'<div class="bar-wrap"><div class="bar-bg bar-hp" style="width:{hp_pct}%"></div><span>{enemy["hp"]}</span></div>'
-            
-        aa_html = ""
-        if enemy["aa"]:
-            aa_html = f'<div class="bar-wrap"><div class="bar-bg bar-aa" style="width:{aa_pct}%"></div><span>{enemy["aa"]}</span></div>'
+        hp_html = make_bar(enemy["hp"], ref_max_hp, "bar-hp")
+        aa_html = make_bar(enemy["aa"], ref_max_aa, "bar-aa")
 
-        # Insert a dedicated separator row before the first mimic (or before every mimic)
+        # Insert a dedicated separator row before the first mimic
         if is_mimic:
             rows.append({"separator": True})
 

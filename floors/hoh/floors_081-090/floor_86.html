@@ -98,14 +98,12 @@
   .enemy-summary {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 8px; margin-bottom: 28px; overflow: hidden;
-    /* Removed scroll-margin-top so that the anchor inside controls the scroll */
   }
-  /* The anchor inside the table body ensures we scroll to the first row */
   #summary-start {
-    scroll-margin-top: 16px;  /* small offset so the first row isn't hidden under the navbar */
+    scroll-margin-top: 16px;
   }
   .summary-table {
-    border-collapse: separate; /* Allows margin and ::before pseudo-elements on rows */
+    border-collapse: separate;
     border-spacing: 0;
     width: 100%; font-size: 0.92em;
   }
@@ -190,7 +188,7 @@
   /* ── Mimic separator row (yellow line above mimic) ── */
   .summary-table tbody tr.mimic-separator td {
     position: relative;
-    height: 20px;               /* vertical spacing before mimic */
+    height: 20px;
     padding: 0;
     border: none;
   }
@@ -221,7 +219,7 @@
     text-decoration-thickness: 2px;
   }
 
-  /* Warning icon tooltips — hover on desktop, long-press on mobile (for enemy cards) */
+  /* Warning icon tooltips */
   .w-tooltip-wrap {
     position: relative; display: inline-block;
     cursor: help; margin-right: 4px;
@@ -350,7 +348,7 @@
     background: var(--accent); color: #121212; text-decoration: none;
   }
   .floor-nav-disabled { color: var(--border); background: transparent; cursor: default; }
-  
+
   /* Prominent floor number label */
   .floor-nav-label {
     flex: 1; text-align: center;
@@ -384,7 +382,7 @@
   #enemy-quicklist a.back-to-summary {
     display: flex; align-items: center; justify-content: center;
     width: 100%; padding: 12px 14px;
-    color: var(--accent); /* Yellow text */
+    color: var(--accent);
     font-size: 0.9em; font-weight: 600;
     letter-spacing: 0.04em; text-transform: uppercase;
     text-decoration: none;
@@ -432,9 +430,8 @@
       grid-template-columns: auto 1fr;
       grid-template-areas:
         "name aggro"
-        "hp    hp"
-        "aa    aa"
-        "warn  warn";
+        "bars bars"
+        "warn warn";
       gap: 4px 10px;
       background: var(--surface);
       border: 1px solid var(--border);
@@ -478,13 +475,50 @@
       text-decoration: underline;
     }
 
+    /* HP and AA share a single row side by side */
+    .summary-table td.col-hp,
+    .summary-table td.col-aa {
+      grid-area: unset; /* remove individual grid-area */
+    }
+    /* Both HP and AA sit inside a shared flex row via the grid "bars" area.
+       We use a CSS trick: make col-hp start the bars row and col-aa follow it. */
     .summary-table td.col-hp {
-      grid-area: hp;
-      width: 100%;
+      grid-area: bars;
       display: flex;
       align-items: center;
       gap: 6px;
+      width: 100%;
     }
+    .summary-table td.col-aa {
+      /* Pull col-aa into the same visual row as col-hp using negative margin +
+         absolute positioning isn't clean in grid, so we use the approach of
+         hiding col-aa from the grid and rendering its content inside col-hp
+         via a sibling combinator trick — but that needs JS.
+         Instead: give col-aa grid-column span and overlap via subgrid workaround.
+         Cleanest pure-CSS solution: give col-aa the same row, different column. */
+      grid-row: 3;       /* same row as col-hp (bars) */
+      grid-column: 2;    /* right half */
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+    }
+    /* Re-assign the grid areas more explicitly for the bars row */
+    .summary-table tr {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto auto;
+      grid-template-areas:
+        "name  aggro"
+        "hp-bar aa-bar"
+        "warn   warn";
+    }
+    .summary-table td.col-hp   { grid-area: hp-bar; }
+    .summary-table td.col-aa   { grid-area: aa-bar; }
+    .summary-table td.col-warn { grid-area: warn; grid-column: 1 / -1; }
+    .summary-table td.col-name { grid-column: 1; }
+    .summary-table td.col-aggro { grid-column: 2; justify-self: end; }
+
+    /* Label prefix before each bar */
     .summary-table td.col-hp::before {
       content: "HP";
       color: var(--dim);
@@ -492,23 +526,6 @@
       font-weight: 700;
       letter-spacing: 0.04em;
       flex: 0 0 20px;
-    }
-    .summary-table td.col-hp .bar-wrap {
-      flex: 1;
-      min-width: 0;
-      height: 18px;
-    }
-    .summary-table td.col-hp .bar-wrap span {
-      font-size: 0.78em;
-      padding: 0 4px;
-    }
-
-    .summary-table td.col-aa {
-      grid-area: aa;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
     .summary-table td.col-aa::before {
       content: "AA";
@@ -518,18 +535,21 @@
       letter-spacing: 0.04em;
       flex: 0 0 20px;
     }
+
+    /* Bars themselves */
+    .summary-table td.col-hp .bar-wrap,
     .summary-table td.col-aa .bar-wrap {
       flex: 1;
       min-width: 0;
       height: 18px;
     }
+    .summary-table td.col-hp .bar-wrap span,
     .summary-table td.col-aa .bar-wrap span {
       font-size: 0.78em;
       padding: 0 4px;
     }
 
     .summary-table td.col-warn {
-      grid-area: warn;
       margin-top: 4px;
       padding-top: 6px;
       border-top: 1px solid var(--border);
@@ -587,7 +607,6 @@
       if (link) {
         row.style.cursor = 'pointer';
         row.addEventListener('click', function(e) {
-          // Prevent double-firing if the user actually clicked the inner name link
           if (e.target.tagName !== 'A') {
             window.location.hash = link.getAttribute('href');
           }
@@ -711,56 +730,56 @@
         <td class="col-name"><a href="#enemy-heavenly-ryukotsu-elephant">Heavenly Ryukotsu (Elephant)</a></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Out of combat ability" class="warningIcon" height="16" src="../../assets/hoh_081-090_idle.svg" title="Out of combat ability" width="16"/> <span>Out of combat</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:96%"></div><span>60K</span></div></td>
-        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:73%"></div><span>5564</span></div></td>
+        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:94%"></div><span>5564</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_081-090_eye.svg" title="Sight agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-heavenly-shinzei-suud">Heavenly Shinzei (Suud)</a> <span class="badge-sm">P</span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>62K</span></div></td>
-        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:76%"></div><span>5841</span></div></td>
+        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:99%"></div><span>5841</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_081-090_eye.svg" title="Sight agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-heavenly-ryujin">Heavenly Ryujin</a></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Large or untelegraphed directional AoE" class="warningIcon" height="16" src="../../assets/hoh_081-090_directional.svg" title="Large or untelegraphed directional AoE" width="16"/> <span>directional AoE</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:96%"></div><span>60K</span></div></td>
-        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:73%"></div><span>5564</span></div></td>
+        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:94%"></div><span>5564</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_081-090_eye.svg" title="Sight agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-heavenly-hitotsume-cyclops">Heavenly Hitotsume (Cyclops)</a></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Large or untelegraphed directional AoE" class="warningIcon" height="16" src="../../assets/hoh_081-090_directional.svg" title="Large or untelegraphed directional AoE" width="16"/> <span>directional AoE</span></div><div class="warn-item"><img alt="Large or untelegraphed pointblank AoE" class="warningIcon" height="16" src="../../assets/hoh_081-090_pointblank.svg" title="Large or untelegraphed pointblank AoE" width="16"/> <span>pointblank AoE</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:96%"></div><span>60K</span></div></td>
-        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:73%"></div><span>5564</span></div></td>
+        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:94%"></div><span>5564</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_081-090_eye.svg" title="Sight agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-heavenly-araragi-goobbue">Heavenly Araragi (Goobbue)</a></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Large or untelegraphed directional AoE" class="warningIcon" height="16" src="../../assets/hoh_081-090_directional.svg" title="Large or untelegraphed directional AoE" width="16"/> <span>directional AoE</span></div><div class="warn-item"><img alt="Draw-in, knockback, heavy, or other movement-affecting status" class="warningIcon" height="16" src="../../assets/hoh_081-090_movement.svg" title="Draw-in, knockback, heavy, or other movement-affecting status" width="16"/> <span>Draw-in, knockback, heavy, or other movement-affecting status</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:95%"></div><span>59K</span></div></td>
-        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:50%"></div><span>3872</span></div></td>
+        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:65%"></div><span>3872</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_081-090_eye.svg" title="Sight agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-heavenly-enko">Heavenly Enko</a></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:91%"></div><span>57K</span></div></td>
-        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:66%"></div><span>5047</span></div></td>
+        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:85%"></div><span>5047</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/hoh_081-090_radar.svg" title="Proximity agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-heavenly-koki">Heavenly Koki</a></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Large or untelegraphed donut AoE" class="warningIcon" height="16" src="../../assets/hoh_081-090_donut.svg" title="Large or untelegraphed donut AoE" width="16"/> <span>donut AoE</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:93%"></div><span>58K</span></div></td>
-        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:68%"></div><span>5257</span></div></td>
+        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:89%"></div><span>5257</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_081-090_eye.svg" title="Sight agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-heavenly-rakshasa-manticore">Heavenly Rakshasa (Manticore)</a> <span class="badge-sm">P</span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Large or untelegraphed directional AoE" class="warningIcon" height="16" src="../../assets/hoh_081-090_directional.svg" title="Large or untelegraphed directional AoE" width="16"/> <span>directional AoE</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>62K</span></div></td>
-        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:77%"></div><span>5890</span></div></td>
+        <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>5890</span></div></td>
       </tr>
       <tr class="mimic-separator"><td colspan="5">  </td></tr>
       <tr class="mimic-row">
@@ -1392,11 +1411,11 @@ n/a
 <!-- Persistent bottom navigation arrows -->
 <div class="floor-nav-bar">
   <div class="floor-nav-arrow floor-nav-prev">
-    <a href="floor_85.html" title="Floor 85">&#8592;</a>
+    <a href="floor_85.html#summary-start" class="floor-nav-btn" title="Floor 85">&#8592;</a>
   </div>
   <div class="floor-nav-label">Floor 86</div>
   <div class="floor-nav-arrow floor-nav-next">
-    <a href="floor_87.html" title="Floor 87">&#8594;</a>
+    <a href="floor_87.html#summary-start" class="floor-nav-btn" title="Floor 87">&#8594;</a>
   </div>
 </div>
 
@@ -1426,6 +1445,22 @@ n/a
 })();
 </script>
 
+
+<script>
+// If we arrived via a bottom-nav arrow (#summary-start in the URL hash),
+// scroll to #summary-start once the page is ready.
+(function() {
+  if (window.location.hash === '#summary-start') {
+    // Defer until layout is complete so scroll-margin works correctly.
+    window.addEventListener('load', function() {
+      var target = document.getElementById('summary-start');
+      if (target) {
+        target.scrollIntoView({ behavior: 'instant', block: 'start' });
+      }
+    });
+  }
+})();
+</script>
 
 </body>
 </html>
