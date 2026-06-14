@@ -316,7 +316,7 @@ PAGE_CSS = """<style>
   .enemy-summary {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 8px; margin-bottom: 28px; overflow: hidden;
-    scroll-margin-top: 280px; /* Pushes view down further, hiding the floor number and landing on the first tile */
+    scroll-margin-top: 220px; /* Lands just below the floor navigation links */
   }
   .summary-table {
     border-collapse: separate; /* Allows margin and ::before pseudo-elements on rows */
@@ -392,7 +392,6 @@ PAGE_CSS = """<style>
     gap: 4px;
     font-size: 0.75em;
     color: var(--warn-txt);
-    white-space: nowrap;
     line-height: 1.2;
   }
   .warn-item img {
