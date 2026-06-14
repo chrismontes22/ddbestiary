@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deep Dungeon Floor Guide</title>
+  <style>
+    /* ── Theme Variables (Matches your floor pages exactly) ── */
+    :root {
+      --bg:       #121212;
+      --surface:  #202020;
+      --surface2: #2a2a2a;
+      --bright:   rgba(255,255,255,0.87);
+      --normal:   rgba(255,255,255,0.60);
+      --dim:      rgba(255,255,255,0.38);
+      --accent:   #F5DA43;
+      --border:   #333333;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg); color: var(--normal); margin: 0;
+      line-height: 1.6;
+    }
+    a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+    a:hover { color: var(--bright); text-decoration: underline; }
+    h1, h2, h3 { color: var(--bright); }
+
+    /* ── Layout ── */
+    .home-main {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    /* ── Header ── */
+    .home-header {
+      text-align: center;
+      margin-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 30px;
+    }
+    .home-header h1 {
+      font-size: 2.5em;
+      margin: 0 0 10px;
+      color: var(--bright); /* Changed to white */
+    }
+    .subtitle {
+      font-size: 1.2em;
+      color: var(--dim);
+      margin: 0;
+    }
+
+    /* ── About Section ── */
+    .about-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 40px;
+    }
+    .about-section h2 {
+      margin-top: 0;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+
+    /* ── Dungeon Cards ── */
+    .dungeons-section {
+      margin-bottom: 40px;
+    }
+    .dungeons-section h2 {
+      text-align: center;
+      font-size: 1.8em;
+      margin-bottom: 24px;
+    }
+    .dungeon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .dungeon-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      transition: transform 0.2s, border-color 0.2s, background 0.2s;
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+    }
+    .dungeon-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      background: var(--surface2);
+      text-decoration: none;
+    }
+    .dungeon-card h3 {
+      margin: 0 0 8px;
+      font-size: 1.4em;
+      color: var(--bright);
+    }
+    .dungeon-card .floors-range {
+      margin: 0;
+      font-size: 0.9em;
+      font-weight: bold;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Footer ── */
+    .home-footer {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      font-size: 0.9em;
+    }
+    .home-footer h3 {
+      margin-top: 0;
+      color: var(--accent);
+    }
+    .home-footer p {
+      margin: 8px 0;
+    }
+    .disclaimer {
+      margin-top: 20px;
+      font-size: 0.85em;
+      color: var(--dim);
+      font-style: italic;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 600px) {
+      .home-header h1 { font-size: 2em; }
+      .home-main { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<main class="home-main">
+  <header class="home-header">
+    <h1>Deep Dungeon Floor Guide</h1>
+    <p class="subtitle">A floor-by-floor companion for FFXIV Deep Dungeons</p>
+  </header>
+
+  <section class="about-section">
+    <h2>About This Guide</h2>
+    <p>
+      Navigating Deep Dungeons in Final Fantasy XIV can be overwhelming, especially when trying to 
+      remember which enemies have sight, sound, or proximity aggro on a specific floor. 
+    </p>
+    <p>
+      This guide takes the enemy data from the 
+      <a href="https://www.ddcompendium.com" target="_blank" rel="noopener noreferrer">Deep Dungeon Compendium</a> 
+      and reorganizes it into a floor-by-floor format. By breaking the information down one floor at a time, 
+      you can easily pull this up on a second monitor or your phone while playing to quickly check enemy vulnerabilities, 
+      warnings, and aggro types without scrolling through massive tables.
+    </p>
+  </section>
+
+  <section class="dungeons-section">
+    <h2>Select a Dungeon</h2>
+    <div class="dungeon-grid">
+      
+      <a href="potd/floors_001-010/floor_1.html" class="dungeon-card">
+        <h3>Palace of the Dead</h3>
+        <p class="floors-range">Floors 1–200</p>
+      </a>
+
+      <a href="hoh/floors_001-010/floor_1.html" class="dungeon-card">
+        <h3>Heaven-on-High</h3>
+        <p class="floors-range">Floors 1–100</p>
+      </a>
+
+      <a href="eo/floors_001-010/floor_1.html" class="dungeon-card">
+        <h3>Eureka Orthos</h3>
+        <p class="floors-range">Floors 1–100</p>
+      </a>
+
+      <a href="pt/floors_001-010/floor_1.html" class="dungeon-card">
+        <h3>Pagos Tunnels</h3>
+        <p class="floors-range">Floors 1–100</p>
+      </a>
+
+    </div>
+  </section>
+
+  <footer class="home-footer">
+    <h3>Credits & Acknowledgments</h3>
+    <p>
+      All enemy data, stats, images, and original research are the property of the 
+      <a href="https://www.ddcompendium.com" target="_blank" rel="noopener noreferrer">Deep Dungeon Compendium</a>.
+    </p>
+    <p>
+      A massive thank you to <strong>Daleven Vindhler</strong> for creating and maintaining this invaluable resource for the FFXIV community. 
+      You can find the source code and project on his 
+      <a href="https://github.com/djcooke/compendium" target="_blank" rel="noopener noreferrer">GitHub repository</a>.
+    </p>
+    <p class="disclaimer">
+      This site is an unofficial fan project. Final Fantasy XIV is a registered trademark of Square Enix Holdings Co., Ltd.
+    </p>
+  </footer>
+</main>
+
+</body>
+</html>

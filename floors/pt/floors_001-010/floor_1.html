@@ -98,7 +98,11 @@
   .enemy-summary {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 8px; margin-bottom: 28px; overflow: hidden;
-    scroll-margin-top: 220px; /* Lands just below the floor navigation links */
+    /* Removed scroll-margin-top so that the anchor inside controls the scroll */
+  }
+  /* The anchor inside the table body ensures we scroll to the first row */
+  #summary-start {
+    scroll-margin-top: 16px;  /* small offset so the first row isn't hidden under the navbar */
   }
   .summary-table {
     border-collapse: separate; /* Allows margin and ::before pseudo-elements on rows */
@@ -183,23 +187,23 @@
     vertical-align: middle;
   }
 
-  /* Mimic separator (Desktop) - Line floats ABOVE the row */
-  .summary-table tbody tr.mimic-row {
+  /* ── Mimic separator row (yellow line above mimic) ── */
+  .summary-table tbody tr.mimic-separator td {
     position: relative;
-    margin-top: 16px;
+    height: 20px;               /* vertical spacing before mimic */
+    padding: 0;
+    border: none;
   }
-  .summary-table tbody tr.mimic-row::before {
+  .summary-table tbody tr.mimic-separator td::before {
     content: "";
     position: absolute;
-    top: -8px;
+    top: 50%;
     left: 0;
     right: 0;
     height: 3px;
     background: var(--accent);
     border-radius: 2px;
-  }
-  .summary-table tbody tr.mimic-row td {
-    box-shadow: none;
+    transform: translateY(-50%);
   }
 
   /* Enemy name links */
@@ -427,7 +431,7 @@
       display: grid;
       grid-template-columns: auto 1fr;
       grid-template-areas:
-        "aggro name"
+        "name aggro"
         "hp    hp"
         "aa    aa"
         "warn  warn";
@@ -545,24 +549,18 @@
       height: 16px;
     }
 
-    /* Mimic separator — yellow line strictly ABOVE the card */
-    .summary-table tbody tr.mimic-row {
-      position: relative;
-      margin-top: 20px !important;
-    }
-    .summary-table tbody tr.mimic-row::before {
-      content: "";
-      position: absolute;
-      top: -10px;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: var(--accent);
+    /* Override the grid layout for the mimic separator row */
+    .summary-table tbody tr.mimic-separator {
+      display: block;
+      height: 0;
+      margin: 8px 0;
+      border-top: 3px solid var(--accent);
       border-radius: 2px;
+      background: none;
+      padding: 0;
     }
-    .summary-table tbody tr.mimic-row td {
-      box-shadow: none !important;
-      border-top: none !important;
+    .summary-table tbody tr.mimic-separator td {
+      display: none;
     }
   }
 </style>
@@ -707,6 +705,7 @@
       </tr>
     </thead>
     <tbody>
+      <span id="summary-start"></span>  <!-- Anchor for the "Back to Summary" button -->
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/pt_001-010_eye.svg" title="Sight agro" width="24"/></td>
         <td class="col-name"><a href="#enemy-traverse-morpho">Traverse Morpho</a></td>
@@ -894,7 +893,7 @@
 
 <!-- Persistent back-to-summary link -->
 <div id="enemy-quicklist" class="enemy-quicklist scroll-hidden">
-  <a href="#enemy-summary" class="back-to-summary" title="Scroll back to summary table">
+  <a href="#summary-start" class="back-to-summary" title="Scroll to first enemy entry">
     <span class="eq-toggle-label">⬆ Back to Summary</span>
   </a>
 </div>

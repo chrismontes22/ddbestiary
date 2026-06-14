@@ -131,6 +131,7 @@ BOSS_CARD_TEMPLATE = Template(
 """
 )
 
+# MODIFIED: added <span id="summary-start"> before the tbody
 SUMMARY_TABLE_TEMPLATE = Template(
     r"""
 <div id="enemy-summary" class="enemy-summary">
@@ -145,7 +146,11 @@ SUMMARY_TABLE_TEMPLATE = Template(
       </tr>
     </thead>
     <tbody>
+      <span id="summary-start"></span>  <!-- Anchor for the "Back to Summary" button -->
       {%- for row in rows %}
+      {%- if row.separator %}
+      <tr class="mimic-separator"><td colspan="5">  </td></tr>
+      {%- else %}
       <tr{% if row.is_mimic %} class="mimic-row"{% endif %}>
         <td class="col-aggro">{{ row.aggro_html }}</td>
         <td class="col-name"><a href="#enemy-{{ row.anchor }}">{{ row.name }}</a>{% if row.patrol %} <span class="badge-sm">P</span>{% endif %}</td>
@@ -153,6 +158,7 @@ SUMMARY_TABLE_TEMPLATE = Template(
         <td class="col-hp">{{ row.hp_html }}</td>
         <td class="col-aa">{{ row.aa_html }}</td>
       </tr>
+      {%- endif %}
       {%- endfor %}
     </tbody>
   </table>
@@ -160,6 +166,7 @@ SUMMARY_TABLE_TEMPLATE = Template(
 """
 )
 
+# MODIFIED: button href now points to #summary-start
 PAGE_TEMPLATE = Template(
     r"""
 <!DOCTYPE html>
@@ -194,7 +201,7 @@ PAGE_TEMPLATE = Template(
 {% if enemy_names %}
 <!-- Persistent back-to-summary link -->
 <div id="enemy-quicklist" class="enemy-quicklist scroll-hidden">
-  <a href="#enemy-summary" class="back-to-summary" title="Scroll back to summary table">
+  <a href="#summary-start" class="back-to-summary" title="Scroll to first enemy entry">
     <span class="eq-toggle-label">⬆ Back to Summary</span>
   </a>
 </div>
@@ -223,6 +230,7 @@ PAGE_TEMPLATE = Template(
 """
 )
 
+# MODIFIED: removed scroll-margin-top from .enemy-summary, added small scroll-margin for #summary-start
 PAGE_CSS = """<style>
   :root {
     --bg:       #121212;
@@ -316,7 +324,11 @@ PAGE_CSS = """<style>
   .enemy-summary {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 8px; margin-bottom: 28px; overflow: hidden;
-    scroll-margin-top: 220px; /* Lands just below the floor navigation links */
+    /* Removed scroll-margin-top so that the anchor inside controls the scroll */
+  }
+  /* The anchor inside the table body ensures we scroll to the first row */
+  #summary-start {
+    scroll-margin-top: 16px;  /* small offset so the first row isn't hidden under the navbar */
   }
   .summary-table {
     border-collapse: separate; /* Allows margin and ::before pseudo-elements on rows */
@@ -401,23 +413,23 @@ PAGE_CSS = """<style>
     vertical-align: middle;
   }
 
-  /* Mimic separator (Desktop) - Line floats ABOVE the row */
-  .summary-table tbody tr.mimic-row {
+  /* ── Mimic separator row (yellow line above mimic) ── */
+  .summary-table tbody tr.mimic-separator td {
     position: relative;
-    margin-top: 16px;
+    height: 20px;               /* vertical spacing before mimic */
+    padding: 0;
+    border: none;
   }
-  .summary-table tbody tr.mimic-row::before {
+  .summary-table tbody tr.mimic-separator td::before {
     content: "";
     position: absolute;
-    top: -8px;
+    top: 50%;
     left: 0;
     right: 0;
     height: 3px;
     background: var(--accent);
     border-radius: 2px;
-  }
-  .summary-table tbody tr.mimic-row td {
-    box-shadow: none;
+    transform: translateY(-50%);
   }
 
   /* Enemy name links */
@@ -645,7 +657,7 @@ PAGE_CSS = """<style>
       display: grid;
       grid-template-columns: auto 1fr;
       grid-template-areas:
-        "aggro name"
+        "name aggro"
         "hp    hp"
         "aa    aa"
         "warn  warn";
@@ -763,24 +775,18 @@ PAGE_CSS = """<style>
       height: 16px;
     }
 
-    /* Mimic separator — yellow line strictly ABOVE the card */
-    .summary-table tbody tr.mimic-row {
-      position: relative;
-      margin-top: 20px !important;
-    }
-    .summary-table tbody tr.mimic-row::before {
-      content: "";
-      position: absolute;
-      top: -10px;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: var(--accent);
+    /* Override the grid layout for the mimic separator row */
+    .summary-table tbody tr.mimic-separator {
+      display: block;
+      height: 0;
+      margin: 8px 0;
+      border-top: 3px solid var(--accent);
       border-radius: 2px;
+      background: none;
+      padding: 0;
     }
-    .summary-table tbody tr.mimic-row td {
-      box-shadow: none !important;
-      border-top: none !important;
+    .summary-table tbody tr.mimic-separator td {
+      display: none;
     }
   }
 </style>
@@ -1135,6 +1141,10 @@ def build_summary_table(floor_enemies, floor_num, fix, fix_val):
         aa_html = ""
         if enemy["aa"]:
             aa_html = f'<div class="bar-wrap"><div class="bar-bg bar-aa" style="width:{aa_pct}%"></div><span>{enemy["aa"]}</span></div>'
+
+        # Insert a dedicated separator row before the first mimic (or before every mimic)
+        if is_mimic:
+            rows.append({"separator": True})
 
         rows.append({
             "anchor": anchor,
