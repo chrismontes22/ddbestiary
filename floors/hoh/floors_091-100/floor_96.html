@@ -133,6 +133,10 @@
     vertical-align: middle; margin-left: 4px;
   }
 
+  .summary-table .aggro-inline {
+    display: none;
+  }
+
   /* Summary table HP/AA bars */
   .bar-wrap {
     position: relative;
@@ -515,8 +519,28 @@
     .summary-table td.col-hp   { grid-area: hp-bar; }
     .summary-table td.col-aa   { grid-area: aa-bar; }
     .summary-table td.col-warn { grid-area: warn; grid-column: 1 / -1; }
-    .summary-table td.col-name { grid-column: 1; }
-    .summary-table td.col-aggro { grid-column: 2; justify-self: end; }
+    .summary-table td.col-name {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .summary-table td.col-aggro {
+      display: none;
+    }
+
+    .summary-table .aggro-inline {
+      display: inline-flex;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .summary-table .aggro-inline img {
+      width: 22px;
+      height: 22px;
+      vertical-align: middle;
+    }
 
     /* Label prefix before each bar */
     .summary-table td.col-hp::before {
@@ -727,56 +751,56 @@
       <span id="summary-start"></span>  <!-- Anchor for the "Back to Summary" button -->
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/hoh_091-100_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-heavenly-mifune">Heavenly Mifune</a></td>
+        <td class="col-name"><a href="#enemy-heavenly-mifune">Heavenly Mifune</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/hoh_091-100_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Unclassified dangerous ability" class="warningIcon" height="16" src="../../assets/hoh_091-100_warning.svg" title="Unclassified dangerous ability" width="16"/> <span>Unclassified dangerous</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>73K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>6813</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_091-100_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-heavenly-jaki-demon">Heavenly Jaki (Demon)</a></td>
+        <td class="col-name"><a href="#enemy-heavenly-jaki-demon">Heavenly Jaki (Demon)</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/hoh_091-100_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Unclassified dangerous ability" class="warningIcon" height="16" src="../../assets/hoh_091-100_warning.svg" title="Unclassified dangerous ability" width="16"/> <span>Unclassified dangerous</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:98%"></div><span>72K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:88%"></div><span>6040</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_091-100_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-heavenly-kubinashi-dullahan">Heavenly Kubinashi (Dullahan)</a> <span class="badge-sm">P</span></td>
+        <td class="col-name"><a href="#enemy-heavenly-kubinashi-dullahan">Heavenly Kubinashi (Dullahan)</a> <span class="badge-sm">P</span><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/hoh_091-100_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="High damage enrage or self-destruct" class="warningIcon" height="16" src="../../assets/hoh_091-100_explosion.svg" title="High damage enrage or self-destruct" width="16"/> <span>High damage enrage or self-destruct</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:98%"></div><span>72K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:0%"></div><span>?</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_091-100_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-heavenly-jinba-centaur">Heavenly Jinba (Centaur)</a></td>
+        <td class="col-name"><a href="#enemy-heavenly-jinba-centaur">Heavenly Jinba (Centaur)</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/hoh_091-100_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Gaze ability" class="warningIcon" height="16" src="../../assets/hoh_091-100_gaze.svg" title="Gaze ability" width="16"/> <span>Gaze</span></div><div class="warn-item"><img alt="Unclassified dangerous ability" class="warningIcon" height="16" src="../../assets/hoh_091-100_warning.svg" title="Unclassified dangerous ability" width="16"/> <span>Unclassified dangerous</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:95%"></div><span>70K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:92%"></div><span>6322</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_091-100_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-heavenly-kyozo-mirror-knight">Heavenly Kyozo (Mirror Knight)</a></td>
+        <td class="col-name"><a href="#enemy-heavenly-kyozo-mirror-knight">Heavenly Kyozo (Mirror Knight)</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/hoh_091-100_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:93%"></div><span>68K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:90%"></div><span>6194</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/hoh_091-100_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-heavenly-kuro-kishi-bloodguard">Heavenly Kuro-kishi (Bloodguard)</a></td>
+        <td class="col-name"><a href="#enemy-heavenly-kuro-kishi-bloodguard">Heavenly Kuro-kishi (Bloodguard)</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/hoh_091-100_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:95%"></div><span>70K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:97%"></div><span>6658</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_091-100_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-heavenly-tenma-pegasus">Heavenly Tenma (Pegasus)</a> <span class="badge-sm">P</span></td>
+        <td class="col-name"><a href="#enemy-heavenly-tenma-pegasus">Heavenly Tenma (Pegasus)</a> <span class="badge-sm">P</span><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/hoh_091-100_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Large or untelegraphed directional AoE" class="warningIcon" height="16" src="../../assets/hoh_091-100_directional.svg" title="Large or untelegraphed directional AoE" width="16"/> <span>directional AoE</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>73K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:88%"></div><span>5997</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_091-100_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-heavenly-zenki-arch-demon">Heavenly Zenki (Arch Demon)</a></td>
+        <td class="col-name"><a href="#enemy-heavenly-zenki-arch-demon">Heavenly Zenki (Arch Demon)</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/hoh_091-100_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:95%"></div><span>70K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:84%"></div><span>5773</span></div></td>
@@ -784,7 +808,7 @@
       <tr class="mimic-separator"><td colspan="5">  </td></tr>
       <tr class="mimic-row">
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/hoh_091-100_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-quivering-coffer-mimic">Quivering Coffer (Mimic)</a></td>
+        <td class="col-name"><a href="#enemy-quivering-coffer-mimic">Quivering Coffer (Mimic)</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/hoh_091-100_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:87%"></div><span>64K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>9038</span></div></td>

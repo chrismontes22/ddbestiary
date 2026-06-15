@@ -133,6 +133,10 @@
     vertical-align: middle; margin-left: 4px;
   }
 
+  .summary-table .aggro-inline {
+    display: none;
+  }
+
   /* Summary table HP/AA bars */
   .bar-wrap {
     position: relative;
@@ -515,8 +519,28 @@
     .summary-table td.col-hp   { grid-area: hp-bar; }
     .summary-table td.col-aa   { grid-area: aa-bar; }
     .summary-table td.col-warn { grid-area: warn; grid-column: 1 / -1; }
-    .summary-table td.col-name { grid-column: 1; }
-    .summary-table td.col-aggro { grid-column: 2; justify-self: end; }
+    .summary-table td.col-name {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .summary-table td.col-aggro {
+      display: none;
+    }
+
+    .summary-table .aggro-inline {
+      display: inline-flex;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .summary-table .aggro-inline img {
+      width: 22px;
+      height: 22px;
+      vertical-align: middle;
+    }
 
     /* Label prefix before each bar */
     .summary-table td.col-hp::before {
@@ -727,42 +751,42 @@
       <span id="summary-start"></span>  <!-- Anchor for the "Back to Summary" button -->
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/pt_071-080_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-traverse-diplomat-cream-mousse">Traverse Diplomat Cream (Mousse)</a></td>
+        <td class="col-name"><a href="#enemy-traverse-diplomat-cream-mousse">Traverse Diplomat Cream (Mousse)</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/pt_071-080_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:94%"></div><span>534K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:95%"></div><span>20K</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/pt_071-080_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-traverse-scissorjaws">Traverse Scissorjaws</a></td>
+        <td class="col-name"><a href="#enemy-traverse-scissorjaws">Traverse Scissorjaws</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/pt_071-080_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Large or untelegraphed directional AoE" class="warningIcon" height="16" src="../../assets/pt_071-080_directional.svg" title="Large or untelegraphed directional AoE" width="16"/> <span>directional AoE</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>563K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>21K</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/pt_071-080_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-traverse-huldu-dynamite">Traverse Huldu (Dynamite)</a> <span class="badge-sm">P</span></td>
+        <td class="col-name"><a href="#enemy-traverse-huldu-dynamite">Traverse Huldu (Dynamite)</a> <span class="badge-sm">P</span><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/pt_071-080_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="High damage enrage or self-destruct" class="warningIcon" height="16" src="../../assets/pt_071-080_explosion.svg" title="High damage enrage or self-destruct" width="16"/> <span>High damage enrage or self-destruct</span></div><div class="warn-item"><img alt="Large or untelegraphed pointblank AoE" class="warningIcon" height="16" src="../../assets/pt_071-080_pointblank.svg" title="Large or untelegraphed pointblank AoE" width="16"/> <span>pointblank AoE</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:94%"></div><span>534K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:95%"></div><span>20K</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/pt_071-080_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-forgiven-unbelief-crocodile">Forgiven Unbelief (Crocodile)</a></td>
+        <td class="col-name"><a href="#enemy-forgiven-unbelief-crocodile">Forgiven Unbelief (Crocodile)</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/pt_071-080_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Unclassified dangerous ability" class="warningIcon" height="16" src="../../assets/pt_071-080_warning.svg" title="Unclassified dangerous ability" width="16"/> <span>Unclassified dangerous</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>563K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>21K</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/pt_071-080_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-traverse-stone-eater-silver-lobo">Traverse Stone Eater (Silver Lobo)</a> <span class="badge-sm">P</span></td>
+        <td class="col-name"><a href="#enemy-traverse-stone-eater-silver-lobo">Traverse Stone Eater (Silver Lobo)</a> <span class="badge-sm">P</span><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/pt_071-080_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Draw-in, knockback, heavy, or other movement-affecting status" class="warningIcon" height="16" src="../../assets/pt_071-080_movement.svg" title="Draw-in, knockback, heavy, or other movement-affecting status" width="16"/> <span>Draw-in, knockback, heavy, or other movement-affecting status</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>563K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>21K</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/pt_071-080_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-forgiven-spite-woodwraith">Forgiven Spite (Woodwraith)</a></td>
+        <td class="col-name"><a href="#enemy-forgiven-spite-woodwraith">Forgiven Spite (Woodwraith)</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/pt_071-080_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Large or untelegraphed donut AoE" class="warningIcon" height="16" src="../../assets/pt_071-080_donut.svg" title="Large or untelegraphed donut AoE" width="16"/> <span>donut AoE</span></div><div class="warn-item"><img alt="Large or untelegraphed pointblank AoE" class="warningIcon" height="16" src="../../assets/pt_071-080_pointblank.svg" title="Large or untelegraphed pointblank AoE" width="16"/> <span>pointblank AoE</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>563K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>21K</span></div></td>
@@ -770,7 +794,7 @@
       <tr class="mimic-separator"><td colspan="5">  </td></tr>
       <tr class="mimic-row">
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/pt_071-080_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-mimic">Mimic</a></td>
+        <td class="col-name"><a href="#enemy-mimic">Mimic</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/pt_071-080_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>794K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:95%"></div><span>20K</span></div></td>

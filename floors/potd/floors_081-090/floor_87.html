@@ -133,6 +133,10 @@
     vertical-align: middle; margin-left: 4px;
   }
 
+  .summary-table .aggro-inline {
+    display: none;
+  }
+
   /* Summary table HP/AA bars */
   .bar-wrap {
     position: relative;
@@ -515,8 +519,28 @@
     .summary-table td.col-hp   { grid-area: hp-bar; }
     .summary-table td.col-aa   { grid-area: aa-bar; }
     .summary-table td.col-warn { grid-area: warn; grid-column: 1 / -1; }
-    .summary-table td.col-name { grid-column: 1; }
-    .summary-table td.col-aggro { grid-column: 2; justify-self: end; }
+    .summary-table td.col-name {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .summary-table td.col-aggro {
+      display: none;
+    }
+
+    .summary-table .aggro-inline {
+      display: inline-flex;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .summary-table .aggro-inline img {
+      width: 22px;
+      height: 22px;
+      vertical-align: middle;
+    }
 
     /* Label prefix before each bar */
     .summary-table td.col-hp::before {
@@ -727,35 +751,35 @@
       <span id="summary-start"></span>  <!-- Anchor for the "Back to Summary" button -->
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_081-090_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-palace-chimera">Palace Chimera</a> <span class="badge-sm">P</span></td>
+        <td class="col-name"><a href="#enemy-palace-chimera">Palace Chimera</a> <span class="badge-sm">P</span><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_081-090_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>13K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>1037</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_081-090_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-flame-dragon">Flame Dragon</a></td>
+        <td class="col-name"><a href="#enemy-flame-dragon">Flame Dragon</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/potd_081-090_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:84%"></div><span>11K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:87%"></div><span>911</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sound agro" height="24" src="../../assets/potd_081-090_ear.svg" title="Sound agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-palace-worm">Palace Worm</a></td>
+        <td class="col-name"><a href="#enemy-palace-worm">Palace Worm</a><span class="aggro-inline"><img alt="Sound agro" height="24" src="../../assets/potd_081-090_ear.svg" title="Sound agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:60%"></div><span>7858</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:72%"></div><span>753</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_081-090_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-palace-claw-scorpion">Palace Claw (Scorpion)</a></td>
+        <td class="col-name"><a href="#enemy-palace-claw-scorpion">Palace Claw (Scorpion)</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/potd_081-090_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Draw-in, knockback, heavy, or other movement-affecting status" class="warningIcon" height="16" src="../../assets/potd_081-090_movement.svg" title="Draw-in, knockback, heavy, or other movement-affecting status" width="16"/> <span>Draw-in, knockback, heavy, or other movement-affecting status</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:60%"></div><span>7858</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:73%"></div><span>762</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sound agro" height="24" src="../../assets/potd_081-090_ear.svg" title="Sound agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-palace-eruca-crawler">Palace Eruca (Crawler)</a></td>
+        <td class="col-name"><a href="#enemy-palace-eruca-crawler">Palace Eruca (Crawler)</a><span class="aggro-inline"><img alt="Sound agro" height="24" src="../../assets/potd_081-090_ear.svg" title="Sound agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:61%"></div><span>7968</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:75%"></div><span>780</span></div></td>
@@ -763,21 +787,21 @@
       <tr class="mimic-separator"><td colspan="5">  </td></tr>
       <tr class="mimic-row">
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_081-090_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-mimic">Mimic</a></td>
+        <td class="col-name"><a href="#enemy-mimic">Mimic</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_081-090_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:76%"></div><span>10K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>1048</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_081-090_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-insentient-inquisitor-fallen-npc">Insentient Inquisitor (Fallen NPC)</a></td>
+        <td class="col-name"><a href="#enemy-insentient-inquisitor-fallen-npc">Insentient Inquisitor (Fallen NPC)</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_081-090_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:72%"></div><span>9407</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:88%"></div><span>922</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_081-090_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-necrose-knight-fallen-npc">Necrose Knight (Fallen NPC)</a></td>
+        <td class="col-name"><a href="#enemy-necrose-knight-fallen-npc">Necrose Knight (Fallen NPC)</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_081-090_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:76%"></div><span>9961</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:93%"></div><span>970</span></div></td>

@@ -133,6 +133,10 @@
     vertical-align: middle; margin-left: 4px;
   }
 
+  .summary-table .aggro-inline {
+    display: none;
+  }
+
   /* Summary table HP/AA bars */
   .bar-wrap {
     position: relative;
@@ -515,8 +519,28 @@
     .summary-table td.col-hp   { grid-area: hp-bar; }
     .summary-table td.col-aa   { grid-area: aa-bar; }
     .summary-table td.col-warn { grid-area: warn; grid-column: 1 / -1; }
-    .summary-table td.col-name { grid-column: 1; }
-    .summary-table td.col-aggro { grid-column: 2; justify-self: end; }
+    .summary-table td.col-name {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .summary-table td.col-aggro {
+      display: none;
+    }
+
+    .summary-table .aggro-inline {
+      display: inline-flex;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .summary-table .aggro-inline img {
+      width: 22px;
+      height: 22px;
+      vertical-align: middle;
+    }
 
     /* Label prefix before each bar */
     .summary-table td.col-hp::before {
@@ -727,42 +751,42 @@
       <span id="summary-start"></span>  <!-- Anchor for the "Back to Summary" button -->
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_151-160_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-deep-palace-pot">Deep Palace Pot</a></td>
+        <td class="col-name"><a href="#enemy-deep-palace-pot">Deep Palace Pot</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_151-160_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Gaze ability" class="warningIcon" height="16" src="../../assets/potd_151-160_gaze.svg" title="Gaze ability" width="16"/> <span>Gaze</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:90%"></div><span>20K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:87%"></div><span>1393</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_151-160_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-deep-palace-marolith">Deep Palace Marolith</a> <span class="badge-sm">P</span></td>
+        <td class="col-name"><a href="#enemy-deep-palace-marolith">Deep Palace Marolith</a> <span class="badge-sm">P</span><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_151-160_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:95%"></div><span>21K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:94%"></div><span>1491</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_151-160_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-deep-palace-abaia-vodoriga">Deep Palace Abaia (Vodoriga)</a></td>
+        <td class="col-name"><a href="#enemy-deep-palace-abaia-vodoriga">Deep Palace Abaia (Vodoriga)</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/potd_151-160_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:95%"></div><span>21K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:91%"></div><span>1444</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_151-160_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-deep-palace-devilet-imp">Deep Palace Devilet (Imp)</a></td>
+        <td class="col-name"><a href="#enemy-deep-palace-devilet-imp">Deep Palace Devilet (Imp)</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/potd_151-160_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Unclassified dangerous ability" class="warningIcon" height="16" src="../../assets/potd_151-160_warning.svg" title="Unclassified dangerous ability" width="16"/> <span>Unclassified dangerous</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:95%"></div><span>21K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:94%"></div><span>1491</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_151-160_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-deep-palace-soulflayer">Deep Palace Soulflayer</a></td>
+        <td class="col-name"><a href="#enemy-deep-palace-soulflayer">Deep Palace Soulflayer</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/potd_151-160_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>22K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>1584</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_151-160_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-deep-palace-taurus">Deep Palace Taurus</a></td>
+        <td class="col-name"><a href="#enemy-deep-palace-taurus">Deep Palace Taurus</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/potd_151-160_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>22K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:97%"></div><span>1540</span></div></td>
@@ -770,14 +794,14 @@
       <tr class="mimic-separator"><td colspan="5">  </td></tr>
       <tr class="mimic-row">
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_151-160_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-mimic">Mimic</a></td>
+        <td class="col-name"><a href="#enemy-mimic">Mimic</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_151-160_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>29K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>2070</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_151-160_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-sunken-captain-fallen-npc">Sunken Captain (Fallen NPC)</a></td>
+        <td class="col-name"><a href="#enemy-sunken-captain-fallen-npc">Sunken Captain (Fallen NPC)</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_151-160_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>29K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>2070</span></div></td>

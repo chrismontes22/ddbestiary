@@ -133,6 +133,10 @@
     vertical-align: middle; margin-left: 4px;
   }
 
+  .summary-table .aggro-inline {
+    display: none;
+  }
+
   /* Summary table HP/AA bars */
   .bar-wrap {
     position: relative;
@@ -515,8 +519,28 @@
     .summary-table td.col-hp   { grid-area: hp-bar; }
     .summary-table td.col-aa   { grid-area: aa-bar; }
     .summary-table td.col-warn { grid-area: warn; grid-column: 1 / -1; }
-    .summary-table td.col-name { grid-column: 1; }
-    .summary-table td.col-aggro { grid-column: 2; justify-self: end; }
+    .summary-table td.col-name {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .summary-table td.col-aggro {
+      display: none;
+    }
+
+    .summary-table .aggro-inline {
+      display: inline-flex;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .summary-table .aggro-inline img {
+      width: 22px;
+      height: 22px;
+      vertical-align: middle;
+    }
 
     /* Label prefix before each bar */
     .summary-table td.col-hp::before {
@@ -727,42 +751,42 @@
       <span id="summary-start"></span>  <!-- Anchor for the "Back to Summary" button -->
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_031-040_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-nightmare-eye-ahriman">Nightmare Eye (Ahriman)</a></td>
+        <td class="col-name"><a href="#enemy-nightmare-eye-ahriman">Nightmare Eye (Ahriman)</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/potd_031-040_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:94%"></div><span>3921</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:86%"></div><span>367</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_031-040_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-nightmare-dahak">Nightmare Dahak</a></td>
+        <td class="col-name"><a href="#enemy-nightmare-dahak">Nightmare Dahak</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/potd_031-040_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:98%"></div><span>4087</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:90%"></div><span>383</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_031-040_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-nightmare-monk-kraken">Nightmare Monk (Kraken)</a></td>
+        <td class="col-name"><a href="#enemy-nightmare-monk-kraken">Nightmare Monk (Kraken)</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_031-040_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Draw-in, knockback, heavy, or other movement-affecting status" class="warningIcon" height="16" src="../../assets/potd_031-040_movement.svg" title="Draw-in, knockback, heavy, or other movement-affecting status" width="16"/> <span>Draw-in, knockback, heavy, or other movement-affecting status</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>4148</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:91%"></div><span>389</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_031-040_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-nightmare-troubadour">Nightmare Troubadour</a></td>
+        <td class="col-name"><a href="#enemy-nightmare-troubadour">Nightmare Troubadour</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_031-040_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:96%"></div><span>3992</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:94%"></div><span>398</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_031-040_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-nightmare-gourmand">Nightmare Gourmand</a> <span class="badge-sm">P</span></td>
+        <td class="col-name"><a href="#enemy-nightmare-gourmand">Nightmare Gourmand</a> <span class="badge-sm">P</span><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_031-040_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:96%"></div><span>3996</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>423</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_031-040_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-nightmare-haagenti">Nightmare Haagenti</a></td>
+        <td class="col-name"><a href="#enemy-nightmare-haagenti">Nightmare Haagenti</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/potd_031-040_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:97%"></div><span>4053</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:96%"></div><span>407</span></div></td>
@@ -770,14 +794,14 @@
       <tr class="mimic-separator"><td colspan="5">  </td></tr>
       <tr class="mimic-row">
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_031-040_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-mimic">Mimic</a></td>
+        <td class="col-name"><a href="#enemy-mimic">Mimic</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_031-040_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>5268</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>492</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_031-040_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-immortal-flame-fallen-npc">Immortal Flame (Fallen NPC)</a></td>
+        <td class="col-name"><a href="#enemy-immortal-flame-fallen-npc">Immortal Flame (Fallen NPC)</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_031-040_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>5160</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>520</span></div></td>

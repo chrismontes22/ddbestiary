@@ -133,6 +133,10 @@
     vertical-align: middle; margin-left: 4px;
   }
 
+  .summary-table .aggro-inline {
+    display: none;
+  }
+
   /* Summary table HP/AA bars */
   .bar-wrap {
     position: relative;
@@ -515,8 +519,28 @@
     .summary-table td.col-hp   { grid-area: hp-bar; }
     .summary-table td.col-aa   { grid-area: aa-bar; }
     .summary-table td.col-warn { grid-area: warn; grid-column: 1 / -1; }
-    .summary-table td.col-name { grid-column: 1; }
-    .summary-table td.col-aggro { grid-column: 2; justify-self: end; }
+    .summary-table td.col-name {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .summary-table td.col-aggro {
+      display: none;
+    }
+
+    .summary-table .aggro-inline {
+      display: inline-flex;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .summary-table .aggro-inline img {
+      width: 22px;
+      height: 22px;
+      vertical-align: middle;
+    }
 
     /* Label prefix before each bar */
     .summary-table td.col-hp::before {
@@ -727,35 +751,35 @@
       <span id="summary-start"></span>  <!-- Anchor for the "Back to Summary" button -->
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_011-020_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-palace-pudding">Palace Pudding</a> <span class="badge-sm">P</span></td>
+        <td class="col-name"><a href="#enemy-palace-pudding">Palace Pudding</a> <span class="badge-sm">P</span><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_011-020_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:76%"></div><span>688</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:67%"></div><span>45</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_011-020_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-living-whelk-leech">Living Whelk (Leech)</a></td>
+        <td class="col-name"><a href="#enemy-living-whelk-leech">Living Whelk (Leech)</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/potd_011-020_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:71%"></div><span>642</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:64%"></div><span>43</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_011-020_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-palace-uragnite">Palace Uragnite</a></td>
+        <td class="col-name"><a href="#enemy-palace-uragnite">Palace Uragnite</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/potd_011-020_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:75%"></div><span>685</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:70%"></div><span>47</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_011-020_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-palace-toad">Palace Toad</a></td>
+        <td class="col-name"><a href="#enemy-palace-toad">Palace Toad</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/potd_011-020_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Draw-in, knockback, heavy, or other movement-affecting status" class="warningIcon" height="16" src="../../assets/potd_011-020_movement.svg" title="Draw-in, knockback, heavy, or other movement-affecting status" width="16"/> <span>Draw-in, knockback, heavy, or other movement-affecting status</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:92%"></div><span>833</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:92%"></div><span>62</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sound agro" height="24" src="../../assets/potd_011-020_ear.svg" title="Sound agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-palace-slime">Palace Slime</a></td>
+        <td class="col-name"><a href="#enemy-palace-slime">Palace Slime</a><span class="aggro-inline"><img alt="Sound agro" height="24" src="../../assets/potd_011-020_ear.svg" title="Sound agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="High damage enrage or self-destruct" class="warningIcon" height="16" src="../../assets/potd_011-020_explosion.svg" title="High damage enrage or self-destruct" width="16"/> <span>High damage enrage or self-destruct</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>904</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>67</span></div></td>
@@ -763,28 +787,28 @@
       <tr class="mimic-separator"><td colspan="5">  </td></tr>
       <tr class="mimic-row">
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_011-020_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-mimic">Mimic</a></td>
+        <td class="col-name"><a href="#enemy-mimic">Mimic</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_011-020_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>1543</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>116</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_011-020_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-spear-shaking-adventurer-fallen-npc">Spear-shaking Adventurer (Fallen NPC)</a></td>
+        <td class="col-name"><a href="#enemy-spear-shaking-adventurer-fallen-npc">Spear-shaking Adventurer (Fallen NPC)</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_011-020_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>1330</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>104</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_011-020_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-staff-spinning-adventurer-fallen-npc">Staff-spinning Adventurer (Fallen NPC)</a></td>
+        <td class="col-name"><a href="#enemy-staff-spinning-adventurer-fallen-npc">Staff-spinning Adventurer (Fallen NPC)</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_011-020_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>1455</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>125</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_011-020_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-sword-swinging-adventurer-fallen-npc">Sword-swinging Adventurer (Fallen NPC)</a></td>
+        <td class="col-name"><a href="#enemy-sword-swinging-adventurer-fallen-npc">Sword-swinging Adventurer (Fallen NPC)</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_011-020_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>1543</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>118</span></div></td>

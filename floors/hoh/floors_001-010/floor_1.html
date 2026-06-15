@@ -133,6 +133,10 @@
     vertical-align: middle; margin-left: 4px;
   }
 
+  .summary-table .aggro-inline {
+    display: none;
+  }
+
   /* Summary table HP/AA bars */
   .bar-wrap {
     position: relative;
@@ -515,8 +519,28 @@
     .summary-table td.col-hp   { grid-area: hp-bar; }
     .summary-table td.col-aa   { grid-area: aa-bar; }
     .summary-table td.col-warn { grid-area: warn; grid-column: 1 / -1; }
-    .summary-table td.col-name { grid-column: 1; }
-    .summary-table td.col-aggro { grid-column: 2; justify-self: end; }
+    .summary-table td.col-name {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .summary-table td.col-aggro {
+      display: none;
+    }
+
+    .summary-table .aggro-inline {
+      display: inline-flex;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .summary-table .aggro-inline img {
+      width: 22px;
+      height: 22px;
+      vertical-align: middle;
+    }
 
     /* Label prefix before each bar */
     .summary-table td.col-hp::before {
@@ -727,28 +751,28 @@
       <span id="summary-start"></span>  <!-- Anchor for the "Back to Summary" button -->
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_001-010_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-heavenly-naked-yumemi-slug">Heavenly Naked Yumemi (Slug)</a></td>
+        <td class="col-name"><a href="#enemy-heavenly-naked-yumemi-slug">Heavenly Naked Yumemi (Slug)</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/hoh_001-010_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:94%"></div><span>2877</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:58%"></div><span>410</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_001-010_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-heavenly-mutsu-small-orobon">Heavenly Mutsu (Small Orobon)</a></td>
+        <td class="col-name"><a href="#enemy-heavenly-mutsu-small-orobon">Heavenly Mutsu (Small Orobon)</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/hoh_001-010_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:94%"></div><span>2877</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:83%"></div><span>582</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_001-010_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-heavenly-shark">Heavenly Shark</a> <span class="badge-sm">P</span></td>
+        <td class="col-name"><a href="#enemy-heavenly-shark">Heavenly Shark</a> <span class="badge-sm">P</span><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/hoh_001-010_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>3036</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>697</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_001-010_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-heavenly-bombfish">Heavenly Bombfish</a></td>
+        <td class="col-name"><a href="#enemy-heavenly-bombfish">Heavenly Bombfish</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/hoh_001-010_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:98%"></div><span>2991</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:86%"></div><span>602</span></div></td>

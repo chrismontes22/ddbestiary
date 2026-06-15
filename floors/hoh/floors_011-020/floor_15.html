@@ -133,6 +133,10 @@
     vertical-align: middle; margin-left: 4px;
   }
 
+  .summary-table .aggro-inline {
+    display: none;
+  }
+
   /* Summary table HP/AA bars */
   .bar-wrap {
     position: relative;
@@ -515,8 +519,28 @@
     .summary-table td.col-hp   { grid-area: hp-bar; }
     .summary-table td.col-aa   { grid-area: aa-bar; }
     .summary-table td.col-warn { grid-area: warn; grid-column: 1 / -1; }
-    .summary-table td.col-name { grid-column: 1; }
-    .summary-table td.col-aggro { grid-column: 2; justify-self: end; }
+    .summary-table td.col-name {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .summary-table td.col-aggro {
+      display: none;
+    }
+
+    .summary-table .aggro-inline {
+      display: inline-flex;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .summary-table .aggro-inline img {
+      width: 22px;
+      height: 22px;
+      vertical-align: middle;
+    }
 
     /* Label prefix before each bar */
     .summary-table td.col-hp::before {
@@ -727,35 +751,35 @@
       <span id="summary-start"></span>  <!-- Anchor for the "Back to Summary" button -->
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_011-020_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-heavenly-hakagiri-sea-serpent">Heavenly Hakagiri (Sea Serpent)</a></td>
+        <td class="col-name"><a href="#enemy-heavenly-hakagiri-sea-serpent">Heavenly Hakagiri (Sea Serpent)</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/hoh_011-020_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:93%"></div><span>5605</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:97%"></div><span>827</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_011-020_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-heavenly-hand">Heavenly Hand</a> <span class="badge-sm">P</span></td>
+        <td class="col-name"><a href="#enemy-heavenly-hand">Heavenly Hand</a> <span class="badge-sm">P</span><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/hoh_011-020_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="High damage enrage or self-destruct" class="warningIcon" height="16" src="../../assets/hoh_011-020_explosion.svg" title="High damage enrage or self-destruct" width="16"/> <span>High damage enrage or self-destruct</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:96%"></div><span>5756</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:88%"></div><span>748</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_011-020_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-heavenly-unkiu-crab">Heavenly Unkiu (Crab)</a></td>
+        <td class="col-name"><a href="#enemy-heavenly-unkiu-crab">Heavenly Unkiu (Crab)</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/hoh_011-020_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:96%"></div><span>5738</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:83%"></div><span>705</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/hoh_011-020_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-heavenly-apa">Heavenly Apa</a></td>
+        <td class="col-name"><a href="#enemy-heavenly-apa">Heavenly Apa</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/hoh_011-020_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>5977</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>849</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/hoh_011-020_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-heavenly-otokage-eft">Heavenly Otokage (Eft)</a></td>
+        <td class="col-name"><a href="#enemy-heavenly-otokage-eft">Heavenly Otokage (Eft)</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/hoh_011-020_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Gaze ability" class="warningIcon" height="16" src="../../assets/hoh_011-020_gaze.svg" title="Gaze ability" width="16"/> <span>Gaze</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>5977</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>849</span></div></td>
@@ -763,7 +787,7 @@
       <tr class="mimic-separator"><td colspan="5">  </td></tr>
       <tr class="mimic-row">
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/hoh_011-020_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-quivering-coffer-mimic">Quivering Coffer (Mimic)</a></td>
+        <td class="col-name"><a href="#enemy-quivering-coffer-mimic">Quivering Coffer (Mimic)</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/hoh_011-020_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>8732</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>1170</span></div></td>

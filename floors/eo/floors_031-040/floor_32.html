@@ -133,6 +133,10 @@
     vertical-align: middle; margin-left: 4px;
   }
 
+  .summary-table .aggro-inline {
+    display: none;
+  }
+
   /* Summary table HP/AA bars */
   .bar-wrap {
     position: relative;
@@ -515,8 +519,28 @@
     .summary-table td.col-hp   { grid-area: hp-bar; }
     .summary-table td.col-aa   { grid-area: aa-bar; }
     .summary-table td.col-warn { grid-area: warn; grid-column: 1 / -1; }
-    .summary-table td.col-name { grid-column: 1; }
-    .summary-table td.col-aggro { grid-column: 2; justify-self: end; }
+    .summary-table td.col-name {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .summary-table td.col-aggro {
+      display: none;
+    }
+
+    .summary-table .aggro-inline {
+      display: inline-flex;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .summary-table .aggro-inline img {
+      width: 22px;
+      height: 22px;
+      vertical-align: middle;
+    }
 
     /* Label prefix before each bar */
     .summary-table td.col-hp::before {
@@ -727,35 +751,35 @@
       <span id="summary-start"></span>  <!-- Anchor for the "Back to Summary" button -->
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/eo_031-040_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-orthobug">Orthobug</a></td>
+        <td class="col-name"><a href="#enemy-orthobug">Orthobug</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/eo_031-040_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:99%"></div><span>160K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:72%"></div><span>3722</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/eo_031-040_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-orthoiksalion">Orthoiksalion</a></td>
+        <td class="col-name"><a href="#enemy-orthoiksalion">Orthoiksalion</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/eo_031-040_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Unclassified dangerous ability" class="warningIcon" height="16" src="../../assets/eo_031-040_warning.svg" title="Unclassified dangerous ability" width="16"/> <span>Unclassified dangerous</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:99%"></div><span>160K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>5140</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/eo_031-040_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-orthos-mirrorknight">Orthos Mirrorknight</a> <span class="badge-sm">P</span></td>
+        <td class="col-name"><a href="#enemy-orthos-mirrorknight">Orthos Mirrorknight</a> <span class="badge-sm">P</span><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/eo_031-040_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Gaze ability" class="warningIcon" height="16" src="../../assets/eo_031-040_gaze.svg" title="Gaze ability" width="16"/> <span>Gaze</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:99%"></div><span>160K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>5140</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/eo_031-040_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-orthos-shabti">Orthos Shabti</a></td>
+        <td class="col-name"><a href="#enemy-orthos-shabti">Orthos Shabti</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/eo_031-040_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:99%"></div><span>160K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>5140</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sound agro" height="24" src="../../assets/eo_031-040_ear.svg" title="Sound agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-orthospider">Orthospider</a></td>
+        <td class="col-name"><a href="#enemy-orthospider">Orthospider</a><span class="aggro-inline"><img alt="Sound agro" height="24" src="../../assets/eo_031-040_ear.svg" title="Sound agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Large or untelegraphed pointblank AoE" class="warningIcon" height="16" src="../../assets/eo_031-040_pointblank.svg" title="Large or untelegraphed pointblank AoE" width="16"/> <span>pointblank AoE</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>161K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:72%"></div><span>3724</span></div></td>
@@ -763,28 +787,28 @@
       <tr class="mimic-separator"><td colspan="5">  </td></tr>
       <tr class="mimic-row">
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/eo_031-040_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-mimic">Mimic</a></td>
+        <td class="col-name"><a href="#enemy-mimic">Mimic</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/eo_031-040_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>248K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>6222</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/eo_031-040_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-demi-cochma">Demi-Cochma</a></td>
+        <td class="col-name"><a href="#enemy-demi-cochma">Demi-Cochma</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/eo_031-040_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>829K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:0%"></div><span>?</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/eo_031-040_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-lamia-queen">Lamia Queen</a></td>
+        <td class="col-name"><a href="#enemy-lamia-queen">Lamia Queen</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/eo_031-040_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>829K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:0%"></div><span>?</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/eo_031-040_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-meracydian-clone">Meracydian Clone</a></td>
+        <td class="col-name"><a href="#enemy-meracydian-clone">Meracydian Clone</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/eo_031-040_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>829K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:0%"></div><span>?</span></div></td>

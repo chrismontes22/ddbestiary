@@ -153,7 +153,7 @@ SUMMARY_TABLE_TEMPLATE = Template(
       {%- else %}
       <tr{% if row.is_mimic %} class="mimic-row"{% endif %}>
         <td class="col-aggro">{{ row.aggro_html }}</td>
-        <td class="col-name"><a href="#enemy-{{ row.anchor }}">{{ row.name }}</a>{% if row.patrol %} <span class="badge-sm">P</span>{% endif %}</td>
+        <td class="col-name"><a href="#enemy-{{ row.anchor }}">{{ row.name }}</a>{% if row.patrol %} <span class="badge-sm">P</span>{% endif %}<span class="aggro-inline">{{ row.aggro_html }}</span></td>
         <td class="col-warn">{{ row.warn_icons }}</td>
         <td class="col-hp">{{ row.hp_html }}</td>
         <td class="col-aa">{{ row.aa_html }}</td>
@@ -375,6 +375,10 @@ PAGE_CSS = """<style>
     display: inline-block; font-size: 0.68em; padding: 2px 6px;
     border-radius: 10px; background: #b85000; color: #fff;
     vertical-align: middle; margin-left: 4px;
+  }
+
+  .summary-table .aggro-inline {
+    display: none;
   }
 
   /* Summary table HP/AA bars */
@@ -759,8 +763,28 @@ PAGE_CSS = """<style>
     .summary-table td.col-hp   { grid-area: hp-bar; }
     .summary-table td.col-aa   { grid-area: aa-bar; }
     .summary-table td.col-warn { grid-area: warn; grid-column: 1 / -1; }
-    .summary-table td.col-name { grid-column: 1; }
-    .summary-table td.col-aggro { grid-column: 2; justify-self: end; }
+    .summary-table td.col-name {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .summary-table td.col-aggro {
+      display: none;
+    }
+
+    .summary-table .aggro-inline {
+      display: inline-flex;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .summary-table .aggro-inline img {
+      width: 22px;
+      height: 22px;
+      vertical-align: middle;
+    }
 
     /* Label prefix before each bar */
     .summary-table td.col-hp::before {

@@ -133,6 +133,10 @@
     vertical-align: middle; margin-left: 4px;
   }
 
+  .summary-table .aggro-inline {
+    display: none;
+  }
+
   /* Summary table HP/AA bars */
   .bar-wrap {
     position: relative;
@@ -515,8 +519,28 @@
     .summary-table td.col-hp   { grid-area: hp-bar; }
     .summary-table td.col-aa   { grid-area: aa-bar; }
     .summary-table td.col-warn { grid-area: warn; grid-column: 1 / -1; }
-    .summary-table td.col-name { grid-column: 1; }
-    .summary-table td.col-aggro { grid-column: 2; justify-self: end; }
+    .summary-table td.col-name {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .summary-table td.col-aggro {
+      display: none;
+    }
+
+    .summary-table .aggro-inline {
+      display: inline-flex;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .summary-table .aggro-inline img {
+      width: 22px;
+      height: 22px;
+      vertical-align: middle;
+    }
 
     /* Label prefix before each bar */
     .summary-table td.col-hp::before {
@@ -727,35 +751,35 @@
       <span id="summary-start"></span>  <!-- Anchor for the "Back to Summary" button -->
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_021-030_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-palace-drake">Palace Drake</a></td>
+        <td class="col-name"><a href="#enemy-palace-drake">Palace Drake</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/potd_021-030_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Unclassified dangerous ability" class="warningIcon" height="16" src="../../assets/potd_021-030_warning.svg" title="Unclassified dangerous ability" width="16"/> <span>Unclassified dangerous</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:74%"></div><span>1976</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:66%"></div><span>148</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_021-030_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-palace-adamantoise">Palace Adamantoise</a></td>
+        <td class="col-name"><a href="#enemy-palace-adamantoise">Palace Adamantoise</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/potd_021-030_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:90%"></div><span>2378</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:90%"></div><span>203</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_021-030_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-palace-peiste">Palace Peiste</a></td>
+        <td class="col-name"><a href="#enemy-palace-peiste">Palace Peiste</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/potd_021-030_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Gaze ability" class="warningIcon" height="16" src="../../assets/potd_021-030_gaze.svg" title="Gaze ability" width="16"/> <span>Gaze</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:93%"></div><span>2459</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:90%"></div><span>202</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_021-030_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-palace-wivre">Palace Wivre</a></td>
+        <td class="col-name"><a href="#enemy-palace-wivre">Palace Wivre</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_021-030_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>2639</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>224</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_021-030_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-palace-minotaur">Palace Minotaur</a> <span class="badge-sm">P</span></td>
+        <td class="col-name"><a href="#enemy-palace-minotaur">Palace Minotaur</a> <span class="badge-sm">P</span><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/potd_021-030_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Large or untelegraphed pointblank AoE" class="warningIcon" height="16" src="../../assets/potd_021-030_pointblank.svg" title="Large or untelegraphed pointblank AoE" width="16"/> <span>pointblank AoE</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:93%"></div><span>2465</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:94%"></div><span>212</span></div></td>
@@ -763,28 +787,28 @@
       <tr class="mimic-separator"><td colspan="5">  </td></tr>
       <tr class="mimic-row">
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_021-030_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-mimic">Mimic</a></td>
+        <td class="col-name"><a href="#enemy-mimic">Mimic</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_021-030_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>3857</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>335</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_021-030_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-frenzied-freebooter-fallen-npc">Frenzied Freebooter (Fallen NPC)</a></td>
+        <td class="col-name"><a href="#enemy-frenzied-freebooter-fallen-npc">Frenzied Freebooter (Fallen NPC)</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_021-030_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>3423</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>309</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_021-030_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-ishgardian-pikeman-fallen-npc">Ishgardian Pikeman (Fallen NPC)</a></td>
+        <td class="col-name"><a href="#enemy-ishgardian-pikeman-fallen-npc">Ishgardian Pikeman (Fallen NPC)</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_021-030_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>3202</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>277</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_021-030_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-roughspun-ruffian-fallen-npc">Roughspun Ruffian (Fallen NPC)</a></td>
+        <td class="col-name"><a href="#enemy-roughspun-ruffian-fallen-npc">Roughspun Ruffian (Fallen NPC)</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_021-030_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>3613</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>308</span></div></td>

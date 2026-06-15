@@ -133,6 +133,10 @@
     vertical-align: middle; margin-left: 4px;
   }
 
+  .summary-table .aggro-inline {
+    display: none;
+  }
+
   /* Summary table HP/AA bars */
   .bar-wrap {
     position: relative;
@@ -515,8 +519,28 @@
     .summary-table td.col-hp   { grid-area: hp-bar; }
     .summary-table td.col-aa   { grid-area: aa-bar; }
     .summary-table td.col-warn { grid-area: warn; grid-column: 1 / -1; }
-    .summary-table td.col-name { grid-column: 1; }
-    .summary-table td.col-aggro { grid-column: 2; justify-self: end; }
+    .summary-table td.col-name {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .summary-table td.col-aggro {
+      display: none;
+    }
+
+    .summary-table .aggro-inline {
+      display: inline-flex;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .summary-table .aggro-inline img {
+      width: 22px;
+      height: 22px;
+      vertical-align: middle;
+    }
 
     /* Label prefix before each bar */
     .summary-table td.col-hp::before {
@@ -727,28 +751,28 @@
       <span id="summary-start"></span>  <!-- Anchor for the "Back to Summary" button -->
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_061-070_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-palace-elbst">Palace Elbst</a> <span class="badge-sm">P</span></td>
+        <td class="col-name"><a href="#enemy-palace-elbst">Palace Elbst</a> <span class="badge-sm">P</span><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/potd_061-070_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:93%"></div><span>5201</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:96%"></div><span>540</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_061-070_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-palace-raptor">Palace Raptor</a></td>
+        <td class="col-name"><a href="#enemy-palace-raptor">Palace Raptor</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/potd_061-070_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:95%"></div><span>5312</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:97%"></div><span>546</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_061-070_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-palace-tyrannosaur">Palace Tyrannosaur</a></td>
+        <td class="col-name"><a href="#enemy-palace-tyrannosaur">Palace Tyrannosaur</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/potd_061-070_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:95%"></div><span>5312</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:97%"></div><span>546</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/potd_061-070_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-palace-sarcosuchus">Palace Sarcosuchus</a></td>
+        <td class="col-name"><a href="#enemy-palace-sarcosuchus">Palace Sarcosuchus</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/potd_061-070_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>5534</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>558</span></div></td>
@@ -756,28 +780,28 @@
       <tr class="mimic-separator"><td colspan="5">  </td></tr>
       <tr class="mimic-row">
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_061-070_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-mimic">Mimic</a></td>
+        <td class="col-name"><a href="#enemy-mimic">Mimic</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_061-070_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>7747</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>763</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_061-070_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-bloated-archer-fallen-npc">Bloated Archer (Fallen NPC)</a></td>
+        <td class="col-name"><a href="#enemy-bloated-archer-fallen-npc">Bloated Archer (Fallen NPC)</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_061-070_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>6972</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>746</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_061-070_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-bloated-conjurer-fallen-npc">Bloated Conjurer (Fallen NPC)</a></td>
+        <td class="col-name"><a href="#enemy-bloated-conjurer-fallen-npc">Bloated Conjurer (Fallen NPC)</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_061-070_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>7192</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:52%"></div><span>292</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/potd_061-070_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-bloated-pugilist-fallen-npc">Bloated Pugilist (Fallen NPC)</a></td>
+        <td class="col-name"><a href="#enemy-bloated-pugilist-fallen-npc">Bloated Pugilist (Fallen NPC)</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/potd_061-070_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>7526</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:53%"></div><span>297</span></div></td>

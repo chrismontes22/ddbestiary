@@ -133,6 +133,10 @@
     vertical-align: middle; margin-left: 4px;
   }
 
+  .summary-table .aggro-inline {
+    display: none;
+  }
+
   /* Summary table HP/AA bars */
   .bar-wrap {
     position: relative;
@@ -515,8 +519,28 @@
     .summary-table td.col-hp   { grid-area: hp-bar; }
     .summary-table td.col-aa   { grid-area: aa-bar; }
     .summary-table td.col-warn { grid-area: warn; grid-column: 1 / -1; }
-    .summary-table td.col-name { grid-column: 1; }
-    .summary-table td.col-aggro { grid-column: 2; justify-self: end; }
+    .summary-table td.col-name {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .summary-table td.col-aggro {
+      display: none;
+    }
+
+    .summary-table .aggro-inline {
+      display: inline-flex;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .summary-table .aggro-inline img {
+      width: 22px;
+      height: 22px;
+      vertical-align: middle;
+    }
 
     /* Label prefix before each bar */
     .summary-table td.col-hp::before {
@@ -727,28 +751,28 @@
       <span id="summary-start"></span>  <!-- Anchor for the "Back to Summary" button -->
       <tr>
         <td class="col-aggro"><img alt="Sound agro" height="24" src="../../assets/pt_051-060_ear.svg" title="Sound agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-traverse-hyssop">Traverse Hyssop</a></td>
+        <td class="col-name"><a href="#enemy-traverse-hyssop">Traverse Hyssop</a><span class="aggro-inline"><img alt="Sound agro" height="24" src="../../assets/pt_051-060_ear.svg" title="Sound agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:90%"></div><span>338K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:89%"></div><span>8958</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/pt_051-060_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-traverse-beetle">Traverse Beetle</a></td>
+        <td class="col-name"><a href="#enemy-traverse-beetle">Traverse Beetle</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/pt_051-060_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:93%"></div><span>346K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:93%"></div><span>9304</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/pt_051-060_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-traverse-phorusrhacos-gagana">Traverse Phorusrhacos (Gagana)</a> <span class="badge-sm">P</span></td>
+        <td class="col-name"><a href="#enemy-traverse-phorusrhacos-gagana">Traverse Phorusrhacos (Gagana)</a> <span class="badge-sm">P</span><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/pt_051-060_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"><div class="warn-list"><div class="warn-item"><img alt="Large or untelegraphed directional AoE" class="warningIcon" height="16" src="../../assets/pt_051-060_directional.svg" title="Large or untelegraphed directional AoE" width="16"/> <span>directional AoE</span></div><div class="warn-item"><img alt="Large or untelegraphed donut AoE" class="warningIcon" height="16" src="../../assets/pt_051-060_donut.svg" title="Large or untelegraphed donut AoE" width="16"/> <span>donut AoE</span></div><div class="warn-item"><img alt="Large or untelegraphed pointblank AoE" class="warningIcon" height="16" src="../../assets/pt_051-060_pointblank.svg" title="Large or untelegraphed pointblank AoE" width="16"/> <span>pointblank AoE</span></div></div></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:97%"></div><span>363K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:99%"></div><span>9983</span></div></td>
       </tr>
       <tr>
         <td class="col-aggro"><img alt="Sight agro" height="24" src="../../assets/pt_051-060_eye.svg" title="Sight agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-traverse-tawnyclaw">Traverse Tawnyclaw</a></td>
+        <td class="col-name"><a href="#enemy-traverse-tawnyclaw">Traverse Tawnyclaw</a><span class="aggro-inline"><img alt="Sight agro" height="24" src="../../assets/pt_051-060_eye.svg" title="Sight agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>372K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>10K</span></div></td>
@@ -756,7 +780,7 @@
       <tr class="mimic-separator"><td colspan="5">  </td></tr>
       <tr class="mimic-row">
         <td class="col-aggro"><img alt="Proximity agro" height="24" src="../../assets/pt_051-060_radar.svg" title="Proximity agro" width="24"/></td>
-        <td class="col-name"><a href="#enemy-mimic">Mimic</a></td>
+        <td class="col-name"><a href="#enemy-mimic">Mimic</a><span class="aggro-inline"><img alt="Proximity agro" height="24" src="../../assets/pt_051-060_radar.svg" title="Proximity agro" width="24"/></span></td>
         <td class="col-warn"></td>
         <td class="col-hp"><div class="bar-wrap"><div class="bar-bg bar-hp" style="width:100%"></div><span>542K</span></div></td>
         <td class="col-aa"><div class="bar-wrap"><div class="bar-bg bar-aa" style="width:100%"></div><span>10K</span></div></td>
