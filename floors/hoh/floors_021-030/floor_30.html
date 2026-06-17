@@ -94,13 +94,48 @@
   .set-label { color: var(--dim); font-size: 0.88em; margin-bottom: 14px; }
   .nav-links { display: flex; gap: 20px; margin-bottom: 20px; font-size: 0.95em; }
 
+  /* ── Summary table tabs ── */
+  .summary-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 8px 12px 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .summary-tab {
+    padding: 6px 18px;
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    background: transparent;
+    color: var(--normal);
+    font-size: 0.88em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    position: relative;
+    bottom: -1px;
+  }
+  .summary-tab:hover {
+    background: var(--surface);
+    color: var(--bright);
+  }
+  .summary-tab.active {
+    background: var(--surface);
+    color: var(--accent);
+    border-color: var(--border);
+    font-weight: 600;
+  }
+
   /* ── Summary table ── */
   .enemy-summary {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 8px; margin-bottom: 28px; overflow: hidden;
   }
+  .summary-panel { /* panels shown/hidden via [hidden] attr */ }
+
   #summary-start {
-    scroll-margin-top: 16px;
+    scroll-margin-top: 40px;
   }
   .summary-table {
     border-collapse: separate;
@@ -137,6 +172,22 @@
     display: none;
   }
 
+  /* ── Condensed table overrides ── */
+  .condensed-table th.col-warn { width: auto; }
+  /* Condensed: icons only, displayed inline in a single row */
+  .condensed-table td.col-warn { vertical-align: middle; }
+  .condensed-table .warn-icons-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+  }
+  .condensed-table .warn-icons-inline img {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+  }
+
   /* Summary table HP/AA bars */
   .bar-wrap {
     position: relative;
@@ -168,7 +219,7 @@
     white-space: nowrap;
   }
 
-  /* Warning list in summary table */
+  /* Warning list in summary table (full view) */
   .warn-list {
     display: flex;
     flex-direction: column;
@@ -421,6 +472,15 @@
       border-radius: 0;
       overflow: visible;
     }
+
+    /* Keep tab bar visible on mobile */
+    .summary-tabs {
+      border-radius: 8px 8px 0 0;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      background: var(--surface2);
+    }
+
     .summary-table {
       min-width: 0;
       background: transparent;
@@ -428,7 +488,10 @@
     .summary-table thead { display: none; }
     .summary-table,
     .summary-table tbody { display: block; }
-
+    .summary-table tbody {
+      display: block;
+      margin-top: 8px;
+    }
     .summary-table tr {
       display: grid;
       grid-template-columns: auto 1fr;
@@ -482,10 +545,8 @@
     /* HP and AA share a single row side by side */
     .summary-table td.col-hp,
     .summary-table td.col-aa {
-      grid-area: unset; /* remove individual grid-area */
+      grid-area: unset;
     }
-    /* Both HP and AA sit inside a shared flex row via the grid "bars" area.
-       We use a CSS trick: make col-hp start the bars row and col-aa follow it. */
     .summary-table td.col-hp {
       grid-area: bars;
       display: flex;
@@ -494,20 +555,13 @@
       width: 100%;
     }
     .summary-table td.col-aa {
-      /* Pull col-aa into the same visual row as col-hp using negative margin +
-         absolute positioning isn't clean in grid, so we use the approach of
-         hiding col-aa from the grid and rendering its content inside col-hp
-         via a sibling combinator trick — but that needs JS.
-         Instead: give col-aa grid-column span and overlap via subgrid workaround.
-         Cleanest pure-CSS solution: give col-aa the same row, different column. */
-      grid-row: 3;       /* same row as col-hp (bars) */
-      grid-column: 2;    /* right half */
+      grid-row: 3;
+      grid-column: 2;
       display: flex;
       align-items: center;
       gap: 6px;
       width: 100%;
     }
-    /* Re-assign the grid areas more explicitly for the bars row */
     .summary-table tr {
       grid-template-columns: 1fr 1fr;
       grid-template-rows: auto auto auto;
@@ -591,6 +645,29 @@
     .summary-table td.col-warn .warn-item img {
       width: 16px;
       height: 16px;
+    }
+
+    /* Condensed table on mobile: keep it simple — no bars, just name + aggro + icons */
+    .condensed-table tr {
+      grid-template-columns: 1fr auto auto;
+      grid-template-rows: auto;
+      grid-template-areas:
+        "name warn aggro";
+    }
+    .condensed-table td.col-hp,
+    .condensed-table td.col-aa { display: none; }
+    .condensed-table td.col-warn {
+      grid-area: warn;
+      display: flex;
+      align-items: center;
+      border-top: none;
+      margin-top: 0;
+      padding-top: 0;
+    }
+    .condensed-table td.col-warn:empty { display: none; }
+    .condensed-table .warn-icons-inline img {
+      width: 18px;
+      height: 18px;
     }
 
     /* Override the grid layout for the mimic separator row */
@@ -954,6 +1031,31 @@ n/a
 </div>
 
 
+
+<script>
+// Summary table tab switching
+(function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    var tabs = document.querySelectorAll('.summary-tab');
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        tabs.forEach(function(t) {
+          t.classList.remove('active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+
+        document.querySelectorAll('.summary-panel').forEach(function(panel) {
+          panel.hidden = true;
+        });
+        var target = document.getElementById(tab.getAttribute('data-target'));
+        if (target) target.hidden = false;
+      });
+    });
+  });
+})();
+</script>
 
 <script>
 // If we arrived via a bottom-nav arrow (#summary-start in the URL hash),

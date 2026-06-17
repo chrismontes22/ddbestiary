@@ -135,33 +135,71 @@ BOSS_CARD_TEMPLATE = Template(
 SUMMARY_TABLE_TEMPLATE = Template(
     r"""
 <div id="enemy-summary" class="enemy-summary">
-  <table class="summary-table">
-    <thead>
-      <tr>
-        <th class="col-aggro" title="Aggro type">!</th>
-        <th class="col-name">Enemy</th>
-        <th class="col-warn">Warnings</th>
-        <th class="col-hp">HP</th>
-        <th class="col-aa">AA</th>
-      </tr>
-    </thead>
-    <tbody>
-      <span id="summary-start"></span>  <!-- Anchor for the "Back to Summary" button -->
-      {%- for row in rows %}
-      {%- if row.separator %}
-      <tr class="mimic-separator"><td colspan="5">  </td></tr>
-      {%- else %}
-      <tr{% if row.is_mimic %} class="mimic-row"{% endif %}>
-        <td class="col-aggro">{{ row.aggro_html }}</td>
-        <td class="col-name"><a href="#enemy-{{ row.anchor }}">{{ row.name }}</a>{% if row.patrol %} <span class="badge-sm">P</span>{% endif %}<span class="aggro-inline">{{ row.aggro_html }}</span></td>
-        <td class="col-warn">{{ row.warn_icons }}</td>
-        <td class="col-hp">{{ row.hp_html }}</td>
-        <td class="col-aa">{{ row.aa_html }}</td>
-      </tr>
-      {%- endif %}
-      {%- endfor %}
-    </tbody>
-  </table>
+  <!-- Tab bar -->
+  <div class="summary-tabs" role="tablist">
+    <button class="summary-tab active" role="tab" aria-selected="true"
+            data-target="summary-full" id="tab-full">Full</button>
+    <button class="summary-tab" role="tab" aria-selected="false"
+            data-target="summary-condensed" id="tab-condensed">Condensed</button>
+  </div>
+
+  <span id="summary-start"></span>  <!-- Anchor outside both panels -->
+
+  <!-- Full table (default) -->
+  <div id="summary-full" class="summary-panel">
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th class="col-aggro" title="Aggro type">!</th>
+          <th class="col-name">Enemy</th>
+          <th class="col-warn">Warnings</th>
+          <th class="col-hp">HP</th>
+          <th class="col-aa">AA</th>
+        </tr>
+      </thead>
+      <tbody>
+        {%- for row in rows %}
+        {%- if row.separator %}
+        <tr class="mimic-separator"><td colspan="5">  </td></tr>
+        {%- else %}
+        <tr{% if row.is_mimic %} class="mimic-row"{% endif %}>
+          <td class="col-aggro">{{ row.aggro_html }}</td>
+          <td class="col-name"><a href="#enemy-{{ row.anchor }}">{{ row.name }}</a>{% if row.patrol %} <span class="badge-sm">P</span>{% endif %}<span class="aggro-inline">{{ row.aggro_html }}</span></td>
+          <td class="col-warn">{{ row.warn_icons }}</td>
+          <td class="col-hp">{{ row.hp_html }}</td>
+          <td class="col-aa">{{ row.aa_html }}</td>
+        </tr>
+        {%- endif %}
+        {%- endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Condensed table -->
+  <div id="summary-condensed" class="summary-panel" hidden>
+    <table class="summary-table condensed-table">
+      <thead>
+        <tr>
+          <th class="col-aggro" title="Aggro type">!</th>
+          <th class="col-name">Enemy</th>
+          <th class="col-warn">Warnings</th>
+        </tr>
+      </thead>
+      <tbody>
+        {%- for row in rows %}
+        {%- if row.separator %}
+        <tr class="mimic-separator"><td colspan="3">  </td></tr>
+        {%- else %}
+        <tr{% if row.is_mimic %} class="mimic-row"{% endif %}>
+          <td class="col-aggro">{{ row.aggro_html }}</td>
+          <td class="col-name"><a href="#enemy-{{ row.anchor }}">{{ row.name }}</a>{% if row.patrol %} <span class="badge-sm">P</span>{% endif %}<span class="aggro-inline">{{ row.aggro_html }}</span></td>
+          <td class="col-warn">{{ row.warn_icons_condensed }}</td>
+        </tr>
+        {%- endif %}
+        {%- endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 """
 )
@@ -226,6 +264,31 @@ PAGE_TEMPLATE = Template(
 {% endif %}
 
 <script>
+// Summary table tab switching
+(function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    var tabs = document.querySelectorAll('.summary-tab');
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        tabs.forEach(function(t) {
+          t.classList.remove('active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+
+        document.querySelectorAll('.summary-panel').forEach(function(panel) {
+          panel.hidden = true;
+        });
+        var target = document.getElementById(tab.getAttribute('data-target'));
+        if (target) target.hidden = false;
+      });
+    });
+  });
+})();
+</script>
+
+<script>
 // If we arrived via a bottom-nav arrow (#summary-start in the URL hash),
 // scroll to #summary-start once the page is ready.
 (function() {
@@ -249,6 +312,8 @@ PAGE_TEMPLATE = Template(
 # MODIFIED:
 #   - #summary-start gets scroll-margin-top so it lands correctly
 #   - Mobile HP/AA bars are placed side-by-side in one row
+#   - Added tab styles for Full / Condensed summary toggle
+#   - Condensed table hides HP/AA columns
 PAGE_CSS = """<style>
   :root {
     --bg:       #121212;
@@ -338,13 +403,48 @@ PAGE_CSS = """<style>
   .set-label { color: var(--dim); font-size: 0.88em; margin-bottom: 14px; }
   .nav-links { display: flex; gap: 20px; margin-bottom: 20px; font-size: 0.95em; }
 
+  /* ── Summary table tabs ── */
+  .summary-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 8px 12px 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .summary-tab {
+    padding: 6px 18px;
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    background: transparent;
+    color: var(--normal);
+    font-size: 0.88em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    position: relative;
+    bottom: -1px;
+  }
+  .summary-tab:hover {
+    background: var(--surface);
+    color: var(--bright);
+  }
+  .summary-tab.active {
+    background: var(--surface);
+    color: var(--accent);
+    border-color: var(--border);
+    font-weight: 600;
+  }
+
   /* ── Summary table ── */
   .enemy-summary {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 8px; margin-bottom: 28px; overflow: hidden;
   }
+  .summary-panel { /* panels shown/hidden via [hidden] attr */ }
+
   #summary-start {
-    scroll-margin-top: 16px;
+    scroll-margin-top: 40px;
   }
   .summary-table {
     border-collapse: separate;
@@ -381,6 +481,22 @@ PAGE_CSS = """<style>
     display: none;
   }
 
+  /* ── Condensed table overrides ── */
+  .condensed-table th.col-warn { width: auto; }
+  /* Condensed: icons only, displayed inline in a single row */
+  .condensed-table td.col-warn { vertical-align: middle; }
+  .condensed-table .warn-icons-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+  }
+  .condensed-table .warn-icons-inline img {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+  }
+
   /* Summary table HP/AA bars */
   .bar-wrap {
     position: relative;
@@ -412,7 +528,7 @@ PAGE_CSS = """<style>
     white-space: nowrap;
   }
 
-  /* Warning list in summary table */
+  /* Warning list in summary table (full view) */
   .warn-list {
     display: flex;
     flex-direction: column;
@@ -665,6 +781,15 @@ PAGE_CSS = """<style>
       border-radius: 0;
       overflow: visible;
     }
+
+    /* Keep tab bar visible on mobile */
+    .summary-tabs {
+      border-radius: 8px 8px 0 0;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      background: var(--surface2);
+    }
+
     .summary-table {
       min-width: 0;
       background: transparent;
@@ -672,7 +797,10 @@ PAGE_CSS = """<style>
     .summary-table thead { display: none; }
     .summary-table,
     .summary-table tbody { display: block; }
-
+    .summary-table tbody {
+      display: block;
+      margin-top: 8px;
+    }
     .summary-table tr {
       display: grid;
       grid-template-columns: auto 1fr;
@@ -726,10 +854,8 @@ PAGE_CSS = """<style>
     /* HP and AA share a single row side by side */
     .summary-table td.col-hp,
     .summary-table td.col-aa {
-      grid-area: unset; /* remove individual grid-area */
+      grid-area: unset;
     }
-    /* Both HP and AA sit inside a shared flex row via the grid "bars" area.
-       We use a CSS trick: make col-hp start the bars row and col-aa follow it. */
     .summary-table td.col-hp {
       grid-area: bars;
       display: flex;
@@ -738,20 +864,13 @@ PAGE_CSS = """<style>
       width: 100%;
     }
     .summary-table td.col-aa {
-      /* Pull col-aa into the same visual row as col-hp using negative margin +
-         absolute positioning isn't clean in grid, so we use the approach of
-         hiding col-aa from the grid and rendering its content inside col-hp
-         via a sibling combinator trick — but that needs JS.
-         Instead: give col-aa grid-column span and overlap via subgrid workaround.
-         Cleanest pure-CSS solution: give col-aa the same row, different column. */
-      grid-row: 3;       /* same row as col-hp (bars) */
-      grid-column: 2;    /* right half */
+      grid-row: 3;
+      grid-column: 2;
       display: flex;
       align-items: center;
       gap: 6px;
       width: 100%;
     }
-    /* Re-assign the grid areas more explicitly for the bars row */
     .summary-table tr {
       grid-template-columns: 1fr 1fr;
       grid-template-rows: auto auto auto;
@@ -835,6 +954,29 @@ PAGE_CSS = """<style>
     .summary-table td.col-warn .warn-item img {
       width: 16px;
       height: 16px;
+    }
+
+    /* Condensed table on mobile: keep it simple — no bars, just name + aggro + icons */
+    .condensed-table tr {
+      grid-template-columns: 1fr auto auto;
+      grid-template-rows: auto;
+      grid-template-areas:
+        "name warn aggro";
+    }
+    .condensed-table td.col-hp,
+    .condensed-table td.col-aa { display: none; }
+    .condensed-table td.col-warn {
+      grid-area: warn;
+      display: flex;
+      align-items: center;
+      border-top: none;
+      margin-top: 0;
+      padding-top: 0;
+    }
+    .condensed-table td.col-warn:empty { display: none; }
+    .condensed-table .warn-icons-inline img {
+      width: 18px;
+      height: 18px;
     }
 
     /* Override the grid layout for the mimic separator row */
@@ -1142,7 +1284,7 @@ def format_warnings(warn_html: str, fix) -> str:
 
 
 def format_warnings_for_summary(warn_html: str, fix) -> str:
-    """Icons with text labels, stacked vertically for readability in summary table."""
+    """Icons with text labels, stacked vertically for readability in the full summary table."""
     if not warn_html.strip():
         return ""
     fixed = fix(warn_html)
@@ -1165,9 +1307,39 @@ def format_warnings_for_summary(warn_html: str, fix) -> str:
     return f'<div class="warn-list">{"".join(parts)}</div>'
 
 
+def format_warnings_condensed(warn_html: str, fix) -> str:
+    """Icons only (no text), displayed inline, for the condensed summary table."""
+    if not warn_html.strip():
+        return ""
+    fixed = fix(warn_html)
+    soup = BeautifulSoup(fixed, "html.parser")
+    parts = []
+    for img in soup.find_all("img"):
+        src = img.get("src", "")
+        key = stem(src)
+        # Resolve tooltip text for the title attribute so hovering still gives info
+        if "idle_gaze" in src:
+            tooltip = WARNING_TEXT["idle_gaze"]
+        elif key in WARNING_TEXT:
+            tooltip = WARNING_TEXT[key]
+        else:
+            tooltip = (
+                img.get("title", "")
+                or img.get("alt", "")
+            ).replace(" ability", "").replace("Large or untelegraphed ", "").strip()
+        # Override title so the browser native tooltip shows on hover
+        img["title"] = tooltip
+        img["alt"] = tooltip
+        parts.append(str(img))
+    return f'<div class="warn-icons-inline">{"".join(parts)}</div>'
+
+
 # ── Card / table builders ─────────────────────────────────────────────────────
 def build_summary_table(floor_enemies, floor_num, fix, fix_val):
     """Compact overview table at the top of an enemy floor page.
+
+    Renders two panels — Full (with HP/AA bars and warning text) and Condensed
+    (name + aggro icon + warning icons only) — switchable via a tab bar.
 
     Bar fill is calculated relative to the max value of the enemies *above*
     the mimic separator line.  Enemies below the line (mimics and anything
@@ -1176,16 +1348,13 @@ def build_summary_table(floor_enemies, floor_num, fix, fix_val):
     """
 
     # ── Determine which enemies are "above" vs "below" the mimic line ──────
-    # The first mimic encountered marks the boundary.
     first_mimic_idx = next(
         (i for i, e in enumerate(floor_enemies) if "mimic" in e["name"].lower()),
-        len(floor_enemies),   # sentinel: no mimic → all enemies are "above"
+        len(floor_enemies),
     )
 
     above_enemies = floor_enemies[:first_mimic_idx]
-    below_enemies = floor_enemies[first_mimic_idx:]
 
-    # Reference maxima come solely from the above-the-line group.
     ref_max_hp = max((parse_number(e["hp"]) for e in above_enemies), default=1) or 1
     ref_max_aa = max((parse_number(e["aa"]) for e in above_enemies), default=1) or 1
 
@@ -1214,12 +1383,12 @@ def build_summary_table(floor_enemies, floor_num, fix, fix_val):
             aggro_html = str(ai)
 
         warn_icons = format_warnings_for_summary(enemy["warn_html"], fix)
+        warn_icons_condensed = format_warnings_condensed(enemy["warn_html"], fix)
         is_patrol = floor_num in enemy["patrol"]
 
         hp_html = make_bar(enemy["hp"], ref_max_hp, "bar-hp")
         aa_html = make_bar(enemy["aa"], ref_max_aa, "bar-aa")
 
-        # Insert a dedicated separator row before the first mimic
         if is_mimic:
             rows.append({"separator": True})
 
@@ -1228,6 +1397,7 @@ def build_summary_table(floor_enemies, floor_num, fix, fix_val):
             "name": name_txt,
             "aggro_html": aggro_html,
             "warn_icons": warn_icons,
+            "warn_icons_condensed": warn_icons_condensed,
             "patrol": is_patrol,
             "is_mimic": is_mimic,
             "hp_html": hp_html,
